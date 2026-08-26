@@ -1,42 +1,47 @@
-import React, { createContext, useState, useContext, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 
 const AuthContext = createContext({});
 
-export const AuthProvider = ({ children }) => {
+export function AuthProvider({ children }) {
   const [usuario, setUsuario] = useState(null);
+  const [carregando, setCarregando] = useState(true);
 
-  // Simula a verificação de sessão ao carregar o app
   useEffect(() => {
-    const usuarioSalvo = localStorage.getItem('usuarioLogado');
+    // Restaura a sessão do localStorage/IndexedDB ao carregar o app
+    const usuarioSalvo = localStorage.getItem('obravoz_user');
     if (usuarioSalvo) {
-      setUsuario(JSON.parse(usuarioSalvo));
+      try {
+        setUsuario(JSON.parse(usuarioSalvo));
+      } catch (e) {
+        localStorage.removeItem('obravoz_user');
+      }
     }
+    setCarregando(false);
   }, []);
 
-  const login = (email) => {
-    // Busca na nossa "base" do LocalStorage
-    const usuarios = JSON.parse(localStorage.getItem('usuariosObra')) || [];
-    const userFound = usuarios.find(u => u.email === email);
-
-    if (userFound) {
-      setUsuario(userFound);
-      localStorage.setItem('usuarioLogado', JSON.stringify(userFound));
-      return true;
+  const login = async (email, senha) => {
+    // TODO: Substituir pela chamada real da sua API/Supabase
+    // Ex: const { data, error } = await supabase.auth.signInWithPassword({ email, password: senha })
+    
+    if (email && senha) {
+      const dadosUsuario = { email, nome: email.split('@')[0], token: 'fake-jwt-token' };
+      setUsuario(dadosUsuario);
+      localStorage.setItem('obravoz_user', JSON.stringify(dadosUsuario));
+      return { sucesso: true };
     }
-    return false;
+    return { sucesso: false, erro: 'Credenciais inválidas' };
   };
 
   const logout = () => {
     setUsuario(null);
-    localStorage.removeItem('usuarioLogado');
+    localStorage.removeItem('obravoz_user');
   };
 
   return (
-    <AuthContext.Provider value={{ usuario, login, logout, isEditor: usuario?.permissao === 'editor' }}>
+    <AuthContext.Provider value={{ usuario, logado: !!usuario, login, logout, carregando }}>
       {children}
     </AuthContext.Provider>
   );
-};
+}
 
-// Hook personalizado para facilitar o uso
 export const useAuth = () => useContext(AuthContext);
