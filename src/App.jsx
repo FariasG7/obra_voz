@@ -24,12 +24,6 @@ export default function App() {
     </AuthProvider>
   );
 }
-
-
-
-// --- COMPONENTE PRINCIPAL ---
-function MainContent() {
-  const { usuario, logout } = useAuth(); // Usando o hook do seu Contexto
   
   // --- ESTADOS DE DADOS ---
   const [texto, setTexto] = useState(() => localStorage.getItem('diario_texto') || '');
@@ -410,17 +404,8 @@ yAtual = doc.lastAutoTable.finalY + 15;
       )}
 
       <button className="btn-finalizar" onClick={gerarPDF}>
-        <FaRegFilePdf /> Gerar Relatório
-      </button>
 
-      <button onClick={logout} className="btn-sair">
-        <FaSignOutAlt /> Sair
-      </button>
-    </main>
-  </div>
-);
-
-}
+      
 
 // --- EXPORT PRINCIPAL COM PROVIDER ---
 export default function App() {
