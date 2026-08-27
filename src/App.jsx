@@ -26,35 +26,6 @@ export default function App() {
 }
 
 
-// --- COMPONENTE DE LOGIN ---
-function Login({ onLogin }) {
-  const [email, setEmail] = useState('');
-  const [senha, setSenha] = useState('');
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    // Aqui você integraria com sua API ou AuthContext
-    // Por enquanto, simulando validação simples
-    if (email && senha) {
-      onLogin(true);
-    } else {
-      alert("Preencha os campos corretamente.");
-    }
-  };
-
-  return (
-    <div className="login-container">
-      <div className="login-box">
-        <h1>🏗️ ObraVoz</h1>
-        <form className="login-form" onSubmit={handleSubmit}>
-          <input className="login-input" type="email" placeholder="E-mail" value={email} onChange={e => setEmail(e.target.value)} required />
-          <input className="login-input" type="password" placeholder="Senha" value={senha} onChange={e => setSenha(e.target.value)} required />
-          <button type="submit" className="btn-login">Entrar</button>
-        </form>
-      </div>
-    </div>
-  );
-}
 
 // --- COMPONENTE PRINCIPAL ---
 function MainContent() {
