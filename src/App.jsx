@@ -119,12 +119,12 @@ function MainContent() {
     setLinhasCofragem(prev => 
       prev.map((linha, idx) => idx === index ? { ...linha, [campo]: valor } : linha)
     );
-  } else if (tabela === 'betao') {
+    } else if (tabela === 'betao') {
     setLinhasBetao(prev => 
       prev.map((linha, idx) => idx === index ? { ...linha, [campo]: valor } : linha)
     );
-  }
-};
+   }
+  };
 
 
   const gerarPDF = () => {
