@@ -132,6 +132,7 @@ function MainContent() {
   };
 
   // --- GERADOR DE PDF ---
+    // --- GERADOR DE PDF ---
   const gerarPDF = () => {
     try {
       setStatus("⏳ Gerando PDF...");
@@ -228,13 +229,27 @@ function MainContent() {
         });
       }
 
-      doc.save(`Relatorio_ObraVoz_${Date.now()}.pdf`);
+      // --- CORREÇÃO DO DOWNLOAD NO IOS/SAFARI ---
+      const blob = doc.output('blob');
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      
+      link.href = url;
+      link.download = `Relatorio_ObraVoz_${Date.now()}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      
+      // Limpeza de recursos
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+
       setStatus("✅ PDF Pronto!");
     } catch (err) {
       console.error("Erro no PDF:", err);
       setStatus("❌ Erro no PDF");
     }
   };
+
 
   return (
     <div className="container">
