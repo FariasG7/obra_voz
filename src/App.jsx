@@ -24,25 +24,3 @@ export default function App() {
     </AuthProvider>
   );
 }
-
-// --- EXPORT PRINCIPAL COM PROVIDER ---
-export default function App() {
-  return (
-    <AuthProvider>
-      <AuthConsumer />
-    </AuthProvider>
-  );
-}
-
-function AuthConsumer() {
-  const { logado, login } = useAuth(); // Supondo que seu AuthContext tenha esses valores
-  // Se não tiver, você pode usar um estado local:
-  const [estaLogado, setEstaLogado] = useState(() => localStorage.getItem('app_logado') === 'true');
-
-  const handleLogin = (val) => {
-    setEstaLogado(val);
-    localStorage.setItem('app_logado', val);
-  };
-
-  return estaLogado ? <MainContent /> : <Login onLogin={handleLogin} />;
-}
