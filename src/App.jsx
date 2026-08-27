@@ -1,3 +1,4 @@
+/*
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable"; // <--- Importa a função diretamente
@@ -22,5 +23,17 @@ export default function App() {
     <AuthProvider>
       <Roteador />
     </AuthProvider>
+  );
+}
+
+*/
+
+import React from 'react';
+
+export default function App() {
+  return (
+    <div style={{ padding: 20, textAlign: 'center' }}>
+      <h1>ObraVoz está funcionando!</h1>
+    </div>
   );
 }
