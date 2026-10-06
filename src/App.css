@@ -23,7 +23,7 @@ body {
   color: #fff;
 }
 
-/* --- 2. LAYOUT PRINCIPAL E RESPONSIVO --- */
+/* --- 2. LAYOUT --- */
 .container { 
   min-height: 100vh; 
   padding-bottom: 30px; 
@@ -44,11 +44,10 @@ body {
   font-size: 1.4rem; 
 }
 
-/* Alarga a área de conteúdo para iPad / Desktop (até 800px) */
 .content { 
   padding: 15px; 
   width: 100%;
-  max-width: 800px; 
+  max-width: 700px; 
   margin: 0 auto; 
 }
 
@@ -60,7 +59,7 @@ body {
   border: 1px solid #2C2C2C;
 }
 
-/* --- 3. INPUTS E CAMPOS DE TEXTO --- */
+/* --- 3. INPUTS E TEXTAREA --- */
 .textarea { 
   width: 100%; 
   height: 160px; 
@@ -75,27 +74,22 @@ body {
   margin-bottom: 15px;
 }
 
-.textarea:focus {
-  border-color: var(--blue-primary);
-}
-
-/* --- 4. SELETORES E CABEÇALHOS DE MEDIÇÃO --- */
+/* --- 4. LINHA DE MEDIÇÕES (FUNDO ESCURO ORIGINAL) --- */
 .seletor-medicao-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 15px;
-  gap: 10px;
 }
 
 .header-medicao-acoes {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
 }
 
 .select-tipo-medicao {
-  background-color: #2563eb;
+  background-color: var(--blue-primary);
   color: white;
   padding: 8px 14px;
   border-radius: 8px;
@@ -106,29 +100,213 @@ body {
 }
 
 .btn-add-icon {
-  background-color: #10b981;
+  background-color: #2ecc71;
   color: white;
   border: none;
-  padding: 9px 14px;
+  width: 36px;
+  height: 36px;
   border-radius: 8px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.9rem;
-}
-
-.btn-add-icon:hover {
-  background-color: #059669;
-}
-
-/* --- 5. ESTRUTURA DE MEDIÇÃO (ROW-INPUTS) --- */
-.medicoes-scroll-container {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  width: 100%;
+  font-size: 1rem;
 }
 
 .row-inputs { 
+  display: flex; 
+  flex-direction: row;
+  gap: 6px;
+  margin-bottom: 10px; 
+  align-items: center;
+  width: 100%;
+}
+
+.select-elemento {
+  flex: 2.2;
+  background: #333 !important; 
+  border: 1px solid #444 !important; 
+  color: #fff !important;
+  padding: 10px 5px; 
+  border-radius: 6px; 
+  font-size: 13px;
+  outline: none;
+  height: 42px;
+}
+
+.row-inputs input {
+  flex: 1;
+  background: #333 !important; 
+  border: 1px solid #444 !important; 
+  color: #fff !important;
+  padding: 10px 4px; 
+  border-radius: 6px; 
+  font-size: 13px;
+  text-align: center;
+  min-width: 0;
+  outline: none;
+  height: 42px;
+}
+
+.row-inputs .btn-delete {
+  background: #333 !important;
+  border: 1px solid #444 !important;
+  color: var(--red) !important;
+  padding: 10px;
+  border-radius: 6px;
+  cursor: pointer;
   display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 42px;
+  width: 42px;
+  flex: 0 0 42px;
+}
+
+/* --- 5. BOTÕES REDONDOS CIRCULARES (RESTAURADOS) --- */
+.acoes {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 25px;
+  padding: 20px 0 10px;
+  background: transparent !important;
+}
+
+.icon-btn {
+  cursor: pointer;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--icon-size);
+  height: var(--icon-size);
+  border-radius: 50% !important;
+  border: none;
+  background: transparent !important;
+  overflow: hidden;
+  color: white;
+  font-size: 22px;
+}
+
+.icon-btn::before, .icon-btn::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; height: 100%; width: 100%;
+  transition: all 0.25s ease;
+  border-radius: 50%;
+  z-index: 0;
+}
+
+.icon-btn svg { 
+  position: relative; 
+  z-index: 2; 
+}
+
+/* Microfone (Verde) */
+.btn-mic::before { box-shadow: inset 0 0 0 1px var(--green); }
+.btn-mic:hover::before { box-shadow: inset 0 0 0 var(--icon-size) var(--green); }
+
+/* Câmera (Laranja) */
+.btn-cam::after { box-shadow: inset 0 0 0 1px var(--orange); }
+.btn-cam::before { border-radius: 0; margin-left: -100%; box-shadow: inset 0 0 0 var(--icon-size) var(--orange); }
+.btn-cam:hover::before { margin-left: 0; }
+
+/* Anexo (Vermelho) */
+.btn-clip::after { box-shadow: inset 0 0 0 1px var(--red); }
+.btn-clip::before { background: var(--red); box-shadow: inset 0 0 0 var(--icon-size) #1E1E1E; }
+.btn-clip:hover::before { box-shadow: inset 0 0 0 1px #1E1E1E; }
+
+.recording { 
+  animation: pulsar 1.5s infinite;
+  background-color: var(--red) !important;
+}
+
+@keyframes pulsar {
+  0% { box-shadow: 0 0 0 0px rgba(231, 76, 60, 0.4); }
+  100% { box-shadow: 0 0 0 15px rgba(231, 76, 60, 0); }
+}
+
+/* --- 6. GALERIA DE FOTOS --- */
+.galeria-preview {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 15px 0 5px;
+}
+
+.foto-item {
+  position: relative;
+  width: 100px;
+  height: 100px;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+}
+
+.foto-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.btn-remover-foto {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  background: rgba(200, 38, 71, 0.9);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 22px;
+  height: 22px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+/* --- 7. BOTÃO GERAR PDF E SAIR --- */
+.btn-finalizar {
+  width: 100%; 
+  background: linear-gradient(135deg, var(--blue-primary) 0%, #005BBF 100%) !important;
+  color: white !important; 
+  font-size: 16px; 
+  padding: 18px; 
+  border-radius: 15px;
+  border: none; 
+  font-weight: bold; 
+  text-transform: uppercase;
+  box-shadow: 0 4px 15px rgba(0, 122, 255, 0.3); 
+  cursor: pointer;
+  display: block;
+}
+
+.btn-sair { 
+  background: none !important; 
+  border: none !important; 
+  color: #777 !important; 
+  width: 100%; 
+  margin-top: 20px; 
+  cursor: pointer; 
+  font-size: 0.95rem;
+  text-align: center;
+  display: block;
+  text-decoration: none;
+}
+
+.btn-sair:hover {
+  color: #aaa !important;
+}
+
+.clima-badge { 
+  font-size: 11px; 
+  background: rgba(74, 144, 226, 0.1); 
+  color: var(--blue-light); 
+  padding: 4px 10px; 
+  border-radius: 10px; 
+  margin-top: 5px; 
+  display: inline-block; 
+}
