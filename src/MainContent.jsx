@@ -7,9 +7,8 @@ import {
   FaCamera, 
   FaPaperclip, 
   FaRegFilePdf, 
-  FaPlus, 
-  FaSignOutAlt, 
-  FaTrash 
+  FaTrash,
+  FaSignOutAlt
 } from 'react-icons/fa';
 import { useAuth } from './context/AuthContext';
 
@@ -21,23 +20,17 @@ function MainContent() {
   const [fotos, setFotos] = useState([]);
   
   // Seletor de Tipo (Cofragem ou Betão)
-  const [tipoMedicao, setTipoMedicao] = useState('cofragem'); // 'cofragem' ou 'betao'
+  const [tipoMedicao, setTipoMedicao] = useState('cofragem'); 
 
   // Lista única de medições
   const [medicoes, setMedicoes] = useState(() => {
     try { 
-      return JSON.parse(localStorage.getItem('diario_medicoes')) || []; 
+      return JSON.parse(localStorage.getItem('diario_medicoes')) || [
+        { id: 1, tipo: 'cofragem', nome: '', largura: '', altura: '', comprimento: '' }
+      ]; 
     } catch { 
-      return []; 
+      return [{ id: Date.now(), tipo: 'cofragem', nome: '', largura: '', altura: '', comprimento: '' }]; 
     }
-  });
-
-  // Campos do formulário atual de medição
-  const [novaMedicao, setNovaMedicao] = useState({
-    nome: '',
-    largura: '',
-    altura: '',
-    comprimento: ''
   });
 
   const [status, setStatus] = useState('Aguardando...');
@@ -127,25 +120,22 @@ function MainContent() {
     setFotos(prev => prev.filter((_, i) => i !== index));
   };
 
-  // --- ADICIONAR E REMOVER MEDIÇÕES ---
-  const adicionarMedicao = () => {
-    if (!novaMedicao.nome && !novaMedicao.comprimento) return;
-
-    const item = {
-      id: Date.now(),
-      tipo: tipoMedicao,
-      nome: novaMedicao.nome || (tipoMedicao === 'cofragem' ? 'Peça Cofragem' : 'Elemento Betão'),
-      largura: novaMedicao.largura || '0',
-      altura: novaMedicao.altura || '0',
-      comprimento: novaMedicao.comprimento || '0'
-    };
-
-    setMedicoes(prev => [...prev, item]);
-    setNovaMedicao({ nome: '', largura: '', altura: '', comprimento: '' });
+  // --- MANIPULAÇÃO DE MEDIÇÕES ---
+  const adicionarLinhaMedicao = () => {
+    setMedicoes(prev => [
+      ...prev,
+      { id: Date.now(), tipo: tipoMedicao, nome: '', largura: '', altura: '', comprimento: '' }
+    ]);
   };
 
-  const removerMedicao = (id) => {
-    setMedicoes(prev => prev.filter(m => m.id !== id));
+  const atualizarMedicao = (id, campo, valor) => {
+    setMedicoes(prev =>
+      prev.map(item => item.id === id ? { ...item, [campo]: valor } : item)
+    );
+  };
+
+  const removerLinhaMedicao = (id) => {
+    setMedicoes(prev => prev.filter(item => item.id !== id));
   };
 
   // --- GERADOR DE PDF ---
@@ -176,15 +166,15 @@ function MainContent() {
 
       let yAtual = 45 + (textSplit.length * 7) + 10;
 
-      const linhasCofragem = medicoes.filter(m => m.tipo === 'cofragem');
-      const linhasBetao = medicoes.filter(m => m.tipo === 'betao');
+      const linhasCofragem = medicoes.filter(m => m.tipo === 'cofragem' && (m.nome || m.comprimento || m.largura || m.altura));
+      const linhasBetao = medicoes.filter(m => m.tipo === 'betao' && (m.nome || m.comprimento || m.largura || m.altura));
 
       if (linhasCofragem.length > 0) {
         doc.setFontSize(12);
         doc.setTextColor(0, 102, 204);
         doc.text("COFRAGEM (m²)", 15, yAtual);
         
-        const dadosCofragem = linhasCofragem.map(l => [l.nome, l.largura, l.altura, l.comprimento]);
+        const dadosCofragem = linhasCofragem.map(l => [l.nome || '-', l.largura || '0', l.altura || '0', l.comprimento || '0']);
         autoTable(doc, {
           startY: yAtual + 5,
           head: [['Peça', 'Largura (m)', 'Altura (m)', 'Comprimento (m)']],
@@ -201,7 +191,7 @@ function MainContent() {
         doc.setTextColor(40, 167, 69);
         doc.text("BETÃO (m³)", 15, yAtual);
 
-        const dadosBetao = linhasBetao.map(l => [l.nome, l.largura, l.altura, l.comprimento]);
+        const dadosBetao = linhasBetao.map(l => [l.nome || '-', l.largura || '0', l.altura || '0', l.comprimento || '0']);
         autoTable(doc, {
           startY: yAtual + 5,
           head: [['Elemento', 'Largura (m)', 'Altura (m)', 'Comprimento (m)']],
@@ -272,6 +262,7 @@ function MainContent() {
       </header>
 
       <main className="content">
+        {/* CARD DO RELATO E FOTOS */}
         <div className="card">
           <textarea 
             value={texto} 
@@ -280,13 +271,13 @@ function MainContent() {
             className="textarea" 
           />
 
-          <div className="acoes-gravacao">
+          <div className="acoes">
             <button 
               onClick={alternarGravacao} 
               className={`icon-btn btn-mic ${gravando ? 'recording' : ''}`}
               title="Gravar por voz"
             >
-              <FaMicrophone /> {gravando ? 'Gravando...' : 'Gravar Voz'}
+              <FaMicrophone />
             </button>
 
             <label className="icon-btn btn-cam" title="Tirar foto">
@@ -298,8 +289,6 @@ function MainContent() {
               <FaPaperclip />
               <input type="file" accept="image/*" multiple onChange={handleFoto} hidden />
             </label>
-
-            <span className="status-badge">{status}</span>
           </div>
 
           {fotos.length > 0 && (
@@ -314,9 +303,10 @@ function MainContent() {
           )}
         </div>
 
-        <div className="card">
+        {/* CARD DAS MEDIÇÕES */}
+        <div className="card" style={{ marginTop: '20px' }}>
           <div className="seletor-medicao-header">
-            <h3>Medições da Obra:</h3>
+            <h3>Medições:</h3>
             <select 
               value={tipoMedicao} 
               onChange={(e) => setTipoMedicao(e.target.value)}
@@ -327,76 +317,56 @@ function MainContent() {
             </select>
           </div>
 
-          <div className="linha-input-medicao">
-            <input 
-              className="input-peca" 
-              placeholder={tipoMedicao === 'cofragem' ? "Peça (Ex: P1, Pilar)" : "Elemento (Ex: Laje 1)"} 
-              value={novaMedicao.nome} 
-              onChange={e => setNovaMedicao({...novaMedicao, nome: e.target.value})}
-            />
-            
-            <div className="inputs-medidas">
-              <div className="campo-container">
-                <label>L</label>
-                <input 
-                  type="number" 
-                  placeholder="m" 
-                  value={novaMedicao.largura} 
-                  onChange={e => setNovaMedicao({...novaMedicao, largura: e.target.value})} 
-                />
-              </div>
-              <div className="campo-container">
-                <label>A</label>
-                <input 
-                  type="number" 
-                  placeholder="m" 
-                  value={novaMedicao.altura} 
-                  onChange={e => setNovaMedicao({...novaMedicao, altura: e.target.value})} 
-                />
-              </div>
-              <div className="campo-container">
-                <label>C</label>
-                <input 
-                  type="number" 
-                  placeholder="m" 
-                  value={novaMedicao.comprimento} 
-                  onChange={e => setNovaMedicao({...novaMedicao, comprimento: e.target.value})} 
-                />
-              </div>
-              
-              <button onClick={adicionarMedicao} className="btn-add" title="Adicionar Medição">
-                <FaPlus />
+          {medicoes.map((item) => (
+            <div key={item.id} className="row-inputs">
+              <input 
+                type="text" 
+                placeholder="Elemento/Peça" 
+                value={item.nome}
+                onChange={(e) => atualizarMedicao(item.id, 'nome', e.target.value)}
+              />
+              <input 
+                type="number" 
+                placeholder="L" 
+                value={item.largura}
+                onChange={(e) => atualizarMedicao(item.id, 'largura', e.target.value)}
+              />
+              <input 
+                type="number" 
+                placeholder="A" 
+                value={item.altura}
+                onChange={(e) => atualizarMedicao(item.id, 'altura', e.target.value)}
+              />
+              <input 
+                type="number" 
+                placeholder="C" 
+                value={item.comprimento}
+                onChange={(e) => atualizarMedicao(item.id, 'comprimento', e.target.value)}
+              />
+              <button 
+                type="button" 
+                className="btn-delete"
+                onClick={() => removerLinhaMedicao(item.id)}
+                title="Apagar Linha"
+              >
+                <FaTrash size={14} />
               </button>
             </div>
-          </div>
+          ))}
 
-          {medicoes.length > 0 && (
-            <div className="lista-medicoes-registadas">
-              <h4>Registos Adicionados ({medicoes.length}):</h4>
-              {medicoes.map((m) => (
-                <div key={m.id} className={`item-medicao-linha ${m.tipo}`}>
-                  <span className="badge-tipo">
-                    {m.tipo === 'cofragem' ? '📐 Cofragem' : '🧱 Betão'}
-                  </span>
-                  <span className="info-medicao">
-                    <strong>{m.nome}</strong> — L: {m.largura}m | A: {m.altura}m | C: {m.comprimento}m
-                  </span>
-                  <button className="btn-remover-linha" onClick={() => removerMedicao(m.id)}>
-                    <FaTrash size={14} />
-                  </button>
-                </div>
-              ))}
-            </div>
-          )}
+          <button onClick={adicionarLinhaMedicao} className="btn-add">
+            + Adicionar Medição
+          </button>
         </div>
 
-        <div className="acoes-finais">
+        {/* BOTÕES FINAIS */}
+        <div style={{ marginTop: '20px' }}>
           <button className="btn-finalizar" onClick={gerarPDF}>
-            <FaRegFilePdf /> Gerar Relatório PDF
+            <FaRegFilePdf style={{ marginRight: '8px' }} /> Gerar Relatório PDF
           </button>
 
           <button onClick={logout} className="btn-sair">
-            <FaSignOutAlt /> Sair
+            <FaSignOutAlt style={{ marginRight: '5px' }} /> Sair da Conta
           </button>
         </div>
       </main>
