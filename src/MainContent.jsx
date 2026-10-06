@@ -268,7 +268,22 @@ function MainContent() {
   };
   **/
 
-    // --- GERADOR DE PDF ---
+    // --- LIMPEZA DOS CAMPOS ---
+  const limparFormulario = () => {
+    // Reseta os estados do React
+    setTexto('');
+    setFotos([]);
+    const medicaoInicial = [
+      { id: Date.now(), tipo: tipoMedicao, nome: 'Pilar', quantidade: 1, largura: '', altura: '', comprimento: '' }
+    ];
+    setMedicoes(medicaoInicial);
+
+    // Reseta o localStorage
+    localStorage.removeItem('diario_texto');
+    localStorage.setItem('diario_medicoes', JSON.stringify(medicaoInicial));
+  };
+
+  // --- GERADOR DE PDF ---
   const gerarPDF = () => {
     try {
       setStatus("⏳ Gerando PDF...");
@@ -390,38 +405,20 @@ function MainContent() {
       const dataHoje = new Date().toISOString().slice(0, 10);
       const nomeArquivo = `Relatorio_ObraVoz_${dataHoje}.pdf`;
 
-      // 1. ABRIR EM NOVA ABA (Blob URL) & SALVAR DIRECTO
-      const pdfBlob = doc.output('blob');
-      const blobUrl = URL.createObjectURL(pdfBlob);
-      window.open(blobUrl, '_blank');
-
-      // Também dispara o download diretamente
+      // 1. APENAS SALVA/DOWNLOADS AUTOMÁTICO (sem navegar para fora do app)
       doc.save(nomeArquivo);
 
-      // 2. LIMPAR FORMULÁRIO E LOCALSTORAGE APÓS GERAR
+      // 2. LIMPAR CAMPOS E LOCALSTORAGE APÓS GERAR
       limparFormulario();
 
-      setStatus("✅ PDF Gerado e Dados Limpos!");
+      setStatus("✅ PDF Baixado e Dados Limpos!");
     } catch (err) {
       console.error("Erro no PDF:", err);
       setStatus("❌ Erro no PDF");
     }
   };
 
-  // --- LIMPEZA DOS CAMPOS ---
-  const limparFormulario = () => {
-    // Reseta os estados do React
-    setTexto('');
-    setFotos([]);
-    const medicaoInicial = [
-      { id: Date.now(), tipo: tipoMedicao, nome: 'Pilar', quantidade: 1, largura: '', altura: '', comprimento: '' }
-    ];
-    setMedicoes(medicaoInicial);
 
-    // Reseta o localStorage
-    localStorage.removeItem('diario_texto');
-    localStorage.setItem('diario_medicoes', JSON.stringify(medicaoInicial));
-  };
 
 
   return (
