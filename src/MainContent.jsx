@@ -151,7 +151,8 @@ function MainContent() {
       doc.setFontSize(10);
       doc.text(`Data: ${new Date().toLocaleDateString('pt-PT')}`, largura - 15, 15, { align: 'right' });
       
-      const climaLimpo = clima ? clima.replace(/[^\x00-\x7F]/g, "").trim() : "Não informado";
+      // Tratamento do texto do clima para remover apenas emojis mantendo acentos (ex: "é")
+      const climaLimpo = clima ? clima.replace(/[\u{1F300}-\u{1F6FF}\u{2600}-\u{26FF}]/gu, '').trim() : "Não informado";
       doc.text(`Clima: ${climaLimpo}`, largura - 15, 22, { align: 'right' });
       doc.line(15, 28, largura - 15, 28);
 
@@ -237,15 +238,16 @@ function MainContent() {
         });
       }
 
+      // Abre o PDF em uma nova aba e inicia o download sem fechar/recarregar a app
       const blob = doc.output('blob');
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
+      link.target = '_blank';
       link.download = `Relatorio_ObraVoz_${Date.now()}.pdf`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      URL.revokeObjectURL(url);
 
       setStatus("✅ PDF Pronto!");
     } catch (err) {
