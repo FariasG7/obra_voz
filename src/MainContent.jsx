@@ -320,6 +320,9 @@ function MainContent() {
         <div className="card" style={{ marginTop: '20px' }}>
           <div className="seletor-medicao-header">
             <h3>Medições:</h3>
+             <button onClick={adicionarLinhaMedicao} className="btn-add">
+              +
+              </button>
             <select 
               value={tipoMedicao} 
               onChange={(e) => setTipoMedicao(e.target.value)}
@@ -388,9 +391,6 @@ function MainContent() {
             </div>
           ))}
 
-          <button onClick={adicionarLinhaMedicao} className="btn-add">
-            + Adicionar Medição
-          </button>
         </div>
 
         {/* BOTÕES FINAIS */}
