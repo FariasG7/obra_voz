@@ -26,10 +26,10 @@ function MainContent() {
   const [medicoes, setMedicoes] = useState(() => {
     try { 
       return JSON.parse(localStorage.getItem('diario_medicoes')) || [
-        { id: 1, tipo: 'cofragem', nome: '', largura: '', altura: '', comprimento: '' }
+        { id: 1, tipo: 'cofragem', nome: 'Pilar', quantidade: 1, largura: '', altura: '', comprimento: '' }
       ]; 
     } catch { 
-      return [{ id: Date.now(), tipo: 'cofragem', nome: '', largura: '', altura: '', comprimento: '' }]; 
+      return [{ id: Date.now(), tipo: 'cofragem', nome: 'Pilar', quantidade: 1, largura: '', altura: '', comprimento: '' }]; 
     }
   });
 
@@ -124,7 +124,7 @@ function MainContent() {
   const adicionarLinhaMedicao = () => {
     setMedicoes(prev => [
       ...prev,
-      { id: Date.now(), tipo: tipoMedicao, nome: '', largura: '', altura: '', comprimento: '' }
+      { id: Date.now(), tipo: tipoMedicao, nome: 'Pilar', quantidade: 1, largura: '', altura: '', comprimento: '' }
     ]);
   };
 
@@ -153,7 +153,6 @@ function MainContent() {
       doc.setFontSize(9);
       doc.text(`Data: ${new Date().toLocaleDateString('pt-PT')}`, largura - 15, 16, { align: 'right' });
       
-      // Limpa caracteres especiais não suportados e formata a linha do clima
       const climaLimpo = clima ? clima.replace(/[\u{1F300}-\u{1F6FF}\u{2600}-\u{26FF}]/gu, '').trim() : "Não informado";
       doc.text(`Clima: ${climaLimpo}`, largura - 15, 22, { align: 'right' });
       
@@ -180,10 +179,17 @@ function MainContent() {
         doc.setTextColor(0, 102, 204);
         doc.text("COFRAGEM (m²)", 15, yAtual);
         
-        const dadosCofragem = linhasCofragem.map(l => [l.nome || '-', l.largura || '0', l.altura || '0', l.comprimento || '0']);
+        const dadosCofragem = linhasCofragem.map(l => [
+          l.nome || '-', 
+          l.quantidade || '1', 
+          l.largura || '0', 
+          l.altura || '0', 
+          l.comprimento || '0'
+        ]);
+        
         autoTable(doc, {
           startY: yAtual + 4,
-          head: [['Peça', 'Largura (m)', 'Altura (m)', 'Comprimento (m)']],
+          head: [['Elemento', 'Qtd', 'Largura (m)', 'Altura (m)', 'Comprimento (m)']],
           body: dadosCofragem,
           styles: { halign: 'center', fontSize: 9 },
           headStyles: { fillColor: [0, 102, 204] },
@@ -197,10 +203,17 @@ function MainContent() {
         doc.setTextColor(40, 167, 69);
         doc.text("BETÃO (m³)", 15, yAtual);
 
-        const dadosBetao = linhasBetao.map(l => [l.nome || '-', l.largura || '0', l.altura || '0', l.comprimento || '0']);
+        const dadosBetao = linhasBetao.map(l => [
+          l.nome || '-', 
+          l.quantidade || '1', 
+          l.largura || '0', 
+          l.altura || '0', 
+          l.comprimento || '0'
+        ]);
+
         autoTable(doc, {
           startY: yAtual + 4,
-          head: [['Elemento', 'Largura (m)', 'Altura (m)', 'Comprimento (m)']],
+          head: [['Elemento', 'Qtd', 'Largura (m)', 'Altura (m)', 'Comprimento (m)']],
           body: dadosBetao,
           styles: { halign: 'center', fontSize: 9 },
           headStyles: { fillColor: [40, 167, 69] },
@@ -244,7 +257,6 @@ function MainContent() {
         });
       }
 
-      // Baixa o arquivo diretamente (evita substituir a página do app no Safari/iOS)
       const dataHoje = new Date().toISOString().slice(0, 10);
       doc.save(`Relatorio_ObraVoz_${dataHoje}.pdf`);
 
@@ -320,30 +332,51 @@ function MainContent() {
 
           {medicoes.map((item) => (
             <div key={item.id} className="row-inputs">
-              <input 
-                type="text" 
-                placeholder="Elemento/Peça" 
+              <select
+                className="select-elemento"
                 value={item.nome}
                 onChange={(e) => atualizarMedicao(item.id, 'nome', e.target.value)}
+              >
+                <option value="Pilar">Pilar</option>
+                <option value="Parede">Parede</option>
+                <option value="Escada">Escada</option>
+                <option value="Sapata">Sapata</option>
+                <option value="Laje">Laje</option>
+                <option value="Caixa de Elevador">Caixa de Elevador</option>
+                <option value="Outro">Outro</option>
+              </select>
+
+              <input 
+                type="number" 
+                placeholder="Qtd" 
+                title="Quantidade"
+                value={item.quantidade}
+                min="1"
+                onChange={(e) => atualizarMedicao(item.id, 'quantidade', e.target.value)}
               />
+
               <input 
                 type="number" 
                 placeholder="L" 
+                title="Largura"
                 value={item.largura}
                 onChange={(e) => atualizarMedicao(item.id, 'largura', e.target.value)}
               />
               <input 
                 type="number" 
                 placeholder="A" 
+                title="Altura"
                 value={item.altura}
                 onChange={(e) => atualizarMedicao(item.id, 'altura', e.target.value)}
               />
               <input 
                 type="number" 
                 placeholder="C" 
+                title="Comprimento"
                 value={item.comprimento}
                 onChange={(e) => atualizarMedicao(item.id, 'comprimento', e.target.value)}
               />
+
               <button 
                 type="button" 
                 className="btn-delete"
