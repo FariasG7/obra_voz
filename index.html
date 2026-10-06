@@ -1,34 +1,41 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>ObraVoz - Diário de Obra</title>
     
-    <link rel="manifest" href="%PUBLIC_URL%/manifest.json">
-    <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png">
+    <!-- PWA & Ícones -->
+    <link rel="manifest" href="/manifest.json">
+    <link rel="icon" type="image/png" href="/logo192.png">
+    <link rel="apple-touch-icon" href="/logo192.png">
+    
+    <!-- Estilos Externos & Fontes -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+    
+    <!-- Meta Tags para PWA -->
     <meta name="theme-color" content="#007AFF">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="description" content="Diário de obra inteligente com comando de voz">
 </head>
 <body>
     <noscript>Você precisa ativar o JavaScript para rodar este aplicativo.</noscript>
 
+    <!-- Ponto de entrada único do React -->
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
 
-        <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
-
+    <!-- Registo do Service Worker para suporte Offline -->
     <script>
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
           navigator.serviceWorker.register('/sw.js')
-            .then(reg => console.log('SW registrado!', reg))
-            .catch(err => console.log('Erro no SW:', err));
-            });
-          }
-        </script>
-    </body>
+            .then(reg => console.log('SW registrado com sucesso!', reg))
+            .catch(err => console.error('Erro ao registrar SW:', err));
+        });
+      }
+    </script>
+</body>
 </html>
