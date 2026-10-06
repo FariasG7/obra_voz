@@ -1,28 +1,30 @@
 import Dexie, { Table } from 'dexie';
 
 export interface LinhaMedicao {
-  id?: string;
-  elemento: string; // Peça ou Elemento (Ex: P1, Laje 1)
-  largura: number;
-  altura: number;
-  comprimento: number;
+  id: number | string;
+  tipo: 'cofragem' | 'betao';
+  nome: string;        // Pilar, Parede, Laje, etc.
+  quantidade: number;  // Novo campo de quantidade
+  largura: number | string;
+  altura: number | string;
+  comprimento: number | string;
 }
 
 export interface FotoRegistro {
-  id?: string;
-  diarioId?: string;
-  blob: Blob;       // Blob bruto mantido no IndexedDB sem limite de 5MB
+  id?: number;
+  diarioId?: number | string;
+  blob: Blob;          // Guardado como Blob no IndexedDB
   criadoEm: Date;
 }
 
 export interface DiarioObra {
-  id?: string;
-  data: string;     // Formato YYYY-MM-DD
+  id?: number;
+  data: string;        // Formato YYYY-MM-DD
   textoRelato: string;
   clima: string;
-  cofragem: LinhaMedicao[];
-  betao: LinhaMedicao[];
+  medicoes: LinhaMedicao[];
   sincronizado: boolean;
+  criadoEm: Date;
 }
 
 export class ObraVozDatabase extends Dexie {
@@ -31,6 +33,8 @@ export class ObraVozDatabase extends Dexie {
 
   constructor() {
     super('ObraVozDB');
+    
+    // Definição das tabelas e chaves de índice
     this.version(1).stores({
       diarios: '++id, data, sincronizado',
       fotos: '++id, diarioId'
