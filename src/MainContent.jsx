@@ -139,7 +139,7 @@ function MainContent() {
   };
 
   // --- GERADOR DE PDF ---
-  const gerarPDF = () => {
+ /** const gerarPDF = () => {
     try {
       setStatus("⏳ Gerando PDF...");
       const doc = new jsPDF();
@@ -266,6 +266,163 @@ function MainContent() {
       setStatus("❌ Erro no PDF");
     }
   };
+  **/
+
+    // --- GERADOR DE PDF ---
+  const gerarPDF = () => {
+    try {
+      setStatus("⏳ Gerando PDF...");
+      const doc = new jsPDF();
+      const largura = doc.internal.pageSize.getWidth();
+      const alturaPagina = doc.internal.pageSize.getHeight();
+      
+      // Cabeçalho
+      doc.setFontSize(16);
+      doc.text("RELATÓRIO DIÁRIO DE OBRA", 15, 20);
+      
+      doc.setFontSize(9);
+      doc.text(`Data: ${new Date().toLocaleDateString('pt-PT')}`, largura - 15, 16, { align: 'right' });
+      
+      const climaLimpo = clima ? clima.replace(/[\u{1F300}-\u{1F6FF}\u{2600}-\u{26FF}]/gu, '').trim() : "Não informado";
+      doc.text(`Clima: ${climaLimpo}`, largura - 15, 22, { align: 'right' });
+      
+      doc.line(15, 26, largura - 15, 26);
+
+      // Relato
+      doc.setFontSize(11);
+      doc.setTextColor(0, 102, 204);
+      doc.text("RELATO:", 15, 35);
+      doc.setTextColor(0);
+      
+      const relatoTexto = texto && texto.trim() !== "" ? texto : "Sem relato informado.";
+      const textSplit = doc.splitTextToSize(relatoTexto, largura - 30);
+      doc.text(textSplit, 15, 42);
+
+      let yAtual = 42 + (textSplit.length * 6) + 10;
+
+      // Tabelas de Medição
+      const linhasCofragem = medicoes.filter(m => m.tipo === 'cofragem' && (m.nome || m.comprimento || m.largura || m.altura));
+      const linhasBetao = medicoes.filter(m => m.tipo === 'betao' && (m.nome || m.comprimento || m.largura || m.altura));
+
+      if (linhasCofragem.length > 0) {
+        doc.setFontSize(11);
+        doc.setTextColor(0, 102, 204);
+        doc.text("COFRAGEM (m²)", 15, yAtual);
+        
+        const dadosCofragem = linhasCofragem.map(l => [
+          l.nome || '-', 
+          l.quantidade || '1', 
+          l.largura || '0', 
+          l.altura || '0', 
+          l.comprimento || '0'
+        ]);
+        
+        autoTable(doc, {
+          startY: yAtual + 4,
+          head: [['Elemento', 'Qtd', 'Largura (m)', 'Altura (m)', 'Comprimento (m)']],
+          body: dadosCofragem,
+          styles: { halign: 'center', fontSize: 9 },
+          headStyles: { fillColor: [0, 102, 204] },
+          theme: 'grid'
+        });
+        yAtual = doc.lastAutoTable.finalY + 10;
+      }
+
+      if (linhasBetao.length > 0) {
+        doc.setFontSize(11);
+        doc.setTextColor(40, 167, 69);
+        doc.text("BETÃO (m³)", 15, yAtual);
+
+        const dadosBetao = linhasBetao.map(l => [
+          l.nome || '-', 
+          l.quantidade || '1', 
+          l.largura || '0', 
+          l.altura || '0', 
+          l.comprimento || '0'
+        ]);
+
+        autoTable(doc, {
+          startY: yAtual + 4,
+          head: [['Elemento', 'Qtd', 'Largura (m)', 'Altura (m)', 'Comprimento (m)']],
+          body: dadosBetao,
+          styles: { halign: 'center', fontSize: 9 },
+          headStyles: { fillColor: [40, 167, 69] },
+          theme: 'grid'
+        });
+        yAtual = doc.lastAutoTable.finalY + 10;
+      }
+
+      // Fotos
+      if (fotos.length > 0) {
+        if (yAtual > alturaPagina - 60) {
+          doc.addPage();
+          yAtual = 20;
+        }
+        doc.setFontSize(11);
+        doc.setTextColor(0, 102, 204);
+        doc.text("REGISTOS FOTOGRÁFICOS:", 15, yAtual);
+        yAtual += 8;
+
+        const largFoto = 55;
+        const altFoto = 45;
+        const espacamento = 7;
+        let xAtual = 15;
+
+        fotos.forEach((fotoBase64) => {
+          if (yAtual + altFoto > alturaPagina - 20) {
+            doc.addPage();
+            yAtual = 20;
+            xAtual = 15;
+          }
+          try {
+            doc.addImage(fotoBase64, 'JPEG', xAtual, yAtual, largFoto, altFoto);
+          } catch (e) {
+            console.error("Erro ao renderizar imagem no PDF", e);
+          }
+          xAtual += largFoto + espacamento;
+          if (xAtual + largFoto > largura - 15) {
+            xAtual = 15;
+            yAtual += altFoto + espacamento;
+          }
+        });
+      }
+
+      const dataHoje = new Date().toISOString().slice(0, 10);
+      const nomeArquivo = `Relatorio_ObraVoz_${dataHoje}.pdf`;
+
+      // 1. ABRIR EM NOVA ABA (Blob URL) & SALVAR DIRECTO
+      const pdfBlob = doc.output('blob');
+      const blobUrl = URL.createObjectURL(pdfBlob);
+      window.open(blobUrl, '_blank');
+
+      // Também dispara o download diretamente
+      doc.save(nomeArquivo);
+
+      // 2. LIMPAR FORMULÁRIO E LOCALSTORAGE APÓS GERAR
+      limparFormulario();
+
+      setStatus("✅ PDF Gerado e Dados Limpos!");
+    } catch (err) {
+      console.error("Erro no PDF:", err);
+      setStatus("❌ Erro no PDF");
+    }
+  };
+
+  // --- LIMPEZA DOS CAMPOS ---
+  const limparFormulario = () => {
+    // Reseta os estados do React
+    setTexto('');
+    setFotos([]);
+    const medicaoInicial = [
+      { id: Date.now(), tipo: tipoMedicao, nome: 'Pilar', quantidade: 1, largura: '', altura: '', comprimento: '' }
+    ];
+    setMedicoes(medicaoInicial);
+
+    // Reseta o localStorage
+    localStorage.removeItem('diario_texto');
+    localStorage.setItem('diario_medicoes', JSON.stringify(medicaoInicial));
+  };
+
 
   return (
     <div className="container">
