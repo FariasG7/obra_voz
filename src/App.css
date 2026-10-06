@@ -304,3 +304,47 @@ body {
   font-size: 14px;
   font-weight: bold;
 }
+
+
+.acoes-gravacao {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+
+.seletor-medicao-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.select-tipo-medicao {
+  background-color: #2563eb;
+  color: white;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: bold;
+  border: none;
+}
+
+.item-medicao-linha {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #2a2a32;
+  padding: 8px 12px;
+  border-radius: 6px;
+  margin-top: 8px;
+}
+
+.badge-tipo {
+  font-size: 0.85rem;
+  padding: 4px 8px;
+  border-radius: 4px;
+  background-color: #3f3f4e;
+  font-weight: bold;
+}
