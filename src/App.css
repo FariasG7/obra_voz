@@ -35,6 +35,112 @@ body {
     box-shadow: 0 4px 15px rgba(0,0,0,0.5); border: 1px solid #2C2C2C;
 }
 
+
+/* --- LARGURA PRINCIPAL (EXPANDE NO IPAD / DESKTOP) --- */
+.content { 
+    padding: 15px; 
+    width: 100%;
+    max-width: 800px; /* Alarga o card no iPad para dar espaço às medições */
+    margin: 0 auto; 
+}
+
+/* --- ESTILIZAÇÃO DA LINHA DE MEDIÇÃO (ROW-INPUTS) --- */
+.row-inputs { 
+    display: flex; 
+    flex-direction: row;
+    gap: 8px;
+    margin-bottom: 12px; 
+    align-items: center;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Seletor de Elemento (Pilar, Parede, Laje, etc) */
+.select-elemento {
+    flex: 2.5;              /* Dá mais espaço para o nome do elemento */
+    min-width: 110px;       /* Evita que o select encolha demais */
+    background: #333; 
+    border: 1px solid #444; 
+    color: #fff;
+    padding: 10px 6px; 
+    border-radius: 6px; 
+    font-size: 13px;
+    outline: none;
+    height: 42px;
+}
+
+/* Inputs Numéricos (Qtd, L, A, C) */
+.row-inputs input {
+    flex: 1;                /* Divide igualmente entre Qtd, L, A, C */
+    min-width: 42px;        /* Garante largura mínima legível */
+    background: #333; 
+    border: 1px solid #444; 
+    color: #fff;
+    padding: 10px 4px; 
+    border-radius: 6px; 
+    font-size: 13px;
+    text-align: center;
+    outline: none;
+    height: 42px;
+    box-sizing: border-box;
+}
+
+/* Foco nos inputs */
+.select-elemento:focus,
+.row-inputs input:focus {
+    border-color: var(--blue-primary);
+}
+
+/* Botão de Lixeira */
+.row-inputs .btn-delete {
+    flex: 0 0 42px;         /* Mantém o botão com tamanho fixo */
+    width: 42px;
+    height: 42px;
+    background: #2a2a32;
+    border: 1px solid #444;
+    color: var(--red);
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+}
+
+.row-inputs .btn-delete:hover {
+    background: var(--red);
+    color: #fff;
+}
+
+/* --- AJUSTES RESPONSIVOS PARA ECRÃS PEQUENOS (TELEMÓVEIS) --- */
+@media (max-width: 480px) {
+    .content {
+        padding: 10px;
+    }
+    
+    .row-inputs {
+        gap: 4px;
+    }
+
+    .select-elemento {
+        min-width: 90px;
+        font-size: 11px;
+        padding: 8px 2px;
+    }
+
+    .row-inputs input {
+        font-size: 11px;
+        padding: 8px 2px;
+    }
+
+    .row-inputs .btn-delete {
+        flex: 0 0 36px;
+        width: 36px;
+        height: 36px;
+    }
+}
+
+
 /* --- 3. INPUTS --- */
 /*
 .textarea { 
