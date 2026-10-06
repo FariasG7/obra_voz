@@ -19,11 +19,8 @@ function MainContent() {
   // --- ESTADOS ---
   const [texto, setTexto] = useState(() => localStorage.getItem('diario_texto') || '');
   const [fotos, setFotos] = useState([]);
-  
-  // Seletor de Tipo (Cofragem ou Betão)
   const [tipoMedicao, setTipoMedicao] = useState('cofragem'); 
 
-  // Lista única de medições
   const [medicoes, setMedicoes] = useState(() => {
     try { 
       return JSON.parse(localStorage.getItem('diario_medicoes')) || [
@@ -107,7 +104,6 @@ function MainContent() {
     }
   };
 
-  // --- PROCESSAMENTO DE FOTOS ---
   const handleFoto = (e) => {
     const files = Array.from(e.target.files);
     files.forEach(file => {
@@ -121,7 +117,6 @@ function MainContent() {
     setFotos(prev => prev.filter((_, i) => i !== index));
   };
 
-  // --- MANIPULAÇÃO DE MEDIÇÕES ---
   const adicionarLinhaMedicao = () => {
     setMedicoes(prev => [
       ...prev,
@@ -139,7 +134,6 @@ function MainContent() {
     setMedicoes(prev => prev.filter(item => item.id !== id));
   };
 
-  // --- LIMPEZA DOS CAMPOS ---
   const limparFormulario = () => {
     setTexto('');
     setFotos([]);
@@ -152,7 +146,6 @@ function MainContent() {
     localStorage.setItem('diario_medicoes', JSON.stringify(medicaoInicial));
   };
 
-  // --- FÓRMULA DE CÁLCULO DE TOTAL (APENAS PDF) ---
   const calcularTotalItem = (tipo, qtd, larg, alt, comp) => {
     const q = parseFloat(qtd) || 1;
     const l = parseFloat(larg) || 0;
@@ -160,7 +153,6 @@ function MainContent() {
     const c = parseFloat(comp) || 0;
 
     if (tipo === 'cofragem') {
-      // Cofragem (m²): Perímetro (2*(L+C)) * A * Qtd ou L * A * Qtd
       let areaUnitaria = 0;
       if (l > 0 && a > 0 && c > 0) {
         areaUnitaria = 2 * (l + c) * a;
@@ -173,7 +165,6 @@ function MainContent() {
       }
       return (q * areaUnitaria).toFixed(2);
     } else {
-      // Betão (m³): Volume = Qtd * L * A * C
       const factorL = l > 0 ? l : 1;
       const factorA = a > 0 ? a : 1;
       const factorC = c > 0 ? c : 1;
@@ -183,7 +174,6 @@ function MainContent() {
     }
   };
 
-  // --- GERADOR DE PDF ---
   const gerarPDF = () => {
     try {
       setStatus("⏳ Gerando PDF...");
@@ -191,7 +181,6 @@ function MainContent() {
       const largura = doc.internal.pageSize.getWidth();
       const alturaPagina = doc.internal.pageSize.getHeight();
       
-      // Cabeçalho
       doc.setFontSize(16);
       doc.text("RELATÓRIO DIÁRIO DE OBRA", 15, 20);
       
@@ -203,7 +192,6 @@ function MainContent() {
       
       doc.line(15, 26, largura - 15, 26);
 
-      // Relato
       doc.setFontSize(11);
       doc.setTextColor(0, 102, 204);
       doc.text("RELATO:", 15, 35);
@@ -215,11 +203,9 @@ function MainContent() {
 
       let yAtual = 42 + (textSplit.length * 6) + 10;
 
-      // Tabelas de Medição
       const linhasCofragem = medicoes.filter(m => m.tipo === 'cofragem' && (m.nome || m.comprimento || m.largura || m.altura));
       const linhasBetao = medicoes.filter(m => m.tipo === 'betao' && (m.nome || m.comprimento || m.largura || m.altura));
 
-      // 1. TABELA COFRAGEM
       if (linhasCofragem.length > 0) {
         doc.setFontSize(11);
         doc.setTextColor(0, 102, 204);
@@ -239,7 +225,6 @@ function MainContent() {
           ];
         });
 
-        // Linha final de Total Geral de Cofragem
         dadosCofragem.push([
           { content: 'TOTAL GERAL DE COFRAGEM', colSpan: 5, styles: { halign: 'right', fontStyle: 'bold' } },
           { content: `${somaTotalCofragem.toFixed(2)} m²`, styles: { fontStyle: 'bold', fillColor: [230, 240, 255] } }
@@ -256,7 +241,6 @@ function MainContent() {
         yAtual = doc.lastAutoTable.finalY + 10;
       }
 
-      // 2. TABELA BETÃO
       if (linhasBetao.length > 0) {
         doc.setFontSize(11);
         doc.setTextColor(40, 167, 69);
@@ -276,7 +260,6 @@ function MainContent() {
           ];
         });
 
-        // Linha final de Total Geral de Betão
         dadosBetao.push([
           { content: 'TOTAL GERAL DE BETÃO', colSpan: 5, styles: { halign: 'right', fontStyle: 'bold' } },
           { content: `${somaTotalBetao.toFixed(2)} m³`, styles: { fontStyle: 'bold', fillColor: [230, 245, 230] } }
@@ -293,7 +276,6 @@ function MainContent() {
         yAtual = doc.lastAutoTable.finalY + 10;
       }
 
-      // 3. FOTOS
       if (fotos.length > 0) {
         if (yAtual > alturaPagina - 60) {
           doc.addPage();
@@ -331,10 +313,7 @@ function MainContent() {
       const dataHoje = new Date().toISOString().slice(0, 10);
       const nomeArquivo = `Relatorio_ObraVoz_${dataHoje}.pdf`;
 
-      // Baixa automaticamente o arquivo sem sair da app
       doc.save(nomeArquivo);
-
-      // Limpa os dados do formulário e localStorage
       limparFormulario();
 
       setStatus("✅ PDF Baixado e Dados Limpos!");
@@ -398,7 +377,7 @@ function MainContent() {
           <div className="seletor-medicao-header">
             <h3>Medições:</h3>
             <div className="header-medicao-acoes">
-              <button onClick={adicionarLinhaMedicao} className="btn-add-icon" title="Adicionar Linha" style={{ marginRight: '8px' }}>
+              <button onClick={adicionarLinhaMedicao} className="btn-add-icon" title="Adicionar Linha">
                 <FaPlus />
               </button>
               <select 
@@ -412,67 +391,65 @@ function MainContent() {
             </div>
           </div>
 
-          <div className="medicoes-scroll-container">
-            {medicoes.map((item) => (
-              <div key={item.id} className="row-inputs">
-                <select
-                  className="select-elemento"
-                  value={item.nome}
-                  onChange={(e) => atualizarMedicao(item.id, 'nome', e.target.value)}
-                >
-                  <option value="Pilar">Pilar</option>
-                  <option value="Parede">Parede</option>
-                  <option value="Escada">Escada</option>
-                  <option value="Sapata">Sapata</option>
-                  <option value="Laje">Laje</option>
-                  <option value="Caixa de Elevador">Caixa de Elevador</option>
-                  <option value="Outro">Outro</option>
-                </select>
+          {medicoes.map((item) => (
+            <div key={item.id} className="row-inputs">
+              <select
+                className="select-elemento"
+                value={item.nome}
+                onChange={(e) => atualizarMedicao(item.id, 'nome', e.target.value)}
+              >
+                <option value="Pilar">Pilar</option>
+                <option value="Parede">Parede</option>
+                <option value="Escada">Escada</option>
+                <option value="Sapata">Sapata</option>
+                <option value="Laje">Laje</option>
+                <option value="Caixa de Elevador">Caixa de Elevador</option>
+                <option value="Outro">Outro</option>
+              </select>
 
-                <input 
-                  type="number" 
-                  placeholder="Qtd" 
-                  title="Quantidade"
-                  value={item.quantidade}
-                  min="1"
-                  onChange={(e) => atualizarMedicao(item.id, 'quantidade', e.target.value)}
-                />
+              <input 
+                type="number" 
+                placeholder="Qtd" 
+                title="Quantidade"
+                value={item.quantidade}
+                min="1"
+                onChange={(e) => atualizarMedicao(item.id, 'quantidade', e.target.value)}
+              />
 
-                <input 
-                  type="number" 
-                  placeholder="L" 
-                  title="Largura"
-                  value={item.largura}
-                  onChange={(e) => atualizarMedicao(item.id, 'largura', e.target.value)}
-                />
+              <input 
+                type="number" 
+                placeholder="L" 
+                title="Largura"
+                value={item.largura}
+                onChange={(e) => atualizarMedicao(item.id, 'largura', e.target.value)}
+              />
 
-                <input 
-                  type="number" 
-                  placeholder="A" 
-                  title="Altura"
-                  value={item.altura}
-                  onChange={(e) => atualizarMedicao(item.id, 'altura', e.target.value)}
-                />
+              <input 
+                type="number" 
+                placeholder="A" 
+                title="Altura"
+                value={item.altura}
+                onChange={(e) => atualizarMedicao(item.id, 'altura', e.target.value)}
+              />
 
-                <input 
-                  type="number" 
-                  placeholder="C" 
-                  title="Comprimento"
-                  value={item.comprimento}
-                  onChange={(e) => atualizarMedicao(item.id, 'comprimento', e.target.value)}
-                />
+              <input 
+                type="number" 
+                placeholder="C" 
+                title="Comprimento"
+                value={item.comprimento}
+                onChange={(e) => atualizarMedicao(item.id, 'comprimento', e.target.value)}
+              />
 
-                <button 
-                  type="button" 
-                  className="btn-delete"
-                  onClick={() => removerLinhaMedicao(item.id)}
-                  title="Apagar Linha"
-                >
-                  <FaTrash size={14} />
-                </button>
-              </div>
-            ))}
-          </div>
+              <button 
+                type="button" 
+                className="btn-delete"
+                onClick={() => removerLinhaMedicao(item.id)}
+                title="Apagar Linha"
+              >
+                <FaTrash size={14} />
+              </button>
+            </div>
+          ))}
         </div>
 
         {/* BOTÕES FINAIS */}
