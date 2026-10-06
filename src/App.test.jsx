@@ -2,8 +2,14 @@ import { expect, test } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import App from './App';
 
-test('renders learn react link', () => {
+test('renderiza a tela inicial de login do ObraVoz', async () => {
   render(<App />);
-  const linkElement = screen.getByText(/learn react/i);
-  expect(linkElement).toBeDefined();
+  
+  // Verifica se o título do app é exibido
+  const tituloElement = await screen.findByText(/ObraVoz/i);
+  expect(tituloElement).toBeDefined();
+
+  // Verifica se o botão de entrar no login está presente
+  const botaoEntrar = screen.getByRole('button', { name: /Entrar/i });
+  expect(botaoEntrar).toBeDefined();
 });
