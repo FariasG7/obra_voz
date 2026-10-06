@@ -55,7 +55,7 @@ function MainContent() {
         const apiKey = import.meta.env.VITE_WEATHER_API_KEY || "5d69641538ee4295a9ffc578b22ad484";
         const res = await fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${apiKey}&units=metric&lang=pt_br`);
         const data = await res.json();
-        setClima(`🌡️ ${Math.round(data.main.temp)}°C | ${data.weather[0].description}`);
+        setClima(`${Math.round(data.main.temp)}°C | ${data.weather[0].description}`);
       } catch { 
         setClima("Erro ao carregar clima"); 
       }
@@ -146,70 +146,76 @@ function MainContent() {
       const largura = doc.internal.pageSize.getWidth();
       const alturaPagina = doc.internal.pageSize.getHeight();
       
-      doc.setFontSize(18);
+      // Cabeçalho
+      doc.setFontSize(16);
       doc.text("RELATÓRIO DIÁRIO DE OBRA", 15, 20);
-      doc.setFontSize(10);
-      doc.text(`Data: ${new Date().toLocaleDateString('pt-PT')}`, largura - 15, 15, { align: 'right' });
       
-      // Tratamento do texto do clima para remover apenas emojis mantendo acentos (ex: "é")
+      doc.setFontSize(9);
+      doc.text(`Data: ${new Date().toLocaleDateString('pt-PT')}`, largura - 15, 16, { align: 'right' });
+      
+      // Limpa caracteres especiais não suportados e formata a linha do clima
       const climaLimpo = clima ? clima.replace(/[\u{1F300}-\u{1F6FF}\u{2600}-\u{26FF}]/gu, '').trim() : "Não informado";
       doc.text(`Clima: ${climaLimpo}`, largura - 15, 22, { align: 'right' });
-      doc.line(15, 28, largura - 15, 28);
+      
+      doc.line(15, 26, largura - 15, 26);
 
-      doc.setFontSize(12);
+      // Relato
+      doc.setFontSize(11);
       doc.setTextColor(0, 102, 204);
-      doc.text("RELATO:", 15, 38);
+      doc.text("RELATO:", 15, 35);
       doc.setTextColor(0);
       
       const relatoTexto = texto && texto.trim() !== "" ? texto : "Sem relato informado.";
       const textSplit = doc.splitTextToSize(relatoTexto, largura - 30);
-      doc.text(textSplit, 15, 45);
+      doc.text(textSplit, 15, 42);
 
-      let yAtual = 45 + (textSplit.length * 7) + 10;
+      let yAtual = 42 + (textSplit.length * 6) + 10;
 
+      // Tabelas de Medição
       const linhasCofragem = medicoes.filter(m => m.tipo === 'cofragem' && (m.nome || m.comprimento || m.largura || m.altura));
       const linhasBetao = medicoes.filter(m => m.tipo === 'betao' && (m.nome || m.comprimento || m.largura || m.altura));
 
       if (linhasCofragem.length > 0) {
-        doc.setFontSize(12);
+        doc.setFontSize(11);
         doc.setTextColor(0, 102, 204);
         doc.text("COFRAGEM (m²)", 15, yAtual);
         
         const dadosCofragem = linhasCofragem.map(l => [l.nome || '-', l.largura || '0', l.altura || '0', l.comprimento || '0']);
         autoTable(doc, {
-          startY: yAtual + 5,
+          startY: yAtual + 4,
           head: [['Peça', 'Largura (m)', 'Altura (m)', 'Comprimento (m)']],
           body: dadosCofragem,
-          styles: { halign: 'center' },
+          styles: { halign: 'center', fontSize: 9 },
           headStyles: { fillColor: [0, 102, 204] },
           theme: 'grid'
         });
-        yAtual = doc.lastAutoTable.finalY + 12;
+        yAtual = doc.lastAutoTable.finalY + 10;
       }
 
       if (linhasBetao.length > 0) {
-        doc.setFontSize(12);
+        doc.setFontSize(11);
         doc.setTextColor(40, 167, 69);
         doc.text("BETÃO (m³)", 15, yAtual);
 
         const dadosBetao = linhasBetao.map(l => [l.nome || '-', l.largura || '0', l.altura || '0', l.comprimento || '0']);
         autoTable(doc, {
-          startY: yAtual + 5,
+          startY: yAtual + 4,
           head: [['Elemento', 'Largura (m)', 'Altura (m)', 'Comprimento (m)']],
           body: dadosBetao,
-          styles: { halign: 'center' },
+          styles: { halign: 'center', fontSize: 9 },
           headStyles: { fillColor: [40, 167, 69] },
           theme: 'grid'
         });
-        yAtual = doc.lastAutoTable.finalY + 12;
+        yAtual = doc.lastAutoTable.finalY + 10;
       }
 
+      // Fotos
       if (fotos.length > 0) {
         if (yAtual > alturaPagina - 60) {
           doc.addPage();
           yAtual = 20;
         }
-        doc.setFontSize(12);
+        doc.setFontSize(11);
         doc.setTextColor(0, 102, 204);
         doc.text("REGISTOS FOTOGRÁFICOS:", 15, yAtual);
         yAtual += 8;
@@ -238,18 +244,11 @@ function MainContent() {
         });
       }
 
-      // Abre o PDF em uma nova aba e inicia o download sem fechar/recarregar a app
-      const blob = doc.output('blob');
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.target = '_blank';
-      link.download = `Relatorio_ObraVoz_${Date.now()}.pdf`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      // Baixa o arquivo diretamente (evita substituir a página do app no Safari/iOS)
+      const dataHoje = new Date().toISOString().slice(0, 10);
+      doc.save(`Relatorio_ObraVoz_${dataHoje}.pdf`);
 
-      setStatus("✅ PDF Pronto!");
+      setStatus("✅ PDF Guardado!");
     } catch (err) {
       console.error("Erro no PDF:", err);
       setStatus("❌ Erro no PDF");
