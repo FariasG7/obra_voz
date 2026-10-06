@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { db } from '../db/db';
 import '../App.css';
 
 function CadastroUsuario() {
@@ -14,30 +15,28 @@ function CadastroUsuario() {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Recupera usuários já salvos ou cria array vazio
-    const usuariosAtuais = JSON.parse(localStorage.getItem('usuariosObra')) || [];
-    
-    // Adiciona o novo usuário com um ID único e data de criação
-    const novoUsuario = { 
-      ...formData, 
-      id: Date.now(),
-      criadoEm: new Date().toLocaleDateString('pt-PT')
-    };
-    
-    const novaLista = [...usuariosAtuais, novoUsuario];
+    try {
+      const emailLimpo = formData.email.toLowerCase().trim();
 
-    // Salva no LocalStorage
-    localStorage.setItem('usuariosObra', JSON.stringify(novaLista));
+      // Grava diretamente na tabela 'usuarios' do Dexie (IndexedDB)
+      await db.usuarios.add({
+        nome: formData.nome,
+        email: emailLimpo,
+        permissao: formData.permissao,
+        criadoEm: new Date()
+      });
 
-    setStatus(`✅ Usuário ${formData.nome} autorizado!`);
-    
-    // Limpa o formulário
-    setFormData({ nome: '', email: '', permissao: 'leitor' });
+      setStatus(`✅ Utilizador ${formData.nome} autorizado!`);
+      setFormData({ nome: '', email: '', permissao: 'leitor' });
+    } catch (err) {
+      console.error("Erro ao autorizar utilizador:", err);
+      // O Dexie impede duplicados se o campo email tiver a regra '&email'
+      setStatus('❌ Este e-mail já está autorizado.');
+    }
 
-    // Remove a mensagem após 3 segundos
     setTimeout(() => setStatus(''), 3000);
   };
 
