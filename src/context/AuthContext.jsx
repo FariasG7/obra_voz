@@ -7,7 +7,7 @@ export function AuthProvider({ children }) {
   const [carregando, setCarregando] = useState(true);
 
   useEffect(() => {
-    // Restaura a sessão do localStorage/IndexedDB ao carregar o app
+    // Restaura a sessão do localStorage ao carregar o app
     const usuarioSalvo = localStorage.getItem('obravoz_user');
     if (usuarioSalvo) {
       try {
@@ -20,26 +20,38 @@ export function AuthProvider({ children }) {
   }, []);
 
   const login = async (email, senha) => {
-    // TODO: Substituir pela chamada real da sua API/Supabase
-    // Ex: const { data, error } = await supabase.auth.signInWithPassword({ email, password: senha })
-    
-    if (email && senha) {
-      const dadosUsuario = { email, nome: email.split('@')[0], token: 'fake-jwt-token' };
+    // Simulação de login local (Substituir no futuro por Supabase/Firebase/API)
+    const emailLimpo = email ? email.trim() : '';
+    const senhaLimpa = senha ? senha.trim() : '';
+
+    if (emailLimpo && senhaLimpa.length >= 4) {
+      const dadosUsuario = { 
+        email: emailLimpo, 
+        nome: emailLimpo.split('@')[0], 
+        token: 'fake-jwt-token' 
+      };
+      
       setUsuario(dadosUsuario);
       localStorage.setItem('obravoz_user', JSON.stringify(dadosUsuario));
       return { sucesso: true };
     }
-    return { sucesso: false, erro: 'Credenciais inválidas' };
+    
+    return { sucesso: false, erro: 'E-mail ou senha inválidos.' };
   };
 
   const logout = () => {
     setUsuario(null);
+    // Limpa a sessão do utilizador
     localStorage.removeItem('obravoz_user');
+    
+    // Limpa rascunhos de relatórios pendentes ao sair
+    localStorage.removeItem('diario_texto');
+    localStorage.removeItem('diario_medicoes');
   };
 
   return (
     <AuthContext.Provider value={{ usuario, logado: !!usuario, login, logout, carregando }}>
-      {children}
+      {!carregando && children}
     </AuthContext.Provider>
   );
 }
