@@ -310,3 +310,105 @@ body {
   margin-top: 5px; 
   display: inline-block; 
 }
+
+/* --- 8. TELA DE LOGIN --- */
+.login-container {
+  height: 100vh; 
+  display: flex; 
+  justify-content: center; 
+  align-items: center;
+  background: var(--bg-dark); 
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.login-box { 
+  width: 100%; 
+  max-width: 380px; 
+  background: var(--card-bg); 
+  padding: 30px 25px; 
+  border-radius: 20px; 
+  border: 1px solid #2C2C2C; 
+  box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+  text-align: center; 
+}
+
+.login-box h1 {
+  color: var(--blue-primary);
+  font-size: 1.8rem;
+  margin-bottom: 5px;
+}
+
+.login-subtitulo {
+  color: #888;
+  font-size: 0.9rem;
+  margin-bottom: 25px;
+}
+
+.login-erro {
+  background: rgba(200, 38, 71, 0.2);
+  border: 1px solid var(--red);
+  color: #ff6b81;
+  padding: 10px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.campo-group {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  width: 100%;
+}
+
+.campo-group label {
+  font-size: 0.8rem;
+  color: #aaa;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.login-input { 
+  width: 100%; 
+  padding: 12px 14px; 
+  background: #333 !important; 
+  border: 1px solid #444 !important; 
+  border-radius: 8px; 
+  color: #fff !important; 
+  font-size: 15px; 
+  outline: none; 
+  box-sizing: border-box;
+}
+
+.login-input:focus {
+  border-color: var(--blue-primary) !important;
+}
+
+.btn-login { 
+  width: 100%; 
+  background: linear-gradient(135deg, var(--blue-primary) 0%, #005BBF 100%) !important; 
+  color: white !important; 
+  padding: 14px; 
+  border-radius: 12px; 
+  border: none; 
+  font-weight: bold; 
+  font-size: 1rem;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: opacity 0.2s ease;
+}
+
+.btn-login:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
