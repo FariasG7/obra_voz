@@ -4,7 +4,7 @@ export interface LinhaMedicao {
   id: number | string;
   tipo: 'cofragem' | 'betao';
   nome: string;        // Pilar, Parede, Laje, etc.
-  quantidade: number;  // Novo campo de quantidade
+  quantidade: number;  
   largura: number | string;
   altura: number | string;
   comprimento: number | string;
@@ -27,17 +27,33 @@ export interface DiarioObra {
   criadoEm: Date;
 }
 
+export interface UsuarioAutorizado {
+  id?: number;
+  nome: string;
+  email: string;
+  permissao: 'leitor' | 'editor';
+  criadoEm: Date;
+}
+
 export class ObraVozDatabase extends Dexie {
   diarios!: Table<DiarioObra>;
   fotos!: Table<FotoRegistro>;
+  usuarios!: Table<UsuarioAutorizado>; // Tabela de Usuários/Permissões
 
   constructor() {
     super('ObraVozDB');
     
-    // Definição das tabelas e chaves de índice
+    // Versão 1 inicial
     this.version(1).stores({
       diarios: '++id, data, sincronizado',
       fotos: '++id, diarioId'
+    });
+
+    // Versão 2: Adicionada tabela de usuários autorizados
+    this.version(2).stores({
+      diarios: '++id, data, sincronizado',
+      fotos: '++id, diarioId',
+      usuarios: '++id, &email, permissao' // '&email' impede e-mails duplicados
     });
   }
 }
