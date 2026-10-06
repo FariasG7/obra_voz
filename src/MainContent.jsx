@@ -8,6 +8,7 @@ import {
   FaPaperclip, 
   FaRegFilePdf, 
   FaTrash,
+  FaPlus,
   FaSignOutAlt
 } from 'react-icons/fa';
 import { useAuth } from './context/AuthContext';
@@ -138,139 +139,7 @@ function MainContent() {
     setMedicoes(prev => prev.filter(item => item.id !== id));
   };
 
-  // --- GERADOR DE PDF ---
- /** const gerarPDF = () => {
-    try {
-      setStatus("⏳ Gerando PDF...");
-      const doc = new jsPDF();
-      const largura = doc.internal.pageSize.getWidth();
-      const alturaPagina = doc.internal.pageSize.getHeight();
-      
-      // Cabeçalho
-      doc.setFontSize(16);
-      doc.text("RELATÓRIO DIÁRIO DE OBRA", 15, 20);
-      
-      doc.setFontSize(9);
-      doc.text(`Data: ${new Date().toLocaleDateString('pt-PT')}`, largura - 15, 16, { align: 'right' });
-      
-      const climaLimpo = clima ? clima.replace(/[\u{1F300}-\u{1F6FF}\u{2600}-\u{26FF}]/gu, '').trim() : "Não informado";
-      doc.text(`Clima: ${climaLimpo}`, largura - 15, 22, { align: 'right' });
-      
-      doc.line(15, 26, largura - 15, 26);
-
-      // Relato
-      doc.setFontSize(11);
-      doc.setTextColor(0, 102, 204);
-      doc.text("RELATO:", 15, 35);
-      doc.setTextColor(0);
-      
-      const relatoTexto = texto && texto.trim() !== "" ? texto : "Sem relato informado.";
-      const textSplit = doc.splitTextToSize(relatoTexto, largura - 30);
-      doc.text(textSplit, 15, 42);
-
-      let yAtual = 42 + (textSplit.length * 6) + 10;
-
-      // Tabelas de Medição
-      const linhasCofragem = medicoes.filter(m => m.tipo === 'cofragem' && (m.nome || m.comprimento || m.largura || m.altura));
-      const linhasBetao = medicoes.filter(m => m.tipo === 'betao' && (m.nome || m.comprimento || m.largura || m.altura));
-
-      if (linhasCofragem.length > 0) {
-        doc.setFontSize(11);
-        doc.setTextColor(0, 102, 204);
-        doc.text("COFRAGEM (m²)", 15, yAtual);
-        
-        const dadosCofragem = linhasCofragem.map(l => [
-          l.nome || '-', 
-          l.quantidade || '1', 
-          l.largura || '0', 
-          l.altura || '0', 
-          l.comprimento || '0'
-        ]);
-        
-        autoTable(doc, {
-          startY: yAtual + 4,
-          head: [['Elemento', 'Qtd', 'Largura (m)', 'Altura (m)', 'Comprimento (m)']],
-          body: dadosCofragem,
-          styles: { halign: 'center', fontSize: 9 },
-          headStyles: { fillColor: [0, 102, 204] },
-          theme: 'grid'
-        });
-        yAtual = doc.lastAutoTable.finalY + 10;
-      }
-
-      if (linhasBetao.length > 0) {
-        doc.setFontSize(11);
-        doc.setTextColor(40, 167, 69);
-        doc.text("BETÃO (m³)", 15, yAtual);
-
-        const dadosBetao = linhasBetao.map(l => [
-          l.nome || '-', 
-          l.quantidade || '1', 
-          l.largura || '0', 
-          l.altura || '0', 
-          l.comprimento || '0'
-        ]);
-
-        autoTable(doc, {
-          startY: yAtual + 4,
-          head: [['Elemento', 'Qtd', 'Largura (m)', 'Altura (m)', 'Comprimento (m)']],
-          body: dadosBetao,
-          styles: { halign: 'center', fontSize: 9 },
-          headStyles: { fillColor: [40, 167, 69] },
-          theme: 'grid'
-        });
-        yAtual = doc.lastAutoTable.finalY + 10;
-      }
-
-      // Fotos
-      if (fotos.length > 0) {
-        if (yAtual > alturaPagina - 60) {
-          doc.addPage();
-          yAtual = 20;
-        }
-        doc.setFontSize(11);
-        doc.setTextColor(0, 102, 204);
-        doc.text("REGISTOS FOTOGRÁFICOS:", 15, yAtual);
-        yAtual += 8;
-
-        const largFoto = 55;
-        const altFoto = 45;
-        const espacamento = 7;
-        let xAtual = 15;
-
-        fotos.forEach((fotoBase64) => {
-          if (yAtual + altFoto > alturaPagina - 20) {
-            doc.addPage();
-            yAtual = 20;
-            xAtual = 15;
-          }
-          try {
-            doc.addImage(fotoBase64, 'JPEG', xAtual, yAtual, largFoto, altFoto);
-          } catch (e) {
-            console.error("Erro ao renderizar imagem no PDF", e);
-          }
-          xAtual += largFoto + espacamento;
-          if (xAtual + largFoto > largura - 15) {
-            xAtual = 15;
-            yAtual += altFoto + espacamento;
-          }
-        });
-      }
-
-      const dataHoje = new Date().toISOString().slice(0, 10);
-      doc.save(`Relatorio_ObraVoz_${dataHoje}.pdf`);
-
-      setStatus("✅ PDF Guardado!");
-    } catch (err) {
-      console.error("Erro no PDF:", err);
-      setStatus("❌ Erro no PDF");
-    }
-  };
-  **/
-
-    // --- LIMPEZA DOS CAMPOS ---
   const limparFormulario = () => {
-    // Reseta os estados do React
     setTexto('');
     setFotos([]);
     const medicaoInicial = [
@@ -278,9 +147,40 @@ function MainContent() {
     ];
     setMedicoes(medicaoInicial);
 
-    // Reseta o localStorage
     localStorage.removeItem('diario_texto');
     localStorage.setItem('diario_medicoes', JSON.stringify(medicaoInicial));
+  };
+
+  // --- CÁLCULO DE TOTAL PARA O PDF ---
+  const calcularTotalItem = (tipo, qtd, larg, alt, comp) => {
+    const q = parseFloat(qtd) || 1;
+    const l = parseFloat(larg) || 0;
+    const a = parseFloat(alt) || 0;
+    const c = parseFloat(comp) || 0;
+
+    if (tipo === 'cofragem') {
+      // Se houver Largura, Altura e Comprimento -> Perímetro * Altura * Qtd
+      // Se apenas L e A -> L * A * Qtd
+      let areaUnitaria = 0;
+      if (l > 0 && a > 0 && c > 0) {
+        areaUnitaria = 2 * (l + c) * a;
+      } else if (l > 0 && a > 0) {
+        areaUnitaria = l * a;
+      } else if (c > 0 && a > 0) {
+        areaUnitaria = c * a;
+      } else if (l > 0 && c > 0) {
+        areaUnitaria = l * c;
+      }
+      return (q * areaUnitaria).toFixed(2);
+    } else {
+      // Betão: Volume = L * A * C * Qtd (ou as dimensões informadas)
+      const factorL = l > 0 ? l : 1;
+      const factorA = a > 0 ? a : 1;
+      const factorC = c > 0 ? c : 1;
+      
+      if (l === 0 && a === 0 && c === 0) return "0.00";
+      return (q * factorL * factorA * factorC).toFixed(2);
+    }
   };
 
   // --- GERADOR DE PDF ---
@@ -324,17 +224,29 @@ function MainContent() {
         doc.setTextColor(0, 102, 204);
         doc.text("COFRAGEM (m²)", 15, yAtual);
         
-        const dadosCofragem = linhasCofragem.map(l => [
-          l.nome || '-', 
-          l.quantidade || '1', 
-          l.largura || '0', 
-          l.altura || '0', 
-          l.comprimento || '0'
+        let somaTotalCofragem = 0;
+        const dadosCofragem = linhasCofragem.map(l => {
+          const tot = calcularTotalItem('cofragem', l.quantidade, l.largura, l.altura, l.comprimento);
+          somaTotalCofragem += parseFloat(tot);
+          return [
+            l.nome || '-', 
+            l.quantidade || '1', 
+            l.largura || '0', 
+            l.altura || '0', 
+            l.comprimento || '0',
+            `${tot} m²`
+          ];
+        });
+
+        // Adiciona linha final com o Total Geral de Cofragem
+        dadosCofragem.push([
+          { content: 'TOTAL GERAL DE COFRAGEM', colSpan: 5, styles: { halign: 'right', fontStyle: 'bold' } },
+          { content: `${somaTotalCofragem.toFixed(2)} m²`, styles: { fontStyle: 'bold', fillColor: [230, 240, 255] } }
         ]);
         
         autoTable(doc, {
           startY: yAtual + 4,
-          head: [['Elemento', 'Qtd', 'Largura (m)', 'Altura (m)', 'Comprimento (m)']],
+          head: [['Elemento', 'Qtd', 'Largura (m)', 'Altura (m)', 'Comprimento (m)', 'Total (m²)']],
           body: dadosCofragem,
           styles: { halign: 'center', fontSize: 9 },
           headStyles: { fillColor: [0, 102, 204] },
@@ -348,17 +260,29 @@ function MainContent() {
         doc.setTextColor(40, 167, 69);
         doc.text("BETÃO (m³)", 15, yAtual);
 
-        const dadosBetao = linhasBetao.map(l => [
-          l.nome || '-', 
-          l.quantidade || '1', 
-          l.largura || '0', 
-          l.altura || '0', 
-          l.comprimento || '0'
+        let somaTotalBetao = 0;
+        const dadosBetao = linhasBetao.map(l => {
+          const tot = calcularTotalItem('betao', l.quantidade, l.largura, l.altura, l.comprimento);
+          somaTotalBetao += parseFloat(tot);
+          return [
+            l.nome || '-', 
+            l.quantidade || '1', 
+            l.largura || '0', 
+            l.altura || '0', 
+            l.comprimento || '0',
+            `${tot} m³`
+          ];
+        });
+
+        // Adiciona linha final com o Total Geral de Betão
+        dadosBetao.push([
+          { content: 'TOTAL GERAL DE BETÃO', colSpan: 5, styles: { halign: 'right', fontStyle: 'bold' } },
+          { content: `${somaTotalBetao.toFixed(2)} m³`, styles: { fontStyle: 'bold', fillColor: [230, 245, 230] } }
         ]);
 
         autoTable(doc, {
           startY: yAtual + 4,
-          head: [['Elemento', 'Qtd', 'Largura (m)', 'Altura (m)', 'Comprimento (m)']],
+          head: [['Elemento', 'Qtd', 'Largura (m)', 'Altura (m)', 'Comprimento (m)', 'Total (m³)']],
           body: dadosBetao,
           styles: { halign: 'center', fontSize: 9 },
           headStyles: { fillColor: [40, 167, 69] },
@@ -405,10 +329,10 @@ function MainContent() {
       const dataHoje = new Date().toISOString().slice(0, 10);
       const nomeArquivo = `Relatorio_ObraVoz_${dataHoje}.pdf`;
 
-      // 1. APENAS SALVA/DOWNLOADS AUTOMÁTICO (sem navegar para fora do app)
+      // Baixa automaticamente o arquivo sem sair do aplicativo
       doc.save(nomeArquivo);
 
-      // 2. LIMPAR CAMPOS E LOCALSTORAGE APÓS GERAR
+      // Limpa os dados da interface para o novo uso
       limparFormulario();
 
       setStatus("✅ PDF Baixado e Dados Limpos!");
@@ -417,9 +341,6 @@ function MainContent() {
       setStatus("❌ Erro no PDF");
     }
   };
-
-
-
 
   return (
     <div className="container">
@@ -474,92 +395,8 @@ function MainContent() {
         <div className="card" style={{ marginTop: '20px' }}>
           <div className="seletor-medicao-header">
             <h3>Medições:</h3>
-             <button onClick={adicionarLinhaMedicao} className="btn-add">
-              +
-              </button>
-            <select 
-              value={tipoMedicao} 
-              onChange={(e) => setTipoMedicao(e.target.value)}
-              className="select-tipo-medicao"
-            >
-              <option value="cofragem">📐 Cofragem (m²)</option>
-              <option value="betao">🧱 Betão (m³)</option>
-            </select>
-          </div>
-
-          {medicoes.map((item) => (
-            <div key={item.id} className="row-inputs">
-              <select
-                className="select-elemento"
-                value={item.nome}
-                onChange={(e) => atualizarMedicao(item.id, 'nome', e.target.value)}
-              >
-                <option value="Pilar">Pilar</option>
-                <option value="Parede">Parede</option>
-                <option value="Escada">Escada</option>
-                <option value="Sapata">Sapata</option>
-                <option value="Laje">Laje</option>
-                <option value="Caixa de Elevador">Caixa de Elevador</option>
-                <option value="Outro">Outro</option>
-              </select>
-
-              <input 
-                type="number" 
-                placeholder="Qtd" 
-                title="Quantidade"
-                value={item.quantidade}
-                min="1"
-                onChange={(e) => atualizarMedicao(item.id, 'quantidade', e.target.value)}
-              />
-
-              <input 
-                type="number" 
-                placeholder="L" 
-                title="Largura"
-                value={item.largura}
-                onChange={(e) => atualizarMedicao(item.id, 'largura', e.target.value)}
-              />
-              <input 
-                type="number" 
-                placeholder="A" 
-                title="Altura"
-                value={item.altura}
-                onChange={(e) => atualizarMedicao(item.id, 'altura', e.target.value)}
-              />
-              <input 
-                type="number" 
-                placeholder="C" 
-                title="Comprimento"
-                value={item.comprimento}
-                onChange={(e) => atualizarMedicao(item.id, 'comprimento', e.target.value)}
-              />
-
-              <button 
-                type="button" 
-                className="btn-delete"
-                onClick={() => removerLinhaMedicao(item.id)}
-                title="Apagar Linha"
-              >
-                <FaTrash size={14} />
-              </button>
-            </div>
-          ))}
-
-        </div>
-
-        {/* BOTÕES FINAIS */}
-        <div style={{ marginTop: '20px' }}>
-          <button className="btn-finalizar" onClick={gerarPDF}>
-            <FaRegFilePdf style={{ marginRight: '8px' }} /> Gerar Relatório PDF
-          </button>
-
-          <button onClick={logout} className="btn-sair">
-            <FaSignOutAlt style={{ marginRight: '5px' }} /> Sair da Conta
-          </button>
-        </div>
-      </main>
-    </div>
-  );
-}
-
-export default MainContent;
+            <div className="header-medicao-acoes">
+              <select 
+                value={tipoMedicao} 
+                onChange={(e) => setTipoMedicao(e.target.value)}
+                
