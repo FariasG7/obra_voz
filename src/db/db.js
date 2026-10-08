@@ -4,10 +4,10 @@ import Dexie from 'dexie';
 export const db = new Dexie('ObraVozDB');
 
 // Definimos a versão do esquema com os índices essenciais para consultas rápidas
-db.version(1).stores({
+db.version(2).stores({
   obras: 'id, user_id, nome_obra, status',
   diarios_obra: 'id, obra_id, user_id, data_relatorio, sync_status',
-  midias_audio: 'id, diario_id'
+  midias_audio: 'id, diario_id, criado_em'
 });
 
 /**
