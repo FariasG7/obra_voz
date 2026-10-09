@@ -2,7 +2,6 @@
 import React, { useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../db/db';
-import './page/SelecaoObraPage.css';
 
 export function SelecaoObraPage({ onSessaoIniciada }) {
   // Carrega as obras cadastradas localmente
@@ -51,23 +50,21 @@ export function SelecaoObraPage({ onSessaoIniciada }) {
 
     localStorage.setItem('obravoz_sessao_ativa', JSON.stringify(sessaoObra));
 
-    // Se houver uma função passada por props para atualizar o estado principal, chama-a
     if (typeof onSessaoIniciada === 'function') {
       onSessaoIniciada(sessaoObra);
     } else {
-      // Fallback caso recarregue a página
       window.location.reload();
     }
   };
 
   return (
     <div className="min-h-screen bg-slate-900 text-white p-4 flex flex-col justify-center items-center">
-      <div className="w-full max-w-md bg-slate-800 p-6 rounded-2xl shadow-xl space-y-6">
+      <div className="w-full max-w-md bg-slate-800 p-8 rounded-2xl shadow-2xl border border-slate-700 space-y-6">
         
         {/* Cabeçalho */}
         <div className="text-center border-b border-slate-700 pb-4">
-          <h1 className="text-2xl font-bold text-blue-400">ObraVoz</h1>
-          <p className="text-sm text-slate-400 mt-1">Configurar Turno de Trabalho</p>
+          <h1 className="text-3xl font-extrabold text-blue-400 tracking-wide">ObraVoz</h1>
+          <p className="text-sm text-slate-400 mt-1 font-medium">Configurar Turno de Trabalho</p>
         </div>
 
         <form onSubmit={handleConfirmarContexto} className="space-y-5">
@@ -75,13 +72,13 @@ export function SelecaoObraPage({ onSessaoIniciada }) {
           {/* 1. Seleção da Obra */}
           <div>
             <label className="block text-sm font-semibold mb-2 text-slate-200">
-              1. Qual é a Obra de Hoje? *
+              1. Qual é a Obra de Hoje? <span className="text-blue-400">*</span>
             </label>
             <select
               value={obraId}
               onChange={(e) => setObraId(e.target.value)}
               required
-              className="w-full p-3 rounded-lg bg-slate-700 text-white border border-slate-600 focus:outline-none focus:border-blue-500"
+              className="w-full p-3.5 rounded-xl bg-slate-900 text-white border border-slate-600 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all"
             >
               <option value="">-- Selecione uma obra --</option>
               {obras?.map((obra) => (
@@ -99,10 +96,10 @@ export function SelecaoObraPage({ onSessaoIniciada }) {
             </label>
             <input
               type="text"
-              placeholder="Ex: Bloco A - Laje do 2º Piso / Pala"
+              placeholder="Ex: Bloco A - Laje do 2º Piso"
               value={setor}
               onChange={(e) => setSetor(e.target.value)}
-              className="w-full p-3 rounded-lg bg-slate-700 text-white border border-slate-600 focus:outline-none focus:border-blue-500"
+              className="w-full p-3.5 rounded-xl bg-slate-900 text-white border border-slate-600 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all placeholder:text-slate-500"
             />
           </div>
 
@@ -118,41 +115,43 @@ export function SelecaoObraPage({ onSessaoIniciada }) {
                 placeholder="Nome do colaborador"
                 value={colaboradorInput}
                 onChange={(e) => setColaboradorInput(e.target.value)}
-                className="flex-1 p-3 rounded-lg bg-slate-700 text-white border border-slate-600 focus:outline-none focus:border-blue-500"
+                className="flex-1 p-3.5 rounded-xl bg-slate-900 text-white border border-slate-600 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all placeholder:text-slate-500"
               />
               <button
                 type="button"
                 onClick={handleAddColaborador}
-                className="bg-blue-600 hover:bg-blue-500 text-white px-4 rounded-lg font-bold"
+                className="bg-blue-600 hover:bg-blue-500 text-white px-5 rounded-xl font-bold shadow-md transition-colors cursor-pointer flex items-center justify-center text-lg"
               >
                 +
               </button>
             </div>
 
             {/* Chips de Colaboradores Adicionados */}
-            <div className="flex flex-wrap gap-2 mt-2">
-              {colaboradores.map((colaborador, index) => (
-                <span
-                  key={index}
-                  className="bg-slate-700 text-slate-200 px-3 py-1 rounded-full text-xs flex items-center gap-2 border border-slate-600"
-                >
-                  {colaborador}
-                  <button
-                    type="button"
-                    onClick={() => handleRemoveColaborador(index)}
-                    className="text-red-400 font-bold hover:text-red-300"
+            {colaboradores.length > 0 && (
+              <div className="flex flex-wrap gap-2 mt-3 p-3 bg-slate-900/50 rounded-xl border border-slate-700/50 max-h-32 overflow-y-auto">
+                {colaboradores.map((colaborador, index) => (
+                  <span
+                    key={index}
+                    className="bg-slate-700 text-slate-200 px-3 py-1.5 rounded-lg text-xs font-medium flex items-center gap-2 border border-slate-600 shadow-sm"
                   >
-                    ×
-                  </button>
-                </span>
-              ))}
-            </div>
+                    {colaborador}
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveColaborador(index)}
+                      className="text-red-400 font-bold hover:text-red-300 ml-1 cursor-pointer"
+                    >
+                      ✕
+                    </button>
+                  </span>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Botão de Confirmação */}
           <button
             type="submit"
-            className="w-full py-4 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl shadow-lg transition duration-200 text-lg mt-4 cursor-pointer"
+            className="w-full py-4 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl shadow-lg shadow-blue-600/30 transition-all duration-200 text-base mt-6 cursor-pointer active:scale-[0.99]"
           >
             Iniciar Registo de Obra
           </button>
