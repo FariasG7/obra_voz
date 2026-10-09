@@ -328,6 +328,13 @@ function MainContent() {
 
       <main className="content">
         {/* CARD DO RELATO E FOTOS */}
+      
+      {/* Cabeçalho idêntico ao fluxo do diário */}
+      <div style={{ textAlign: 'center', margin: '20px 0' }}>
+        <h2 style={{ color: 'var(--blue-light)', fontSize: '1.5rem', fontWeight: 'bold' }}>Relatório do dia</h2>
+        <p style={{ color: '#888', fontSize: '0.9rem', marginTop: '4px' }}>Descreva as atividades realizadas</p>
+      </div>
+
         <div className="card">
           <textarea 
             value={texto} 
