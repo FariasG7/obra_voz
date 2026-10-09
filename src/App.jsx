@@ -4,13 +4,15 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import MainContent from './MainContent';
 import { Login } from './components/Login';
 import { SelecaoObraPage } from './pages/SelecaoObraPage';
+import { Navbar } from './components/Navbar';
 
 function Roteador() {
   const { logado, carregando } = useAuth();
 
-  // Estado para verificar se a sessão de obra já foi configurada
-  const [sessaoAtiva, setSessaoAtiva] = useState(() => {
-    return localStorage.getItem('obravoz_sessao_ativa');
+  // Controla a página ativa: 'selecao' ou 'relatos'
+  const [paginaAtual, setPaginaAtual] = useState(() => {
+    const sessao = localStorage.getItem('obravoz_sessao_ativa');
+    return sessao ? 'relatos' : 'selecao';
   });
 
   if (carregando) {
@@ -23,24 +25,27 @@ function Roteador() {
     );
   }
 
-  // Se não estiver logado, mostra o Login
   if (!logado) {
     return <Login />;
   }
 
-  // Se estiver logado mas ainda não escolheu a obra/turno, mostra a página de seleção
-  if (!sessaoAtiva) {
-    return (
-      <SelecaoObraPage 
-        onSessaoIniciada={(novaSessao) => {
-          setSessaoAtiva(novaSessao);
-        }} 
-      />
-    );
-  }
+  return (
+    <div className="container">
+      {/* Barra de Navegação Superior */}
+      <Navbar paginaAtual={paginaAtual} setPaginaAtual={setPaginaAtual} />
 
-  // Se estiver logado e com a sessão ativa, mostra o conteúdo principal (Relatos / Diário)
-  return <MainContent />;
+      {/* Renderização condicional baseada na aba ativa */}
+      <div style={{ marginTop: '10px' }}>
+        {paginaAtual === 'selecao' ? (
+          <SelecaoObraPage 
+            onSessaoIniciada={() => setPaginaAtual('relatos')} 
+          />
+        ) : (
+          <MainContent />
+        )}
+      </div>
+    </div>
+  );
 }
 
 export default function App() {
