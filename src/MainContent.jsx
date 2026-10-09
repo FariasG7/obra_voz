@@ -326,7 +326,6 @@ function MainContent() {
   return (
     <div className="container">
       <header className="header">
-        <h1>🏗️ ObraVoz</h1>
         <div className="clima-badge">{clima}</div>
       </header>
 
