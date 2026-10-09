@@ -4,16 +4,13 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../db/db';
 
 export function SelecaoObraPage({ onSessaoIniciada }) {
-  // Carrega as obras cadastradas localmente
   const obras = useLiveQuery(() => db.obras.toArray(), []);
 
-  // Estados do formulário de contexto do dia
   const [obraId, setObraId] = useState('');
   const [setor, setSetor] = useState('');
   const [colaboradorInput, setColaboradorInput] = useState('');
   const [colaboradores, setColaboradores] = useState([]);
 
-  // Adiciona um colaborador à lista visual
   const handleAddColaborador = (e) => {
     e.preventDefault();
     if (colaboradorInput.trim()) {
@@ -22,12 +19,10 @@ export function SelecaoObraPage({ onSessaoIniciada }) {
     }
   };
 
-  // Remove um colaborador da lista
   const handleRemoveColaborador = (index) => {
     setColaboradores(colaboradores.filter((_, i) => i !== index));
   };
 
-  // Grava o contexto da sessão e avança para a tela principal
   const handleConfirmarContexto = (e) => {
     e.preventDefault();
 
@@ -38,7 +33,6 @@ export function SelecaoObraPage({ onSessaoIniciada }) {
 
     const obraSelecionada = obras?.find((o) => o.id === Number(obraId) || o.id === obraId);
 
-    // Guarda a sessão ativa no localStorage para uso em todas as telas
     const sessaoObra = {
       obraId,
       nomeObra: obraSelecionada?.nome_obra || '',
@@ -57,88 +51,194 @@ export function SelecaoObraPage({ onSessaoIniciada }) {
     }
   };
 
+  // Estilos inline para garantir design perfeito independentemente do Tailwind
+  const styles = {
+    container: {
+      minHeight: '100vh',
+      backgroundColor: '#0f172a',
+      color: '#ffffff',
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      padding: '16px',
+      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+    },
+    card: {
+      width: '100%',
+      maxWidth: '440px',
+      backgroundColor: '#1e293b',
+      padding: '32px',
+      borderRadius: '16px',
+      boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.3)',
+      border: '1px solid #334155',
+    },
+    header: {
+      textAlign: 'center',
+      borderBottom: '1px solid #334155',
+      paddingBottom: '16px',
+      marginBottom: '24px',
+    },
+    title: {
+      fontSize: '28px',
+      fontWeight: '800',
+      color: '#60a5fa',
+      margin: '0',
+    },
+    subtitle: {
+      fontSize: '14px',
+      color: '#94a3b8',
+      marginTop: '4px',
+    },
+    group: {
+      marginBottom: '20px',
+    },
+    label: {
+      display: 'block',
+      fontSize: '14px',
+      fontWeight: '600',
+      marginBottom: '8px',
+      color: '#e2e8f0',
+    },
+    input: {
+      width: '100%',
+      padding: '12px 16px',
+      fontSize: '15px',
+      borderRadius: '10px',
+      backgroundColor: '#0f172a',
+      color: '#ffffff',
+      border: '1px solid #475569',
+      outline: 'none',
+      boxSizing: 'border-box',
+    },
+    row: {
+      display: 'flex',
+      gap: '8px',
+    },
+    addButton: {
+      backgroundColor: '#2563eb',
+      color: '#ffffff',
+      border: 'none',
+      borderRadius: '10px',
+      padding: '0 20px',
+      fontWeight: 'bold',
+      fontSize: '18px',
+      cursor: 'pointer',
+    },
+    chipsContainer: {
+      display: 'flex',
+      flexWrap: 'wrap',
+      gap: '8px',
+      marginTop: '12px',
+      maxHeight: '120px',
+      overflowY: 'auto',
+      padding: '8px',
+      backgroundColor: '#0f172a',
+      borderRadius: '10px',
+      border: '1px solid #334155',
+    },
+    chip: {
+      backgroundColor: '#334155',
+      color: '#f1f5f9',
+      padding: '6px 12px',
+      borderRadius: '8px',
+      fontSize: '12px',
+      display: 'flex',
+      alignItems: 'center',
+      gap: '8px',
+      border: '1px solid #475569',
+    },
+    removeBtn: {
+      background: 'none',
+      border: 'none',
+      color: '#f87171',
+      fontWeight: 'bold',
+      cursor: 'pointer',
+      fontSize: '14px',
+    },
+    submitButton: {
+      width: '100%',
+      padding: '14px',
+      backgroundColor: '#2563eb',
+      color: '#ffffff',
+      fontWeight: '700',
+      fontSize: '16px',
+      border: 'none',
+      borderRadius: '10px',
+      cursor: 'pointer',
+      marginTop: '8px',
+      boxShadow: '0 4px 12px rgba(37, 99, 235, 0.4)',
+    },
+  };
+
   return (
-    <div className="min-h-screen bg-slate-900 text-white p-4 flex flex-col justify-center items-center">
-      <div className="w-full max-w-md bg-slate-800 p-8 rounded-2xl shadow-2xl border border-slate-700 space-y-6">
+    <div style={styles.container}>
+      <div style={styles.card}>
         
-        {/* Cabeçalho */}
-        <div className="text-center border-b border-slate-700 pb-4">
-          <h1 className="text-3xl font-extrabold text-blue-400 tracking-wide">ObraVoz</h1>
-          <p className="text-sm text-slate-400 mt-1 font-medium">Configurar Turno de Trabalho</p>
+        <div style={styles.header}>
+          <h1 style={styles.title}>ObraVoz</h1>
+          <p style={styles.subtitle}>Configurar Turno de Trabalho</p>
         </div>
 
-        <form onSubmit={handleConfirmarContexto} className="space-y-5">
+        <form onSubmit={handleConfirmarContexto}>
           
-          {/* 1. Seleção da Obra */}
-          <div>
-            <label className="block text-sm font-semibold mb-2 text-slate-200">
-              1. Qual é a Obra de Hoje? <span className="text-blue-400">*</span>
+          <div style={styles.group}>
+            <label style={styles.label}>
+              1. Qual é a Obra de Hoje? <span style={{ color: '#60a5fa' }}>*</span>
             </label>
             <select
               value={obraId}
               onChange={(e) => setObraId(e.target.value)}
               required
-              className="w-full p-3.5 rounded-xl bg-slate-900 text-white border border-slate-600 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all"
+              style={styles.input}
             >
-              <option value="">-- Selecione uma obra --</option>
+              <option value="" style={{ backgroundColor: '#0f172a' }}>-- Selecione uma obra --</option>
               {obras?.map((obra) => (
-                <option key={obra.id} value={obra.id}>
+                <option key={obra.id} value={obra.id} style={{ backgroundColor: '#0f172a' }}>
                   {obra.nome_obra}
                 </option>
               ))}
             </select>
           </div>
 
-          {/* 2. Setor / Pavimento */}
-          <div>
-            <label className="block text-sm font-semibold mb-2 text-slate-200">
-              2. Setor ou Pavimento
-            </label>
+          <div style={styles.group}>
+            <label style={styles.label}>2. Setor ou Pavimento</label>
             <input
               type="text"
               placeholder="Ex: Bloco A - Laje do 2º Piso"
               value={setor}
               onChange={(e) => setSetor(e.target.value)}
-              className="w-full p-3.5 rounded-xl bg-slate-900 text-white border border-slate-600 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all placeholder:text-slate-500"
+              style={styles.input}
             />
           </div>
 
-          {/* 3. Colaboradores da Equipa */}
-          <div>
-            <label className="block text-sm font-semibold mb-2 text-slate-200">
-              3. Colaboradores Presentes
-            </label>
-            
-            <div className="flex gap-2 mb-2">
+          <div style={styles.group}>
+            <label style={styles.label}>3. Colaboradores Presentes</label>
+            <div style={styles.row}>
               <input
                 type="text"
                 placeholder="Nome do colaborador"
                 value={colaboradorInput}
                 onChange={(e) => setColaboradorInput(e.target.value)}
-                className="flex-1 p-3.5 rounded-xl bg-slate-900 text-white border border-slate-600 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all placeholder:text-slate-500"
+                style={{ ...styles.input, flex: 1 }}
               />
               <button
                 type="button"
                 onClick={handleAddColaborador}
-                className="bg-blue-600 hover:bg-blue-500 text-white px-5 rounded-xl font-bold shadow-md transition-colors cursor-pointer flex items-center justify-center text-lg"
+                style={styles.addButton}
               >
                 +
               </button>
             </div>
 
-            {/* Chips de Colaboradores Adicionados */}
             {colaboradores.length > 0 && (
-              <div className="flex flex-wrap gap-2 mt-3 p-3 bg-slate-900/50 rounded-xl border border-slate-700/50 max-h-32 overflow-y-auto">
+              <div style={styles.chipsContainer}>
                 {colaboradores.map((colaborador, index) => (
-                  <span
-                    key={index}
-                    className="bg-slate-700 text-slate-200 px-3 py-1.5 rounded-lg text-xs font-medium flex items-center gap-2 border border-slate-600 shadow-sm"
-                  >
+                  <span key={index} style={styles.chip}>
                     {colaborador}
                     <button
                       type="button"
                       onClick={() => handleRemoveColaborador(index)}
-                      className="text-red-400 font-bold hover:text-red-300 ml-1 cursor-pointer"
+                      style={styles.removeBtn}
                     >
                       ✕
                     </button>
@@ -148,11 +248,7 @@ export function SelecaoObraPage({ onSessaoIniciada }) {
             )}
           </div>
 
-          {/* Botão de Confirmação */}
-          <button
-            type="submit"
-            className="w-full py-4 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl shadow-lg shadow-blue-600/30 transition-all duration-200 text-base mt-6 cursor-pointer active:scale-[0.99]"
-          >
+          <button type="submit" style={styles.submitButton}>
             Iniciar Registo de Obra
           </button>
         </form>
