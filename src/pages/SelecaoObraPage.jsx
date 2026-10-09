@@ -1,11 +1,10 @@
 // src/pages/SelecaoObraPage.jsx
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../db/db';
 
 export function SelecaoObraPage() {
-  const navigate = useNavigate();
+  //const navigate = useNavigate();
 
   // Carrega as obras cadastradas localmente
   const obras = useLiveQuery(() => db.obras.toArray(), []);
