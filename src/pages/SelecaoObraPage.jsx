@@ -56,11 +56,14 @@ export function SelecaoObraPage({ onSessaoIniciada }) {
       dataInicioSessao: new Date().toISOString(),
     };
 
+    // Grava a sessão ativa no localStorage
     localStorage.setItem('obravoz_sessao_ativa', JSON.stringify(sessaoObra));
 
+    // Se a função de callback foi fornecida pelo App, executa-a para alternar para o MainContent
     if (typeof onSessaoIniciada === 'function') {
       onSessaoIniciada(sessaoObra);
     } else {
+      // Recarrega a página como plano de fundo para atualizar o estado global do App
       window.location.reload();
     }
   };
@@ -177,7 +180,7 @@ export function SelecaoObraPage({ onSessaoIniciada }) {
       fontSize: '16px',
       border: 'none',
       borderRadius: '10px',
-      cursor: 'pointer',
+.      cursor: 'pointer',
       marginTop: '8px',
       boxShadow: '0 4px 12px rgba(37, 99, 235, 0.4)',
     },
