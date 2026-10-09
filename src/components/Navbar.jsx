@@ -39,7 +39,7 @@ export function Navbar({ paginaAtual, setPaginaAtual }) {
 
   return (
     <nav style={navStyle}>
-      <div style={logoStyle}>ObraVoz</div>
+      <div style={logoStyle}>  <h1>🏗️ ObraVoz</h1></div>
       <div style={menuStyle}>
         <button 
           style={btnStyle(paginaAtual === 'selecao')} 

@@ -70,7 +70,6 @@ export function SelecaoObraPage({ onSessaoIniciada }) {
       <div className="card" style={{ width: '100%', maxWidth: '420px' }}>
         
         <div className="header" style={{ position: 'relative', background: 'transparent', borderBottom: '1px solid #333', paddingBottom: '15px', marginBottom: '20px' }}>
-          <h1>ObraVoz</h1>
           <p style={{ color: '#888', fontSize: '0.9rem', marginTop: '4px' }}>Configurar Turno de Trabalho</p>
         </div>
 
