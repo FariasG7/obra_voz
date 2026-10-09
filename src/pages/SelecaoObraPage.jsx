@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../db/db';
-import './page/SelecaoObraPage.css';
+import './SelecaoObraPage.css';
 
 export function SelecaoObraPage({ onSessaoIniciada }) {
   // Carrega as obras cadastradas localmente
