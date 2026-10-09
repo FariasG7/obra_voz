@@ -61,7 +61,7 @@ export function Navbar({ paginaAtual, setPaginaAtual }) {
     <nav style={navStyle}>
       <div style={leftSectionStyle}>
         <h1 style={logoStyle}>🏗️ ObraVoz</h1>
-        <div style={climaBadgeStyle}>{clima}</div>
+        <div className={'clima-badge'}style={climaBadgeStyle}>{clima}</div>
       </div>
 
       <div style={menuStyle}>
