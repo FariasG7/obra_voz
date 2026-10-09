@@ -4,10 +4,7 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../db/db';
 import './SelecaoObraPage.css';
 
-
-export function SelecaoObraPage() {
-  //const navigate = useNavigate();
-
+export function SelecaoObraPage({ onSessaoIniciada }) {
   // Carrega as obras cadastradas localmente
   const obras = useLiveQuery(() => db.obras.toArray(), []);
 
@@ -31,7 +28,7 @@ export function SelecaoObraPage() {
     setColaboradores(colaboradores.filter((_, i) => i !== index));
   };
 
-  // Grava o contexto da sessão e redireciona para a gravação/diário
+  // Grava o contexto da sessão e avança para a tela principal
   const handleConfirmarContexto = (e) => {
     e.preventDefault();
 
@@ -40,7 +37,7 @@ export function SelecaoObraPage() {
       return;
     }
 
-    const obraSelecionada = obras.find((o) => o.id === obraId);
+    const obraSelecionada = obras?.find((o) => o.id === Number(obraId) || o.id === obraId);
 
     // Guarda a sessão ativa no localStorage para uso em todas as telas
     const sessaoObra = {
@@ -54,8 +51,13 @@ export function SelecaoObraPage() {
 
     localStorage.setItem('obravoz_sessao_ativa', JSON.stringify(sessaoObra));
 
-    // Redireciona para o painel principal / gravação de voz
-    navigate('/diario');
+    // Se houver uma função passada por props para atualizar o estado principal, chama-a
+    if (typeof onSessaoIniciada === 'function') {
+      onSessaoIniciada(sessaoObra);
+    } else {
+      // Fallback caso recarregue a página
+      window.location.reload();
+    }
   };
 
   return (
@@ -150,7 +152,7 @@ export function SelecaoObraPage() {
           {/* Botão de Confirmação */}
           <button
             type="submit"
-            className="w-full py-4 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl shadow-lg transition duration-200 text-lg mt-4"
+            className="w-full py-4 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl shadow-lg transition duration-200 text-lg mt-4 cursor-pointer"
           >
             Iniciar Registo de Obra
           </button>
