@@ -7,6 +7,7 @@ export function SelecaoObraPage({ onSessaoIniciada }) {
   const obras = useLiveQuery(() => db.obras.toArray(), []);
 
   const [obraId, setObraId] = useState('');
+  const [novaObraNome, setNovaObraNome] = useState('');
   const [setor, setSetor] = useState('');
   const [colaboradorInput, setColaboradorInput] = useState('');
   const [colaboradores, setColaboradores] = useState([]);
@@ -31,12 +32,25 @@ export function SelecaoObraPage({ onSessaoIniciada }) {
       return;
     }
 
-    const obraSelecionada = obras?.find((o) => o.id === Number(obraId) || o.id === obraId);
+    let nomeObraFinal = '';
+    let enderecoFinal = '';
+
+    if (obraId === 'outro') {
+      if (!novaObraNome.trim()) {
+        alert('Por favor, digite o nome da nova obra.');
+        return;
+      }
+      nomeObraFinal = novaObraNome.trim();
+    } else {
+      const obraSelecionada = obras?.find((o) => o.id === Number(obraId) || o.id === obraId);
+      nomeObraFinal = obraSelecionada?.nome_obra || '';
+      enderecoFinal = obraSelecionada?.endereco_completo || '';
+    }
 
     const sessaoObra = {
-      obraId,
-      nomeObra: obraSelecionada?.nome_obra || '',
-      enderecoObra: obraSelecionada?.endereco_completo || '',
+      obraId: obraId === 'outro' ? 'custom_' + Date.now() : obraId,
+      nomeObra: nomeObraFinal,
+      enderecoObra: enderecoFinal,
       setorPavimento: setor,
       colaboradores,
       dataInicioSessao: new Date().toISOString(),
@@ -51,7 +65,6 @@ export function SelecaoObraPage({ onSessaoIniciada }) {
     }
   };
 
-  // Estilos inline para garantir design perfeito independentemente do Tailwind
   const styles = {
     container: {
       minHeight: '100vh',
@@ -197,8 +210,23 @@ export function SelecaoObraPage({ onSessaoIniciada }) {
                   {obra.nome_obra}
                 </option>
               ))}
+              <option value="outro" style={{ backgroundColor: '#0f172a' }}>Outro (Digitar nome...)</option>
             </select>
           </div>
+
+          {obraId === 'outro' && (
+            <div style={styles.group}>
+              <label style={styles.label}>Nome da Nova Obra *</label>
+              <input
+                type="text"
+                placeholder="Digite o nome da obra"
+                value={novaObraNome}
+                onChange={(e) => setNovaObraNome(e.target.value)}
+                required
+                style={styles.input}
+              />
+            </div>
+          )}
 
           <div style={styles.group}>
             <label style={styles.label}>2. Setor ou Pavimento</label>
