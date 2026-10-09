@@ -1,7 +1,10 @@
 // src/components/Navbar.jsx
 import React from 'react';
+import { useClima } from '../hooks/useClima'; // Ajusta o caminho se necessário
 
 export function Navbar({ paginaAtual, setPaginaAtual }) {
+  const { clima } = useClima();
+
   const navStyle = {
     display: 'flex',
     justifyContent: 'space-between',
@@ -14,10 +17,27 @@ export function Navbar({ paginaAtual, setPaginaAtual }) {
     zIndex: 100,
   };
 
+  const leftSectionStyle = {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '15px',
+  };
+
   const logoStyle = {
     color: 'var(--blue-primary)',
     fontSize: '1.2rem',
     fontWeight: 'bold',
+    margin: 0,
+  };
+
+  const climaBadgeStyle = {
+    fontSize: '0.85rem',
+    color: '#ccc',
+    backgroundColor: '#252525',
+    padding: '4px 10px',
+    borderRadius: '6px',
+    border: '1px solid #333',
+    whiteSpace: 'nowrap',
   };
 
   const menuStyle = {
@@ -39,9 +59,11 @@ export function Navbar({ paginaAtual, setPaginaAtual }) {
 
   return (
     <nav style={navStyle}>
-      <div style={logoStyle}> 
-                  <h1>🏗️ ObraVoz</h1>
-</div>
+      <div style={leftSectionStyle}>
+        <h1 style={logoStyle}>🏗️ ObraVoz</h1>
+        <div style={climaBadgeStyle}>{clima}</div>
+      </div>
+
       <div style={menuStyle}>
         <button 
           style={btnStyle(paginaAtual === 'selecao')} 
