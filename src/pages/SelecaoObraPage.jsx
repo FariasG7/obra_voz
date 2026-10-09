@@ -66,13 +66,14 @@ export function SelecaoObraPage({ onSessaoIniciada }) {
   };
 
   return (
-    <div className="login-container">
-      <div className="card" style={{ width: '100%', maxWidth: '420px' }}>
-        
-        <div className="header" style={{ position: 'relative', background: 'transparent', borderBottom: '1px solid #333', paddingBottom: '15px', marginBottom: '20px' }}>
-          <p style={{ color: '#888', fontSize: '0.9rem', marginTop: '4px' }}>Configurar Turno de Trabalho</p>
-        </div>
+    <div className="content">
+      {/* Cabeçalho idêntico ao fluxo do diário */}
+      <div style={{ textAlign: 'center', margin: '20px 0' }}>
+        <h2 style={{ color: 'var(--blue-light)', fontSize: '1.5rem', fontWeight: 'bold' }}>Configurar Turno</h2>
+        <p style={{ color: '#888', fontSize: '0.9rem', marginTop: '4px' }}>Selecione as informações da obra para iniciar</p>
+      </div>
 
+      <div className="card">
         <form onSubmit={handleConfirmarContexto} className="login-form">
           
           <div className="campo-group">
@@ -155,11 +156,10 @@ export function SelecaoObraPage({ onSessaoIniciada }) {
             )}
           </div>
 
-          <button type="submit" className="btn-login" style={{ marginTop: '10px' }}>
+          <button type="submit" className="btn-login" style={{ marginTop: '15px' }}>
             Iniciar Registo de Obra
           </button>
         </form>
-
       </div>
     </div>
   );
