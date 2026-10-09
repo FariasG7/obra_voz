@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import {useNavigate} from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 export function Login() {
@@ -8,6 +9,7 @@ export function Login() {
   const [submetendo, setSubmetendo] = useState(false);
   
   const { login } = useAuth();
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -17,8 +19,10 @@ export function Login() {
     const resultado = await login(email, senha);
     if (!resultado.sucesso) {
       setErro(resultado.erro || 'Erro ao efetuar login.');
-    }
+    
     setSubmetendo(false);
+  }else{
+    navigate('/src/pages/SelecaoObrapage');}
   };
 
   return (

@@ -3,6 +3,7 @@ import './App.css';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import MainContent from './MainContent';
 import { Login } from './components/Login';
+import { SelecaoObraPage } from './pages/SelecaoObraPage';
 
 function Roteador() {
   const { logado, carregando } = useAuth();
@@ -17,7 +18,7 @@ function Roteador() {
     );
   }
 
-  return logado ? <MainContent /> : <Login />;
+  return logado ? <SelecaoObraPage /> : <Login />;
 }
 
 export default function App() {
