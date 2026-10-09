@@ -325,9 +325,6 @@ function MainContent() {
 
   return (
     <div className="container">
-      <header className="header">
-        <div className="clima-badge">{clima}</div>
-      </header>
 
       <main className="content">
         {/* CARD DO RELATO E FOTOS */}
