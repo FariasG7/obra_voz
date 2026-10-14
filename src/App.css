@@ -6,8 +6,8 @@
   --green: #16A085;
   --red: #C82647;
   --orange: #EB9532;
-  --blue-primary: #007AFF;
-  --blue-light: #4A90E2;
+  --blue-primary: #2AA1C0; /* Novo tom de azul aplicado */
+  --blue-light: #5AB3D4;
 }
 
 * {
@@ -271,7 +271,7 @@ body {
 /* --- 7. BOTÃO GERAR PDF E SAIR --- */
 .btn-finalizar {
   width: 100%; 
-  background: linear-gradient(135deg, var(--blue-primary) 0%, #005BBF 100%) !important;
+  background: linear-gradient(135deg, var(--blue-primary) 0%, #17708C 100%) !important;
   color: white !important; 
   font-size: 16px; 
   padding: 18px; 
@@ -279,7 +279,7 @@ body {
   border: none; 
   font-weight: bold; 
   text-transform: uppercase;
-  box-shadow: 0 4px 15px rgba(0, 122, 255, 0.3); 
+  box-shadow: 0 4px 15px rgba(42, 161, 192, 0.3); 
   cursor: pointer;
   display: block;
 }
@@ -303,7 +303,7 @@ body {
 
 .clima-badge { 
   font-size: 11px; 
-  background: rgba(74, 144, 226, 0.1); 
+  background: rgba(42, 161, 192, 0.1); 
   color: var(--blue-light); 
   padding: 4px 10px; 
   border-radius: 10px; 
@@ -395,7 +395,7 @@ body {
 
 .btn-login { 
   width: 100%; 
-  background: linear-gradient(135deg, var(--blue-primary) 0%, #005BBF 100%) !important; 
+  background: linear-gradient(135deg, var(--blue-primary) 0%, #17708C 100%) !important; 
   color: white !important; 
   padding: 14px; 
   border-radius: 12px; 
