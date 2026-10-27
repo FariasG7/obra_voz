@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { Cadastro } from './Cadastro';
 
 export function Login() {
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
   const [erro, setErro] = useState('');
   const [submetendo, setSubmetendo] = useState(false);
+  const [mostrandoCadastro, setMostrandoCadastro] = useState(false);
   
   const { login } = useAuth();
 
@@ -20,6 +22,11 @@ export function Login() {
     }
     setSubmetendo(false);
   };
+
+  // Se o utilizador clicou para se cadastrar, mostra o componente de Cadastro
+  if (mostrandoCadastro) {
+    return <Cadastro aoVoltarAoLogin={() => setMostrandoCadastro(false)} />;
+  }
 
   return (
     <div className="login-container">
@@ -58,6 +65,23 @@ export function Login() {
             {submetendo ? 'Entrando...' : 'Entrar'}
           </button>
         </form>
+
+        <div style={{ marginTop: '15px', textAlign: 'center' }}>
+          <button 
+            type="button"
+            onClick={() => setMostrandoCadastro(true)}
+            style={{ 
+              background: 'none', 
+              border: 'none', 
+              color: 'var(--blue-primary, #007AFF)', 
+              cursor: 'pointer', 
+              fontSize: '0.9rem',
+              textDecoration: 'underline' 
+            }}
+          >
+            Não tem conta? Cadastrar novo utilizador
+          </button>
+        </div>
       </div>
     </div>
   );
