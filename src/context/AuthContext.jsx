@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { autenticarUtilizador } from '../db/usuarioService';
 
 const AuthContext = createContext({});
 
@@ -20,15 +21,16 @@ export function AuthProvider({ children }) {
   }, []);
 
   const login = async (email, senha) => {
-    // Simulação de login local (Substituir no futuro por Supabase/Firebase/API)
-    const emailLimpo = email ? email.trim() : '';
-    const senhaLimpa = senha ? senha.trim() : '';
+    // Validação real utilizando o Neon e cache local (Dexie)
+    const resultado = await autenticarUtilizador(email, senha);
 
-    if (emailLimpo && senhaLimpa.length >= 4) {
+    if (resultado.sucesso) {
       const dadosUsuario = { 
-        email: emailLimpo, 
-        nome: emailLimpo.split('@')[0], 
-        token: 'fake-jwt-token' 
+        id: resultado.usuario.id,
+        email: resultado.usuario.email, 
+        nome: resultado.usuario.nome || email.split('@')[0], 
+        permissao: resultado.usuario.permissao || 'user',
+        token: 'neon-db-session' 
       };
       
       setUsuario(dadosUsuario);
@@ -36,7 +38,7 @@ export function AuthProvider({ children }) {
       return { sucesso: true };
     }
     
-    return { sucesso: false, erro: 'E-mail ou senha inválidos.' };
+    return { sucesso: false, erro: resultado.erro || 'E-mail ou senha inválidos.' };
   };
 
   const logout = () => {
