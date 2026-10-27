@@ -8,6 +8,7 @@ db.version(2).stores({
   obras: 'id, user_id, nome_obra, status, synced',
   diarios_obra: 'id, obra_id, user_id, data_relatorio, sync_status, synced',
   midias_audio: 'id, diario_id, criado_em, synced'
+  usuarios: '++id, email, permissao'
 });
 
 /**
