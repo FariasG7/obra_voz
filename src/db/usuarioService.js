@@ -1,40 +1,59 @@
 import { db } from './db';
 import { sql } from '../services/neonClient';
 
-// --- AUTENTICAR UTILIZADOR (ONLINE + OFFLINE FALLBACK) ---
+// --- AUTENTICAR UTILIZADOR (ONLINE COM TIMEOUT + OFFLINE FALLBACK) ---
 export async function autenticarUtilizador(email, password) {
   const emailLimpo = email.toLowerCase().trim();
 
+  // Timeout de segurança (5 segundos) para evitar que a app fique pendurada
+  const consultarNeonComTimeout = async () => {
+    const timeoutPromise = new Promise((_, reject) => 
+      setTimeout(() => reject(new Error('Timeout de ligação')), 5000)
+    );
+
+    const queryPromise = sql`
+      SELECT id, nome, email, permissao, password 
+      FROM usuarios 
+      WHERE email = ${emailLimpo} AND password = ${password}
+      LIMIT 1;
+    `;
+
+    return Promise.race([queryPromise, timeoutPromise]);
+  };
+
   try {
-    // Se estiver online, valida diretamente na base de dados do Neon
     if (navigator.onLine) {
-      const resultado = await sql`
-        SELECT id, nome, email, permissao, password 
-        FROM usuarios 
-        WHERE email = ${emailLimpo} AND password = ${password}
-        LIMIT 1;
-      `;
+      try {
+        const resultado = await consultarNeonComTimeout();
 
-      if (resultado && resultado.length > 0) {
-        const usuario = resultado[0];
+        if (resultado && resultado.length > 0) {
+          const usuario = resultado[0];
+          
+          await db.usuarios.put({
+            id: usuario.id,
+            nome: usuario.nome,
+            email: usuario.email,
+            permissao: usuario.permissao,
+            synced: 1
+          });
+
+          return { sucesso: true, usuario };
+        } else {
+          return { sucesso: false, erro: 'Email ou palavra-passe incorretos.' };
+        }
+      } catch (neonErr) {
+        console.warn('Neon indisponível ou timeout, a verificar base local...', neonErr);
         
-        // Guarda/atualiza na cache local do Dexie para futuras sessões offline
-        await db.usuarios.put({
-          id: usuario.id,
-          nome: usuario.nome,
-          email: usuario.email,
-          permissao: usuario.permissao,
-          synced: 1
-        });
-
-        return { sucesso: true, usuario };
-      } else {
-        return { sucesso: false, erro: 'Email ou palavra-passe incorretos.' };
+        // Fallback local se o Neon falhar
+        const usuarioLocal = await db.usuarios.where('email').equals(emailLimpo).first();
+        if (usuarioLocal) {
+          return { sucesso: true, usuario: usuarioLocal };
+        }
+        return { sucesso: false, erro: 'Utilizador não encontrado ou sem ligação ao servidor.' };
       }
     } else {
-      // Modo Offline: Procura na base de dados local Dexie
+      // Modo Offline puro
       const usuarioLocal = await db.usuarios.where('email').equals(emailLimpo).first();
-      
       if (usuarioLocal) {
         return { sucesso: true, usuario: usuarioLocal };
       } else {
@@ -42,17 +61,12 @@ export async function autenticarUtilizador(email, password) {
       }
     }
   } catch (error) {
-    console.error('Erro na autenticação com o Neon, a testar cache local...', error);
-    
-    // Fallback de segurança para o Dexie caso o Neon falhe temporariamente
-    const usuarioLocal = await db.usuarios.where('email').equals(emailLimpo).first();
-    if (usuarioLocal) {
-      return { sucesso: true, usuario: usuarioLocal };
-    }
-
-    return { sucesso: false, erro: 'Erro de ligação ao servidor e utilizador sem cache local.' };
+    console.error('Erro geral na autenticação:', error);
+    return { sucesso: false, erro: 'Erro ao tentar efetuar login.' };
   }
 }
+
+
 
 // --- CADASTRAR OU ATUALIZAR UTILIZADOR NO INDEXEDDB ---
 export async function cadastrarUsuarioLocal(nome, email, permissao) {
