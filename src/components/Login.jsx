@@ -11,17 +11,23 @@ export function Login() {
   
   const { login } = useAuth();
 
-  const handleSubmit = async (e) => {
+    const handleSubmit = async (e) => {
     e.preventDefault();
     setErro('');
     setSubmetendo(true);
 
-    const resultado = await login(email, senha);
-    if (!resultado.sucesso) {
-      setErro(resultado.erro || 'Erro ao efetuar login.');
+    try {
+      const resultado = await login(email, senha);
+      if (!resultado.sucesso) {
+        setErro(resultado.erro || 'Erro ao efetuar login.');
+      }
+    } catch (err) {
+      setErro('Ocorreu um erro inesperado.');
+    } finally {
+      setSubmetendo(false); // Garante que o botão destrava sempre
     }
-    setSubmetendo(false);
   };
+
 
   // Se o utilizador clicou para se cadastrar, mostra o componente de Cadastro
   if (mostrandoCadastro) {
