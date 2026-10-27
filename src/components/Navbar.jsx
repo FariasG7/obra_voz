@@ -1,4 +1,20 @@
-import { db, generateUUID } from '../db/db';
+// src/components/Navbar.jsx
+import React from 'react';
+
+export function Navbar({ paginaAtual, setPaginaAtual }) {
+  return (
+    <nav style={{ padding: '15px', backgroundColor: '#1A1A1A', color: '#FFF', display: 'flex', justifyContent: 'space-between' }}>
+      <h2>🏗️ ObraVoz</h2>
+      <div>
+        <button onClick={() => setPaginaAtual('selecao')} style={{ marginRight: '10px' }}>Turno / Obra</button>
+        <button onClick={() => setPaginaAtual('relatos')}>Relatos (Diário)</button>
+      </div>
+    </nav>
+  );
+}
+
+
+/** import { db, generateUUID } from '../db/db';
 import { sincronizarComNuvem } from '../services/syncService';
 
 // Dentro da Navbar:
