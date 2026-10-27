@@ -1,6 +1,9 @@
 import { db } from './db';
 import { sql } from '../services/neonClient';
 
+
+
+
 // --- AUTENTICAR UTILIZADOR (ONLINE COM TIMEOUT + OFFLINE FALLBACK) ---
 export async function autenticarUtilizador(email, password) {
   const emailLimpo = email.toLowerCase().trim();
@@ -69,10 +72,12 @@ export async function autenticarUtilizador(email, password) {
 
 
 // --- CADASTRAR OU ATUALIZAR UTILIZADOR NO INDEXEDDB ---
+
 export async function cadastrarUsuarioLocal(nome, email, permissao) {
   try {
     const emailLimpo = email.toLowerCase().trim();
     
+    // Verifica se o e-mail já existe
     const usuarioExistente = await db.usuarios.where('email').equals(emailLimpo).first();
 
     if (usuarioExistente) {
@@ -80,7 +85,9 @@ export async function cadastrarUsuarioLocal(nome, email, permissao) {
       return { sucesso: true, mensagem: "Permissão atualizada com sucesso!" };
     }
 
+    // Adiciona novo utilizador com ID gerado
     const id = await db.usuarios.add({
+      id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()),
       nome,
       email: emailLimpo,
       permissao,
@@ -93,6 +100,8 @@ export async function cadastrarUsuarioLocal(nome, email, permissao) {
     return { sucesso: false, erro: "Erro ao guardar no banco local." };
   }
 }
+
+
 
 // --- LISTAR TODOS OS UTILIZADORES AUTORIZADOS ---
 export async function listarUsuariosLocais() {
