@@ -11,8 +11,7 @@ import {
   FaPlus,
   FaSignOutAlt,
   FaTimes,
-  FaDownload,
-  FaPrint
+  FaDownload
 } from 'react-icons/fa';
 import { useAuth } from './context/AuthContext';
 
@@ -317,7 +316,6 @@ function MainContent() {
         });
       }
 
-      // Cria o blob e define a URL para abrir no Modal Flutuante
       const pdfBlob = doc.output('blob');
       const blobUrl = URL.createObjectURL(pdfBlob);
       const dataHoje = new Date().toISOString().slice(0, 10);
@@ -335,7 +333,6 @@ function MainContent() {
 
   return (
     <div className="container">
-
       <main className="content">
         <div style={{ textAlign: 'center', margin: '20px 0' }}>
           <h2 style={{ color: 'var(--blue-light)', fontSize: '1.5rem', fontWeight: 'bold' }}>Relatório do dia</h2>
@@ -348,3 +345,228 @@ function MainContent() {
             onChange={(e) => setTexto(e.target.value)} 
             placeholder="Relate o trabalho de hoje..." 
             className="textarea" 
+          />
+
+          <div className="acoes">
+            <button 
+              onClick={alternarGravacao} 
+              className={`icon-btn btn-mic ${gravando ? 'recording' : ''}`}
+              title="Gravar por voz"
+            >
+              <FaMicrophone />
+            </button>
+
+            <label className="icon-btn btn-cam" title="Tirar foto">
+              <FaCamera />
+              <input type="file" accept="image/*" capture="environment" onChange={handleFoto} hidden />
+            </label>
+
+            <label className="icon-btn btn-clip" title="Anexar foto">
+              <FaPaperclip />
+              <input type="file" accept="image/*" multiple onChange={handleFoto} hidden />
+            </label>
+          </div>
+
+          {fotos.length > 0 && (
+            <div className="galeria-preview">
+              {fotos.map((f, i) => (
+                <div key={i} className="foto-item">
+                  <img src={f} alt="foto da obra" />
+                  <button className="btn-remover-foto" onClick={() => removerFoto(i)}>×</button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* CARD DAS MEDIÇÕES */}
+        <div className="card" style={{ marginTop: '20px' }}>
+          <div className="seletor-medicao-header">
+            <h3>Medições:</h3>
+            <div className="header-medicao-acoes">
+              <button onClick={adicionarLinhaMedicao} className="btn-add-icon" title="Adicionar Linha">
+                <FaPlus />
+              </button>
+              <select 
+                value={tipoMedicao} 
+                onChange={(e) => setTipoMedicao(e.target.value)}
+                className="select-tipo-medicao"
+              >
+                <option value="cofragem">📐 Cofragem (m²)</option>
+                <option value="betao">🧱 Betão (m³)</option>
+              </select>
+            </div>
+          </div>
+
+          {medicoes.map((item) => (
+            <div key={item.id} className="row-inputs">
+              <select
+                className="select-elemento"
+                value={item.nome}
+                onChange={(e) => atualizarMedicao(item.id, 'nome', e.target.value)}
+              >
+                <option value="Pilar">Pilar</option>
+                <option value="Parede">Parede</option>
+                <option value="Escada">Escada</option>
+                <option value="Sapata">Sapata</option>
+                <option value="Laje">Laje</option>
+                <option value="Caixa de Elevador">Caixa de Elevador</option>
+                <option value="Outro">Outro</option>
+              </select>
+
+              <input 
+                type="number" 
+                placeholder="Qtd" 
+                title="Quantidade"
+                value={item.quantidade}
+                min="1"
+                onChange={(e) => atualizarMedicao(item.id, 'quantidade', e.target.value)}
+              />
+
+              <input 
+                type="number" 
+                placeholder="L" 
+                title="Largura"
+                value={item.largura}
+                onChange={(e) => atualizarMedicao(item.id, 'largura', e.target.value)}
+              />
+
+              <input 
+                type="number" 
+                placeholder="A" 
+                title="Altura"
+                value={item.altura}
+                onChange={(e) => atualizarMedicao(item.id, 'altura', e.target.value)}
+              />
+
+              <input 
+                type="number" 
+                placeholder="C" 
+                title="Comprimento"
+                value={item.comprimento}
+                onChange={(e) => atualizarMedicao(item.id, 'comprimento', e.target.value)}
+              />
+
+              <button 
+                type="button" 
+                className="btn-delete"
+                onClick={() => removerLinhaMedicao(item.id)}
+                title="Apagar Linha"
+              >
+                <FaTrash size={14} />
+              </button>
+            </div>
+          ))}
+        </div>
+
+        {/* BOTÕES FINAIS */}
+        <div style={{ marginTop: '20px' }}>
+          <button className="btn-finalizar" onClick={gerarPDF}>
+            <FaRegFilePdf style={{ marginRight: '8px' }} /> Gerar Relatório PDF
+          </button>
+
+          <button onClick={logout} className="btn-sair">
+            <FaSignOutAlt style={{ marginRight: '5px' }} /> Sair da Conta
+          </button>
+        </div>
+      </main>
+
+      {/* MODAL FLUVIANTE / OVERLAY PARA VISUALIZAÇÃO DO PDF */}
+      {pdfUrl && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          width: '100vw',
+          height: '100vh',
+          backgroundColor: 'rgba(0, 0, 0, 0.75)',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          zIndex: 9999,
+          padding: '20px'
+        }}>
+          <div style={{
+            backgroundColor: '#1e1e1e',
+            width: '100%',
+            maxWidth: '850px',
+            height: '90vh',
+            borderRadius: '12px',
+            display: 'flex',
+            flexDirection: 'column',
+            overflow: 'hidden',
+            boxShadow: '0 10px 25px rgba(0,0,0,0.5)',
+            border: '1px solid #333'
+          }}>
+            {/* Cabeçalho do Modal */}
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              padding: '15px 20px',
+              backgroundColor: '#252526',
+              borderBottom: '1px solid #333',
+              color: '#fff'
+            }}>
+              <h3 style={{ margin: 0, fontSize: '1.1rem' }}>📄 Visualizar Relatório PDF</h3>
+              <div style={{ display: 'flex', gap: '10px' }}>
+                <a 
+                  href={pdfUrl} 
+                  download={nomePdfGerado}
+                  style={{
+                    backgroundColor: '#0066cc',
+                    color: '#fff',
+                    border: 'none',
+                    padding: '8px 12px',
+                    borderRadius: '6px',
+                    cursor: 'pointer',
+                    textDecoration: 'none',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    fontSize: '0.85rem'
+                  }}
+                >
+                  <FaDownload /> Baixar
+                </a>
+                <button 
+                  onClick={() => setPdfUrl(null)}
+                  style={{
+                    backgroundColor: '#d9534f',
+                    color: '#fff',
+                    border: 'none',
+                    padding: '8px 12px',
+                    borderRadius: '6px',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    fontSize: '0.85rem'
+                  }}
+                >
+                  <FaTimes /> Fechar
+                </button>
+              </div>
+            </div>
+
+            {/* Corpo do Modal com o visualizador do PDF */}
+            <div style={{ flex: 1, backgroundColor: '#525659', padding: '10px' }}>
+              <iframe 
+                src={pdfUrl} 
+                title="Visualizador de PDF"
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  border: 'none',
+                  borderRadius: '4px'
+                }}
+              />
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default MainContent;
