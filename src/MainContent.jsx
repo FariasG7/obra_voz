@@ -9,7 +9,10 @@ import {
   FaRegFilePdf, 
   FaTrash,
   FaPlus,
-  FaSignOutAlt
+  FaSignOutAlt,
+  FaTimes,
+  FaDownload,
+  FaPrint
 } from 'react-icons/fa';
 import { useAuth } from './context/AuthContext';
 
@@ -34,6 +37,10 @@ function MainContent() {
   const [status, setStatus] = useState('Aguardando...');
   const [gravando, setGravando] = useState(false);
   const [clima, setClima] = useState('Buscando localização...');
+  
+  // --- ESTADO DO MODAL PDF ---
+  const [pdfUrl, setPdfUrl] = useState(null);
+  const [nomePdfGerado, setNomePdfGerado] = useState('');
 
   const recognitionRef = useRef(null);
   const wakeLockRef = useRef(null);
@@ -310,13 +317,16 @@ function MainContent() {
         });
       }
 
+      // Cria o blob e define a URL para abrir no Modal Flutuante
+      const pdfBlob = doc.output('blob');
+      const blobUrl = URL.createObjectURL(pdfBlob);
       const dataHoje = new Date().toISOString().slice(0, 10);
-      const nomeArquivo = `Relatorio_ObraVoz_${dataHoje}.pdf`;
-
-      doc.save(nomeArquivo);
+      
+      setPdfUrl(blobUrl);
+      setNomePdfGerado(`Relatorio_ObraVoz_${dataHoje}.pdf`);
+      
       limparFormulario();
-
-      setStatus("✅ PDF Baixado e Dados Limpos!");
+      setStatus("✅ PDF Gerado com Sucesso!");
     } catch (err) {
       console.error("Erro no PDF:", err);
       setStatus("❌ Erro no PDF");
@@ -327,13 +337,10 @@ function MainContent() {
     <div className="container">
 
       <main className="content">
-        {/* CARD DO RELATO E FOTOS */}
-      
-      {/* Cabeçalho idêntico ao fluxo do diário */}
-      <div style={{ textAlign: 'center', margin: '20px 0' }}>
-        <h2 style={{ color: 'var(--blue-light)', fontSize: '1.5rem', fontWeight: 'bold' }}>Relatório do dia</h2>
-        <p style={{ color: '#888', fontSize: '0.9rem', marginTop: '4px' }}>Descreva as atividades realizadas</p>
-      </div>
+        <div style={{ textAlign: 'center', margin: '20px 0' }}>
+          <h2 style={{ color: 'var(--blue-light)', fontSize: '1.5rem', fontWeight: 'bold' }}>Relatório do dia</h2>
+          <p style={{ color: '#888', fontSize: '0.9rem', marginTop: '4px' }}>Descreva as atividades realizadas</p>
+        </div>
 
         <div className="card">
           <textarea 
@@ -341,133 +348,3 @@ function MainContent() {
             onChange={(e) => setTexto(e.target.value)} 
             placeholder="Relate o trabalho de hoje..." 
             className="textarea" 
-          />
-
-          <div className="acoes">
-            <button 
-              onClick={alternarGravacao} 
-              className={`icon-btn btn-mic ${gravando ? 'recording' : ''}`}
-              title="Gravar por voz"
-            >
-              <FaMicrophone />
-            </button>
-
-            <label className="icon-btn btn-cam" title="Tirar foto">
-              <FaCamera />
-              <input type="file" accept="image/*" capture="environment" onChange={handleFoto} hidden />
-            </label>
-
-            <label className="icon-btn btn-clip" title="Anexar foto">
-              <FaPaperclip />
-              <input type="file" accept="image/*" multiple onChange={handleFoto} hidden />
-            </label>
-          </div>
-
-          {fotos.length > 0 && (
-            <div className="galeria-preview">
-              {fotos.map((f, i) => (
-                <div key={i} className="foto-item">
-                  <img src={f} alt="foto da obra" />
-                  <button className="btn-remover-foto" onClick={() => removerFoto(i)}>×</button>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* CARD DAS MEDIÇÕES */}
-        <div className="card" style={{ marginTop: '20px' }}>
-          <div className="seletor-medicao-header">
-            <h3>Medições:</h3>
-            <div className="header-medicao-acoes">
-              <button onClick={adicionarLinhaMedicao} className="btn-add-icon" title="Adicionar Linha">
-                <FaPlus />
-              </button>
-              <select 
-                value={tipoMedicao} 
-                onChange={(e) => setTipoMedicao(e.target.value)}
-                className="select-tipo-medicao"
-              >
-                <option value="cofragem">📐 Cofragem (m²)</option>
-                <option value="betao">🧱 Betão (m³)</option>
-              </select>
-            </div>
-          </div>
-
-          {medicoes.map((item) => (
-            <div key={item.id} className="row-inputs">
-              <select
-                className="select-elemento"
-                value={item.nome}
-                onChange={(e) => atualizarMedicao(item.id, 'nome', e.target.value)}
-              >
-                <option value="Pilar">Pilar</option>
-                <option value="Parede">Parede</option>
-                <option value="Escada">Escada</option>
-                <option value="Sapata">Sapata</option>
-                <option value="Laje">Laje</option>
-                <option value="Caixa de Elevador">Caixa de Elevador</option>
-                <option value="Outro">Outro</option>
-              </select>
-
-              <input 
-                type="number" 
-                placeholder="Qtd" 
-                title="Quantidade"
-                value={item.quantidade}
-                min="1"
-                onChange={(e) => atualizarMedicao(item.id, 'quantidade', e.target.value)}
-              />
-
-              <input 
-                type="number" 
-                placeholder="L" 
-                title="Largura"
-                value={item.largura}
-                onChange={(e) => atualizarMedicao(item.id, 'largura', e.target.value)}
-              />
-
-              <input 
-                type="number" 
-                placeholder="A" 
-                title="Altura"
-                value={item.altura}
-                onChange={(e) => atualizarMedicao(item.id, 'altura', e.target.value)}
-              />
-
-              <input 
-                type="number" 
-                placeholder="C" 
-                title="Comprimento"
-                value={item.comprimento}
-                onChange={(e) => atualizarMedicao(item.id, 'comprimento', e.target.value)}
-              />
-
-              <button 
-                type="button" 
-                className="btn-delete"
-                onClick={() => removerLinhaMedicao(item.id)}
-                title="Apagar Linha"
-              >
-                <FaTrash size={14} />
-              </button>
-            </div>
-          ))}
-        </div>
-
-        {/* BOTÕES FINAIS */}
-        <div style={{ marginTop: '20px' }}>
-          <button className="btn-finalizar" onClick={gerarPDF}>
-            <FaRegFilePdf style={{ marginRight: '8px' }} /> Gerar Relatório PDF
-          </button>
-
-          <button onClick={logout} className="btn-sair">
-            <FaSignOutAlt style={{ marginRight: '5px' }} /> Sair da Conta
-          </button>
-        </div>
-      </main>
-    </div>
-  );
-}
-
-export default MainContent;
