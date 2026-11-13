@@ -10,14 +10,15 @@ export function AuthProvider({ children }) {
   const [usuario, setUsuario] = useState(null);
   const [carregando, setCarregando] = useState(true);
 
-  const logout = useCallback(() => {
+    const logout = useCallback(() => {
     setUsuario(null);
     localStorage.removeItem('obravoz_user');
     sessionStorage.removeItem('obravoz_user');
     
-    // Limpa rascunhos de relatórios pendentes ao sair
+    // Limpa rascunhos de relatórios pendentes e a obra ativa ao sair
     localStorage.removeItem('diario_texto');
     localStorage.removeItem('diario_medicoes');
+    localStorage.removeItem('obravoz_sessao_ativa');
   }, []);
 
   // Função inteligente que verifica validade e aplica a regra das 19h
