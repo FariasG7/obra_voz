@@ -127,6 +127,14 @@ export function Navbar({ paginaAtual, setPaginaAtual }) {
         </button>
 
         <button 
+          style={btnStyle(paginaAtual === 'perfil')} 
+          onClick={() => setPaginaAtual('perfil')}
+        >
+          🔐 Perfil & Equipa
+        </button>
+
+        
+        <button 
           style={btnSyncStyle} 
           onClick={executarTesteSync}
           disabled={loading}
