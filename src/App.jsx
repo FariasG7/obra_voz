@@ -7,12 +7,13 @@ import { Navbar } from './components/Navbar';
 import { SelecaoObraPage } from './pages/SelecaoObraPage';
 import { NovoDiarioScreen } from './screens/NovoDiarioScreen';
 import { HistoricoDiariosScreen } from './pages/HistoricoDiariosScreen';
+import { PerfilGestaoPage } from './pages/PerfilGestaoPage';
 
 function Roteador() {
   const { logado, carregando } = useAuth();
   const [sessaoAtiva, setSessaoAtiva] = useState(null);
 
-  // Controla a página ativa: 'selecao', 'relatos' ou 'historico'
+  // Controla a página ativa: 'selecao', 'relatos', 'historico' ou 'perfil'
   const [paginaAtual, setPaginaAtual] = useState(() => {
     const sessao = localStorage.getItem('obravoz_sessao_ativa');
     return sessao ? 'relatos' : 'selecao';
@@ -74,6 +75,10 @@ function Roteador() {
               console.log('Diário selecionado para inspeção:', diario);
             }} 
           />
+        )}
+
+        {paginaAtual === 'perfil' && (
+          <PerfilGestaoPage />
         )}
       </main>
     </div>
