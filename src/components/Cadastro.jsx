@@ -251,7 +251,7 @@ export function Cadastro({ aoVoltarAoLogin }) {
                 textDecoration: 'underline' 
               }}
             >
-              Voltar ao Login
+              Login
             </button>
           </div>
         )}

@@ -131,7 +131,7 @@ export function Login() {
               textDecoration: 'underline' 
             }}
           >
-            Não tem conta? Cadastrar novo utilizador
+            Não tem conta? Cadastre-se
           </button>
         </div>
       </div>
