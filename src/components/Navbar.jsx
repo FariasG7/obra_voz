@@ -45,46 +45,51 @@ export function Navbar({ paginaAtual, setPaginaAtual }) {
     position: 'sticky',
     top: 0,
     zIndex: 100,
+    boxSizing: 'border-box',
+    width: '100%'
   };
 
   const leftSectionStyle = {
     display: 'flex',
     alignItems: 'center',
-    gap: '15px',
+    gap: '12px',
+    flexWrap: 'wrap'
   };
 
   const logoStyle = {
-    color: 'var(--blue-primary)',
     fontSize: '1.2rem',
     fontWeight: 'bold',
     margin: 0,
+    display: 'flex',
+    alignItems: 'center',
+    gap: '2px'
   };
 
   const menuStyle = {
     display: 'flex',
-    gap: '10px',
+    gap: '8px',
     alignItems: 'center',
   };
 
   const btnStyle = (ativo) => ({
-    background: ativo ? 'var(--blue-primary)' : 'transparent',
+    background: ativo ? 'var(--blue-primary, #2AA1C0)' : '#252525',
     color: '#fff',
     border: '1px solid #333',
-    padding: '8px 14px',
+    padding: '8px 12px',
     borderRadius: '8px',
-    fontSize: '0.9rem',
+    fontSize: '0.85rem',
     cursor: 'pointer',
     fontWeight: '600',
     transition: 'background 0.2s',
   });
 
   const btnSyncStyle = {
-    background: loading ? '#555' : '#2AA1C0',
+    background: loading ? '#555' : 'var(--blue-primary, #2AA1C0)',
     color: '#fff',
     border: '1px solid #333',
-    padding: '8px 14px',
+    padding: '8px 12px',
     borderRadius: '8px',
-    fontSize: '0.9rem',
+    fontSize: '0.85rem',
     cursor: loading ? 'not-allowed' : 'pointer',
     fontWeight: '600',
   };
@@ -92,8 +97,12 @@ export function Navbar({ paginaAtual, setPaginaAtual }) {
   return (
     <nav style={navStyle}>
       <div style={leftSectionStyle}>
-        <h1 style={logoStyle}>🏗️ Obra</h1><h1 style={{ ...logoStyle, color: '#fff' }}>Voz</h1>
-        <div className={'clima-badge'} style={{ fontSize: '0.85rem', color: '#ccc', backgroundColor: '#252525', padding: '4px 10px', borderRadius: '6px', border: '1px solid #333', whiteSpace: 'nowrap' }}>{clima}</div>
+        <h1 style={logoStyle}>
+          🏗️ <span style={{ color: 'var(--blue-primary, #2AA1C0)' }}>Obra</span><span style={{ color: '#fff' }}>Voz</span>
+        </h1>
+        <div style={{ fontSize: '0.8rem', color: '#ccc', backgroundColor: '#252525', padding: '4px 8px', borderRadius: '6px', border: '1px solid #333', whiteSpace: 'nowrap' }}>
+          {clima || 'Clima indisponível'}
+        </div>
       </div>
 
       <div style={menuStyle}>
@@ -101,21 +110,22 @@ export function Navbar({ paginaAtual, setPaginaAtual }) {
           style={btnStyle(paginaAtual === 'selecao')} 
           onClick={() => setPaginaAtual('selecao')}
         >
-          Turno / Obra
+          Turno
         </button>
         <button 
           style={btnStyle(paginaAtual === 'relatos')} 
           onClick={() => setPaginaAtual('relatos')}
         >
-          Relatos (Diário)
+          Relatos
         </button>
 
         <button 
           style={btnSyncStyle} 
           onClick={executarTesteSync}
           disabled={loading}
+          title="Testar Sincronização com o Neon"
         >
-          {loading ? 'A sync...' : '🔄 Testar Sync'}
+          {loading ? 'A sync...' : '🔄 Sync'}
         </button>
       </div>
     </nav>
