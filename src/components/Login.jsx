@@ -41,7 +41,9 @@ export function Login() {
   return (
     <div className="login-container">
       <div className="login-box">
-        <h1>🏗️ ObraVoz</h1>
+        <h1>
+           🏗️ <span style={{ color: 'var(--blue-primary, #2AA1C0)' }}>Obra</span><span style={{ color: '#fff' }}>Voz</span>
+        </h1>
         <p className="login-subtitulo">Diário de Obra Inteligente</p>
         
         {erro && <div className="login-erro">{erro}</div>}
