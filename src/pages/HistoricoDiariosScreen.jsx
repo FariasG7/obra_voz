@@ -1,7 +1,8 @@
+// src/pages/HistoricoDiariosScreen.jsx
 import React, { useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../db/db';
-import { sincronizarComNuvem } from '../services/syncService'; // Ajuste o caminho se necessário
+import { sincronizarComNuvem } from '../services/syncService';
 import '../App.css';
 
 export function HistoricoDiariosScreen({ onSelecionarDiario }) {
@@ -79,7 +80,7 @@ export function HistoricoDiariosScreen({ onSelecionarDiario }) {
         </div>
       )}
 
-        {/* Lista de Diários */}
+      {/* Lista de Diários */}
       {!diarios ? (
         <p style={{ textAlign: 'center', color: '#888' }}>A carregar diários...</p>
       ) : diarios.length === 0 ? (
@@ -151,5 +152,9 @@ export function HistoricoDiariosScreen({ onSelecionarDiario }) {
           })}
         </div>
       )}
+
+    </div>
+  );
+}
 
 export default HistoricoDiariosScreen;
