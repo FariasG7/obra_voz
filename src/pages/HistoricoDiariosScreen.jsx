@@ -79,10 +79,10 @@ export function HistoricoDiariosScreen({ onSelecionarDiario }) {
         </div>
       )}
 
-      {/* Lista de Diários */}
+        {/* Lista de Diários */}
       {!diarios ? (
         <p style={{ textAlign: 'center', color: '#888' }}>A carregar diários...</p>
-      ​) : diarios.length === 0 ? (
+      ) : diarios.length === 0 ? (
         <div className="card" style={{ textAlign: 'center', padding: '40px 20px', color: '#888' }}>
           <p style={{ fontSize: '1.1rem', marginBottom: '8px' }}>📭 Nenhum diário registado ainda.</p>
           <p style={{ fontSize: '0.85rem' }}>Os diários criados em campo aparecerão aqui.</p>
@@ -151,8 +151,5 @@ export function HistoricoDiariosScreen({ onSelecionarDiario }) {
           })}
         </div>
       )}
-    </div>
-  );
-}
 
 export default HistoricoDiariosScreen;
