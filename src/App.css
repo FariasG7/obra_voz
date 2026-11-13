@@ -74,7 +74,7 @@ body {
   margin-bottom: 15px;
 }
 
-/* --- 4. LINHA DE MEDIÇÕES (FUNDO ESCURO ORIGINAL) --- */
+/* --- 4. LINHA DE MEDIÇÕES --- */
 .seletor-medicao-header {
   display: flex;
   justify-content: space-between;
@@ -163,7 +163,7 @@ body {
   flex: 0 0 42px;
 }
 
-/* --- 5. BOTÕES REDONDOS CIRCULARES (RESTAURADOS) --- */
+/* --- 5. BOTÕES REDONDOS CIRCULARES --- */
 .acoes {
   display: flex;
   justify-content: center;
@@ -311,9 +311,9 @@ body {
   display: inline-block; 
 }
 
-/* --- 8. TELA DE LOGIN --- */
+/* --- 8. TELA DE LOGIN E CADASTRO --- */
 .login-container {
-  height: 100vh; 
+  min-height: 100vh; 
   display: flex; 
   justify-content: center; 
   align-items: center;
@@ -324,7 +324,7 @@ body {
 
 .login-box { 
   width: 100%; 
-  max-width: 380px; 
+  max-width: 400px; /* Expandido ligeiramente para acomodar melhor o cadastro */
   background: var(--card-bg); 
   padding: 30px 25px; 
   border-radius: 20px; 
@@ -401,90 +401,4 @@ body {
   border-radius: 12px; 
   border: none; 
   font-weight: bold; 
-  font-size: 1rem;
-  cursor: pointer;
-  margin-top: 10px;
-  transition: opacity 0.2s ease;
-}
-
-.btn-login:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-/* --- 9. ESTILOS ADICIONAIS PARA SELEÇÃO DE OBRA / TURNO --- */
-.obra-select {
-  width: 100%;
-  padding: 12px 14px;
-  background: #333 !important;
-  border: 1px solid #444 !important;
-  border-radius: 8px;
-  color: #fff !important;
-  font-size: 15px;
-  outline: none;
-  box-sizing: border-box;
-  cursor: pointer;
-}
-
-.obra-select:focus {
-  border-color: var(--blue-primary) !important;
-}
-
-.obra-row-add {
-  display: flex;
-  gap: 8px;
-  width: 100%;
-}
-
-.btn-add-colaborador {
-  background-color: var(--blue-primary);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  padding: 0 18px;
-  font-weight: bold;
-  font-size: 20px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: opacity 0.2s;
-}
-
-.btn-add-colaborador:hover {
-  opacity: 0.85;
-}
-
-.colaboradores-chips-container {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 10px;
-  max-height: 110px;
-  overflow-y: auto;
-  padding: 8px;
-  background: #252525;
-  border-radius: 8px;
-  border: 1px solid #333;
-}
-
-.colaborador-chip {
-  background: #333;
-  color: #fff;
-  padding: 6px 10px;
-  border-radius: 6px;
-  font-size: 12px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  border: 1px solid #444;
-}
-
-.btn-remover-chip {
-  background: none;
-  border: none;
-  color: var(--red);
-  font-weight: bold;
-  cursor: pointer;
-  font-size: 13px;
-}
+  font-size: 1rem
