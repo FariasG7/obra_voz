@@ -1,3 +1,4 @@
+// src/components/FormDiario.jsx
 import React, { useState, useEffect } from 'react';
 import { useObraVozDB } from '../hooks/useObraVozDB';
 
@@ -49,89 +50,143 @@ export function FormDiario() {
   };
 
   return (
-    <div className="p-4 max-w-2xl mx-auto space-y-4">
+    <div className="content space-y-4" style={{ maxWidth: '700px', margin: '0 auto', padding: '15px' }}>
       {/* Resumo da Sessão Ativa */}
       {sessao ? (
-        <div className="bg-slate-800 text-white p-4 rounded-xl border border-slate-700 space-y-1">
-          <div className="flex justify-between items-center">
-            <span className="text-xs uppercase font-semibold text-blue-400">Contexto da Obra</span>
-            <span className="text-xs text-slate-400">
+        <div className="card" style={{ background: 'var(--card-bg, #1E1E1E)', border: '1px solid var(--border, #2C2C2C)', borderRadius: '15px', padding: '20px' }}>
+          <div className="flex justify-between items-center" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+            <span style={{ fontSize: '0.75rem', fontWeight: 'bold', color: 'var(--blue-light, #5AB3D4)', textTransform: 'uppercase' }}>Contexto da Obra</span>
+            <span style={{ fontSize: '0.75rem', color: '#888' }}>
               {new Date().toLocaleDateString('pt-PT')}
             </span>
           </div>
-          <h2 className="text-lg font-bold">{sessao.nomeObra || 'Obra sem nome'}</h2>
-          <p className="text-sm text-slate-300">
-            <strong>Setor:</strong> {sessao.setorPavimento || 'Não especificado'}
+          <h2 style={{ fontSize: '1.1rem', fontWeight: 'bold', color: '#fff', marginBottom: '8px' }}>{sessao.nomeObra || 'Obra sem nome'}</h2>
+          <p style={{ fontSize: '0.9rem', color: '#ccc', marginBottom: '4px' }}>
+            <strong style={{ color: '#fff' }}>Setor:</strong> {sessao.setorPavimento || 'Não especificado'}
           </p>
-          <p className="text-sm text-slate-300">
-            <strong>Equipa ({sessao.colaboradores?.length || 0}):</strong>{' '}
+          <p style={{ fontSize: '0.9rem', color: '#ccc' }}>
+            <strong style={{ color: '#fff' }}>Equipa ({sessao.colaboradores?.length || 0}):</strong>{' '}
             {sessao.colaboradores?.length > 0
               ? sessao.colaboradores.join(', ')
               : 'Nenhum colaborador registrado'}
           </p>
         </div>
       ) : (
-        <div className="bg-amber-100 border-l-4 border-amber-500 text-amber-700 p-4 rounded">
-          <p className="text-sm font-medium">
+        <div style={{ background: 'rgba(235, 149, 50, 0.1)', borderLeft: '4px solid var(--orange, #EB9532)', color: '#EB9532', padding: '15px', borderRadius: '8px', fontSize: '0.9rem' }}>
+          <p style={{ fontWeight: '500' }}>
             Nenhuma obra foi selecionada para o turno atual.
           </p>
         </div>
       )}
 
       {/* Formulário de Diário */}
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="card space-y-4" style={{ background: 'var(--card-bg, #1E1E1E)', border: '1px solid var(--border, #2C2C2C)', borderRadius: '15px', padding: '20px', display: 'flex', flexDirection: 'column', gap: '15px' }}>
+        
         {/* Relato Principal */}
-        <div>
-          <label className="block text-sm font-bold mb-1">Relato das Atividades: *</label>
+        <div className="campo-group" style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+          <label style={{ fontSize: '0.8rem', color: '#aaa', fontWeight: '600', textTransform: 'uppercase' }}>Relato das Atividades: *</label>
           <textarea
             rows={4}
             value={relato}
             onChange={(e) => setRelato(e.target.value)}
             required
             placeholder="Digite ou utilize a gravação por voz..."
-            className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            className="textarea"
+            style={{ 
+              width: '100%', 
+              background: '#333', 
+              border: '1px solid #444', 
+              borderRadius: '8px', 
+              padding: '12px', 
+              color: '#fff', 
+              fontSize: '15px', 
+              resize: 'none', 
+              outline: 'none' 
+            }}
           />
         </div>
 
         {/* Ocorrências */}
-        <div>
-          <label className="block text-sm font-bold mb-1">Ocorrências / Imprevistos:</label>
+        <div className="campo-group" style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+          <label style={{ fontSize: '0.8rem', color: '#aaa', fontWeight: '600', textTransform: 'uppercase' }}>Ocorrências / Imprevistos:</label>
           <textarea
             rows={2}
             value={ocorrencias}
             onChange={(e) => setOcorrencias(e.target.value)}
             placeholder="Atrasos em materiais, quebra de máquinas, chuva..."
-            className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            style={{ 
+              width: '100%', 
+              background: '#333', 
+              border: '1px solid #444', 
+              borderRadius: '8px', 
+              padding: '12px', 
+              color: '#fff', 
+              fontSize: '15px', 
+              resize: 'none', 
+              outline: 'none' 
+            }}
           />
         </div>
 
         {/* Observações e Recomendações */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-bold mb-1">Observações:</label>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '15px' }}>
+          <div className="campo-group" style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+            <label style={{ fontSize: '0.8rem', color: '#aaa', fontWeight: '600', textTransform: 'uppercase' }}>Observações:</label>
             <textarea
               rows={2}
               value={observacoes}
               onChange={(e) => setObservacoes(e.target.value)}
               placeholder="Notas gerais do dia..."
-              className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              style={{ 
+                width: '100%', 
+                background: '#333', 
+                border: '1px solid #444', 
+                borderRadius: '8px', 
+                padding: '12px', 
+                color: '#fff', 
+                fontSize: '15px', 
+                resize: 'none', 
+                outline: 'none' 
+              }}
             />
           </div>
-          <div>
-            <label className="block text-sm font-bold mb-1">Recomendações:</label>
+          <div className="campo-group" style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+            <label style={{ fontSize: '0.8rem', color: '#aaa', fontWeight: '600', textTransform: 'uppercase' }}>Recomendações:</label>
             <textarea
               rows={2}
               value={recomendacoes}
               onChange={(e) => setRecomendacoes(e.target.value)}
               placeholder="Instruções para o próximo turno..."
-              className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              style={{ 
+                width: '100%', 
+                background: '#333', 
+                border: '1px solid #444', 
+                borderRadius: '8px', 
+                padding: '12px', 
+                color: '#fff', 
+                fontSize: '15px', 
+                resize: 'none', 
+                outline: 'none' 
+              }}
             />
           </div>
         </div>
 
         <button
           type="submit"
-          className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-bold shadow transition-colors"
+          className="btn-login"
+          style={{ 
+            width: '100%', 
+            background: 'linear-gradient(135deg, var(--blue-primary, #2AA1C0) 0%, #17708C 100%)', 
+            color: '#white', 
+            padding: '14px', 
+            borderRadius: '12px', 
+            border: 'none', 
+            fontWeight: 'bold', 
+            fontSize: '1rem',
+            cursor: 'pointer',
+            marginTop: '10px'
+          }}
         >
           Guardar Diário (Offline)
         </button>
