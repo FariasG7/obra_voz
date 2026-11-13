@@ -39,48 +39,51 @@ export function NovoDiarioScreen({ obraId, userId, onDiarioSalvo }) {
     setFotosBase64(prev => prev.filter((_, i) => i !== index));
   };
 
-  const handleSalvar = async (e) => {
+    const handleSalvar = async (e) => {
     e.preventDefault();
     setSalvando(true);
 
     try {
       const dadosDiario = {
+        id: crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(),
         obra_id: obraId || 'geral',
         user_id: userId || null,
         setor_pavimento: setorPavimento,
         clima: clima,
         textoRelato: relato,
         ocorrencias: ocorrencias,
-        medicoes: [], // Pode integrar as linhas de cofragem/betão aqui
+        medicoes: [], 
         fotosBase64: fotosBase64,
+        data_relatorio: new Date().toISOString().slice(0, 10),
       };
 
-      await salvarDiarioLocal(
-        dadosDiario.textoRelato,
-        dadosDiario.clima,
-        dadosDiario.medicoes,
-        dadosDiario.fotosBase64
-      );
+      // Chamada correta para o serviço que criámos
+      const resultado = await salvarDiarioLocal(dadosDiario);
 
-      setMensagemStatus('✅ Diário guardado com sucesso offline!');
-      if (onDiarioSalvo) onDiarioSalvo();
+      if (resultado.success) {
+        setMensagemStatus('✅ Diário guardado com sucesso offline!');
+        if (onDiarioSalvo) onDiarioSalvo();
 
-      // Limpa o formulário após 2 segundos
-      setTimeout(() => {
-        setRelato('');
-        setOcorrencias('');
-        setSetorPavimento('');
-        setFotosBase64([]);
-        setMensagemStatus('');
-      }, 2000);
+        // Limpa o formulário após 2 segundos
+        setTimeout(() => {
+          setRelato('');
+          setOcorrencias('');
+          setSetorPavimento('');
+          setFotosBase64([]);
+          setMensagemStatus('');
+        }, 2000);
+      } else {
+        setMensagemStatus(`❌ Erro: ${resultado.error}`);
+      }
 
     } catch (error) {
       console.error('Erro ao guardar diário:', error);
-      setMensagemStatus('❌ Erro ao guardar o diário localmente.');
+      setMensagemStatus('❌ Erro inesperado ao guardar o diário.');
     } finally {
       setSalvando(false);
     }
   };
+
 
   return (
     <div className="card" style={{ maxWidth: '600px', margin: '20px auto', padding: '20px' }}>
