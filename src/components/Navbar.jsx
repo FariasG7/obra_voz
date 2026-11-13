@@ -69,6 +69,7 @@ export function Navbar({ paginaAtual, setPaginaAtual }) {
     display: 'flex',
     gap: '8px',
     alignItems: 'center',
+    flexWrap: 'wrap'
   };
 
   const btnStyle = (ativo) => ({
@@ -118,6 +119,12 @@ export function Navbar({ paginaAtual, setPaginaAtual }) {
         >
           Relatos
         </button>
+        <button 
+          style={btnStyle(paginaAtual === 'historico')} 
+          onClick={() => setPaginaAtual('historico')}
+        >
+          📚 Histórico
+        </button>
 
         <button 
           style={btnSyncStyle} 
@@ -131,3 +138,5 @@ export function Navbar({ paginaAtual, setPaginaAtual }) {
     </nav>
   );
 }
+
+export default Navbar;
