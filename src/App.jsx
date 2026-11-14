@@ -124,8 +124,11 @@ function Roteador() {
 
 export default function App() {
   return (
-    <AuthProvider>
-      <Roteador />
-    </AuthProvider>
+    <ErrorBoundary>
+      <AuthProvider>
+        <Roteador />
+      </AuthProvider>
+    </ErrorBoundary>
   );
 }
+
