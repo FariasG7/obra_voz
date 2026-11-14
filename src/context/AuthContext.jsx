@@ -10,59 +10,47 @@ export function AuthProvider({ children }) {
   const [usuario, setUsuario] = useState(null);
   const [carregando, setCarregando] = useState(true);
 
-    const logout = useCallback(() => {
+  const logout = useCallback(() => {
     setUsuario(null);
     localStorage.removeItem('obravoz_user');
     sessionStorage.removeItem('obravoz_user');
     
-    // Limpa rascunhos de relatórios pendentes e a obra ativa ao sair
     localStorage.removeItem('diario_texto');
     localStorage.removeItem('diario_medicoes');
     localStorage.removeItem('obravoz_sessao_ativa');
   }, []);
 
-  // Função inteligente que verifica validade e aplica a regra das 19h
   const validarEMigrarSessao = useCallback(() => {
     const agora = new Date();
     const timestampAtual = agora.getTime();
     const ehHorarioNoturno = agora.getHours() >= HORA_LIMITE_NOTURNA;
 
-    // 1. Verifica primeiro se existe sessão persistente (localStorage)
     const salvoLocal = localStorage.getItem('obravoz_user');
     if (salvoLocal) {
       try {
         const dados = JSON.parse(salvoLocal);
-
-        // Se já passou das 8 horas do turno, expira imediatamente
         if (dados.expiraEm && timestampAtual > dados.expiraEm) {
           logout();
           return null;
         }
-
-        // Se já passou das 19h, migra do localStorage para sessionStorage
         if (ehHorarioNoturno) {
           sessionStorage.setItem('obravoz_user', JSON.stringify(dados));
           localStorage.removeItem('obravoz_user');
         }
-
         return dados;
       } catch {
         localStorage.removeItem('obravoz_user');
       }
     }
 
-    // 2. Verifica se existe sessão volátil (sessionStorage - após 19h)
     const salvoSessao = sessionStorage.getItem('obravoz_user');
     if (salvoSessao) {
       try {
         const dados = JSON.parse(salvoSessao);
-
-        // Continua respeitando o limite máximo de 8 horas
         if (dados.expiraEm && timestampAtual > dados.expiraEm) {
           logout();
           return null;
         }
-
         return dados;
       } catch {
         sessionStorage.removeItem('obravoz_user');
@@ -72,14 +60,12 @@ export function AuthProvider({ children }) {
     return null;
   }, [logout]);
 
-  // Carrega e valida a sessão ao iniciar o app
   useEffect(() => {
     const sessaoValida = validarEMigrarSessao();
     setUsuario(sessaoValida);
     setCarregando(false);
   }, [validarEMigrarSessao]);
 
-  // Monitora continuamente (a cada 1 minuto) se bateu 19h ou se venceu as 8h
   useEffect(() => {
     if (!usuario) return;
 
@@ -88,7 +74,7 @@ export function AuthProvider({ children }) {
       if (!sessaoAindaValida) {
         setUsuario(null);
       }
-    }, 60 * 1000); // Verifica a cada 60 segundos
+    }, 60 * 1000);
 
     return () => clearInterval(intervalo);
   }, [usuario, validarEMigrarSessao]);
@@ -109,7 +95,6 @@ export function AuthProvider({ children }) {
       
       setUsuario(dadosUsuario);
 
-      // Se o login for feito às 19h ou depois, salva direto em sessionStorage
       if (agora.getHours() >= HORA_LIMITE_NOTURNA) {
         sessionStorage.setItem('obravoz_user', JSON.stringify(dadosUsuario));
         localStorage.removeItem('obravoz_user');
@@ -126,7 +111,7 @@ export function AuthProvider({ children }) {
 
   return (
     <AuthContext.Provider value={{ usuario, logado: !!usuario, login, logout, carregando }}>
-      {!carregando && children}
+      {children}
     </AuthContext.Provider>
   );
 }
