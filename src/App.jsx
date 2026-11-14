@@ -9,6 +9,43 @@ import { NovoDiarioScreen } from './screens/NovoDiarioScreen';
 import { HistoricoDiariosScreen } from './pages/HistoricoDiariosScreen';
 import { PerfilGestaoPage } from './pages/PerfilGestaoPage';
 
+
+class ErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false, errorMessage: '', errorStack: '' };
+  }
+
+  static getDerivedStateFromError(error) {
+    return { hasError: true, errorMessage: error?.toString() || 'Erro desconhecido' };
+  }
+
+  componentDidCatch(error, errorInfo) {
+    this.setState({ errorStack: errorInfo?.componentStack || '' });
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div style={{ padding: '20px', backgroundColor: '#1e1e1e', color: '#ff6b6b', minHeight: '100vh', fontFamily: 'monospace' }}>
+          <h3>🚨 Erro capturado na renderização:</h3>
+          <p style={{ color: '#fff', fontWeight: 'bold' }}>{this.state.errorMessage}</p>
+          <pre style={{ fontSize: '12px', overflowX: 'auto', whiteSpace: 'pre-wrap', color: '#ccc' }}>
+            {this.state.errorStack}
+          </pre>
+          <button 
+            onClick={() => window.location.reload()}
+            style={{ marginTop: '16px', padding: '10px 16px', background: '#2563eb', color: '#fff', border: 'none', borderRadius: '6px' }}
+          >
+            Recarregar App
+          </button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
 function Roteador() {
   const { logado, carregando } = useAuth();
   const [sessaoAtiva, setSessaoAtiva] = useState(null);
