@@ -41,10 +41,8 @@ export function Navbar({ paginaAtual, setPaginaAtual, obraSelecionada }) {
       <div className="obra-navbar-left">
         <div className="obra-logo-container">
           <span className="obra-logo-icone">🏗️</span>
-         <h1> <span className="logo-obra">Obra</span></h1>
-
-         <h1><span className="logo-voz">Voz</span></h1>
-        
+          <span className="logo-obra">Obra</span>
+          <span className="logo-voz">Voz</span>
         </div>
         
         <div className="obra-info-badge">
@@ -54,9 +52,7 @@ export function Navbar({ paginaAtual, setPaginaAtual, obraSelecionada }) {
               <span className="obra-separator">•</span>
             </>
           )}
-          </div>
-          <div className='obra-clima-texto'>
-          <span className="obra-clima-texto">{clima}</span>
+          <span className="obra-clima-texto">{clima || 'Clima indisponível'}</span>
         </div>
       </div>
 
