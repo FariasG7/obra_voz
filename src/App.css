@@ -191,6 +191,9 @@ button {
 }
 
 .btn-guardar-diario,
+.btn-salvar-perfil,
+.btn-convidar,
+.btn-atualizar-perfil,
 .btn-login,
 .btn-finalizar {
   width: 100%;
