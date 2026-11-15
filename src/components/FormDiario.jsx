@@ -2,11 +2,13 @@
 import React, { useState, useEffect } from 'react';
 import { useObraVozDB } from '../hooks/useObraVozDB';
 import { useVoiceRecorder } from '../hooks/useVoiceRecorder';
+import { useAuth } from '../context/AuthContext'; // 1. Importa o useAuth
 import jsPDF from 'jspdf';
 
 export function FormDiario() {
   const { salvarDiarioOffline } = useObraVozDB();
   const { isRecording, transcript, erroGravacao, startRecording, stopRecording } = useVoiceRecorder('pt-PT');
+  const { user } = useAuth(); // 2. Obtém o utilizador autenticado
 
   const [sessao, setSessao] = useState(null);
   const [relato, setRelato] = useState('');
@@ -106,10 +108,11 @@ export function FormDiario() {
       observacoes: observacoes,
       recomendacoes: recomendacoes,
       transcricao_bruta: relato,
-      audio_blob: audioBlobSalvo
+      audio_blob: audioBlobSalvo,
+      user_id: user?.id || null // 3. Associa o UUID do utilizador logado corretamente
     };
 
-    // 1. Salva no IndexedDB (incluindo o Blob de áudio e transcrição)
+    // 1. Salva no IndexedDB (incluindo o Blob de áudio, transcrição e user_id)
     await salvarDiarioOffline(payloadDiario);
 
     // 2. Gera o PDF imediatamente
@@ -172,7 +175,7 @@ export function FormDiario() {
           />
         </div>
 
-        {/* Botão de Gravação por Voz Circular (Integrado com as classes do app.css) */}
+        {/* Botão de Gravação por Voz Circular */}
         <div className="acoes">
           <button
             type="button"
