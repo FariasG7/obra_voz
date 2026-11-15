@@ -6,7 +6,7 @@
   --green: #16A085;
   --red: #C82647;
   --orange: #EB9532;
-  --blue-primary: #2AA1C0; /* Novo tom de azul aplicado */
+  --blue-primary: #2AA1C0;
   --blue-light: #5AB3D4;
 }
 
@@ -21,6 +21,7 @@ body {
   background-color: var(--bg-dark);
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   color: #fff;
+  min-height: 100vh;
 }
 
 /* --- 1.1. NAVBAR --- */
@@ -58,13 +59,13 @@ body {
   font-size: 1.1rem;
 }
 
-/* Força absoluta das cores solicitadas para o logo */
+/* Cores solicitadas para o logo */
 .logo-obra {
-  color: #2AA1C0 !important; /* Azul */
+  color: #2AA1C0 !important;
 }
 
 .logo-voz {
-  color: #FFFFFF !important; /* Branco */
+  color: #FFFFFF !important;
 }
 
 .obra-info-badge {
@@ -132,11 +133,120 @@ body {
   cursor: not-allowed;
 }
 
+/* --- TELA DE LOGIN (ESTRUTURA COMPLETA IMAGEM 5) --- */
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: var(--bg-dark);
+  padding: 20px;
+}
+
+.login-box {
+  background: var(--card-bg);
+  padding: 35px 30px;
+  border-radius: 16px;
+  border: 1px solid #2C2C2C;
+  width: 100%;
+  max-width: 420px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+  text-align: center;
+}
+
+.login-box h1 {
+  font-size: 1.8rem;
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-weight: 800;
+}
+
+.login-subtitulo {
+  color: #888;
+  font-size: 0.9rem;
+  margin-bottom: 25px;
+}
+
+.login-erro {
+  background: rgba(200, 38, 71, 0.15);
+  border: 1px solid rgba(200, 38, 71, 0.4);
+  color: #ff6b81;
+  padding: 10px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  text-align: left;
+}
+
+.campo-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.campo-group label {
+  font-size: 0.8rem;
+  color: #aaa;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.login-input {
+  width: 100%;
+  padding: 12px;
+  background: #252525;
+  border: 1px solid #333;
+  border-radius: 8px;
+  color: #fff;
+  font-size: 0.95rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.login-input:focus {
+  border-color: var(--blue-primary);
+}
+
+.btn-login {
+  width: 100%;
+  background: linear-gradient(135deg, var(--blue-primary) 0%, #17708C 100%);
+  color: #fff;
+  border: none;
+  padding: 12px;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 10px;
+  box-shadow: 0 4px 15px rgba(42, 161, 192, 0.3);
+  transition: opacity 0.2s;
+}
+
+.btn-login:hover {
+  opacity: 0.9;
+}
+
+.btn-login:disabled {
+  background: #555;
+  cursor: not-allowed;
+  box-shadow: none;
+}
 
 /* --- LAYOUT PRINCIPAL E NAVBAR DO APP --- */
 .app-root-container {
   min-height: 100vh;
-  background-color: var(--bg-dark, #121212);
+  background-color: var(--bg-dark);
   color: #fff;
   padding-bottom: 50px;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -164,7 +274,7 @@ body {
 
 .app-navbar-titulo {
   font-size: 1.2rem;
-  color: var(--blue-primary, #2AA1C0);
+  color: var(--blue-primary);
   margin: 0;
   display: flex;
   align-items: center;
@@ -199,7 +309,7 @@ body {
 }
 
 .app-nav-btn.ativo {
-  background: var(--blue-primary, #2AA1C0);
+  background: var(--blue-primary);
   font-weight: bold;
   border-color: var(--blue-primary);
 }
@@ -219,6 +329,7 @@ body {
   margin: 20px auto;
   padding: 10px;
 }
+
 /* --- 2. LAYOUT --- */
 .container { 
   min-height: 100vh; 
@@ -467,10 +578,30 @@ body {
 /* --- 7. BOTÃO GERAR PDF E SAIR --- */
 .btn-finalizar {
   width: 100%; 
-  background: linear-gradient(135deg, var(--blue-primary) 0%, #17708C 100%)
+  background: linear-gradient(135deg, var(--blue-primary) 0%, #17708C 100%);
+  color: #fff;
+  border: none;
+  padding: 14px;
+  border-radius: 12px;
+  font-weight: bold;
+  font-size: 1rem;
+  cursor: pointer;
+  margin-top: 15px;
+}
 
+.btn-sair {
+  width: 100%;
+  background: rgba(200, 38, 71, 0.15);
+  color: #ff6b81;
+  border: 1px solid rgba(200, 38, 71, 0.4);
+  padding: 12px;
+  border-radius: 12px;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 10px;
+}
 
-  /* --- AUDIO PLAYER OFFLINE --- */
+/* --- OUTROS ELEMENTOS E PÁGINAS --- */
 .audio-sem-registro {
   color: #888;
   font-size: 0.9rem;
@@ -517,8 +648,6 @@ body {
   color: #aaa;
 }
 
-
-/* --- TELA DE CADASTRO E BOTÕES DE SENHA --- */
 .cadastro-sucesso-msg {
   background: rgba(42, 161, 192, 0.2);
   border: 1px solid var(--blue-primary);
@@ -585,9 +714,6 @@ body {
   color: var(--blue-light);
 }
 
-
-
-/* --- FORMULÁRIO DE DIÁRIO DE OBRA --- */
 .diario-content-wrapper {
   max-width: 700px;
   margin: 0 auto;
@@ -610,739 +736,4 @@ body {
 }
 
 .diario-sessao-tag {
-  font-size: 0.75rem;
-  font-weight: bold;
-  color: var(--blue-light, #5AB3D4);
-  text-transform: uppercase;
-}
-
-.diario-sessao-data {
-  font-size: 0.75rem;
-  color: #888;
-}
-
-.diario-sessao-titulo {
-  font-size: 1.1rem;
-  font-weight: bold;
-  color: #fff;
-  margin-bottom: 8px;
-}
-
-.diario-sessao-texto {
-  font-size: 0.9rem;
-  color: #ccc;
-  margin-bottom: 4px;
-}
-
-.diario-sessao-texto strong {
-  color: #fff;
-}
-
-.diario-alerta-aviso {
-  background: rgba(235, 149, 50, 0.1);
-  border-left: 4px solid var(--orange, #EB9532);
-  color: #EB9532;
-  padding: 15px;
-  border-radius: 8px;
-  font-size: 0.9rem;
-  font-weight: 500;
-  margin-bottom: 15px;
-}
-
-.diario-form-card {
-  background: var(--card-bg, #1E1E1E);
-  border: 1px solid var(--border, #2C2C2C);
-  border-radius: 15px;
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-}
-
-.diario-textarea {
-  width: 100%;
-  background: #333 !important;
-  border: 1px solid #444 !important;
-  border-radius: 8px;
-  padding: 12px;
-  color: #fff !important;
-  font-size: 15px;
-  resize: none;
-  outline: none;
-}
-
-.diario-textarea:focus {
-  border-color: var(--blue-primary) !important;
-}
-
-.diario-grid-duplo {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 15px;
-}
-
-.btn-guardar-diario {
-  width: 100%;
-  background: linear-gradient(135deg, var(--blue-primary, #2AA1C0) 0%, #17708C 100%) !important;
-  color: #ffffff !important;
-  padding: 14px;
-  border-radius: 12px;
-  border: none;
-  font-weight: bold;
-  font-size: 1rem;
-  cursor: pointer;
-  margin-top: 10px;
-  box-shadow: 0 4px 15px rgba(42, 161, 192, 0.3);
-}
-
-.btn-guardar-diario:hover {
-  opacity: 0.9;
-}
-
-
-
-/* --- LOGIN EXTRAS --- */
-.login-cadastro-container {
-  margin-top: 15px;
-  text-align: center;
-}
-
-.btn-link-cadastro {
-  background: none;
-  border: none;
-  color: var(--blue-primary);
-  cursor: pointer;
-  font-size: 0.9rem;
-  text-decoration: underline;
-}
-
-.btn-link-cadastro:hover {
-  color: var(--blue-light);
-}
-
-
-/* --- BOTÃO SAIR NO NAVBAR --- */
-.obra-btn-sair {
-  background: rgba(200, 38, 71, 0.15) !important;
-  border: 1px solid rgba(200, 38, 71, 0.4) !important;
-  color: #ff6b81 !important;
-  transition: background 0.2s, border-color 0.2s;
-}
-
-.obra-btn-sair:hover {
-  background: rgba(200, 38, 71, 0.3) !important;
-  border-color: var(--red) !important;
-}
-
-
-
-/* --- SELECT DE CADASTRO DE UTILIZADOR --- */
-.cadastro-select-permissao {
-  width: 100% !important;
-  height: 42px !important;
-  background: #333 !important;
-  border: 1px solid #444 !important;
-  color: #fff !important;
-  border-radius: 6px;
-  padding: 0 10px;
-  outline: none;
-}
-
-.cadastro-select-permissao option {
-  background: #1E1E1E;
-  color: #fff;
-}
-
-
-/* --- HISTÓRICO DE DIÁRIOS --- */
-.historico-content-wrapper {
-  max-width: 600px;
-  margin: 0 auto;
-  padding: 15px;
-}
-
-.historico-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-}
-
-.historico-titulo {
-  color: var(--blue-light, #5AB3D4);
-  font-size: 1.4rem;
-  font-weight: bold;
-}
-
-.historico-subtitulo {
-  color: #888;
-  font-size: 0.85rem;
-  margin-top: 2px;
-}
-
-.btn-forcar-sync {
-  background: var(--blue-primary, #2AA1C0);
-  color: #fff;
-  border: none;
-  padding: 8px 14px;
-  border-radius: 8px;
-  font-size: 0.85rem;
-  font-weight: bold;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.btn-forcar-sync:disabled {
-  background: #555;
-  cursor: not-allowed;
-}
-
-.historico-status-msg {
-  margin-bottom: 15px;
-  padding: 10px;
-  border-radius: 6px;
-  background: #222;
-  border: 1px solid #444;
-  text-align: center;
-  font-size: 0.9rem;
-}
-
-.historico-vazio-card {
-  text-align: center;
-  padding: 40px 20px;
-  color: #888;
-}
-
-.historico-lista {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.historico-item-card {
-  padding: 16px;
-  border-radius: 8px;
-  background: var(--card-bg, #1E1E1E);
-  border: 1px solid #333;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  cursor: pointer;
-  transition: border-color 0.2s;
-}
-
-.historico-item-card:hover {
-  border-color: var(--blue-primary);
-}
-
-.historico-item-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.historico-item-data {
-  font-weight: bold;
-  font-size: 1rem;
-  color: #fff;
-}
-
-.historico-badge-pendente {
-  font-size: 0.75rem;
-  padding: 3px 8px;
-  border-radius: 12px;
-  font-weight: bold;
-  background: rgba(234, 179, 8, 0.15);
-  color: #facc15;
-  border: 1px solid rgba(234, 179, 8, 0.3);
-}
-
-.historico-badge-sincronizado {
-  font-size: 0.75rem;
-  padding: 3px 8px;
-  border-radius: 12px;
-  font-weight: bold;
-  background: rgba(34, 197, 94, 0.15);
-  color: #4ade80;
-  border: 1px solid rgba(34, 197, 94, 0.3);
-}
-
-.historico-item-detalhes {
-  font-size: 0.85rem;
-  color: #ccc;
-}
-
-.historico-item-relato {
-  font-size: 0.85rem;
-  color: #999;
-  margin: 4px 0 0 0;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-
-/* --- HISTÓRICO DOCUMENTAL E MODAL --- */
-.historico-doc-wrapper {
-  max-width: 700px;
-  margin: 0 auto;
-  padding: 15px;
-}
-
-.historico-doc-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-}
-
-.historico-doc-titulo {
-  color: var(--blue-light, #5AB3D4);
-  font-size: 1.4rem;
-  font-weight: bold;
-}
-
-.historico-doc-subtitulo {
-  color: #888;
-  font-size: 0.85rem;
-  margin-top: 2px;
-}
-
-.historico-doc-filtros {
-  padding: 12px;
-  margin-bottom: 15px;
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-
-.historico-input-busca {
-  flex: 1;
-  min-width: 220px;
-  padding: 10px;
-  border-radius: 6px;
-  border: 1px solid #444;
-  background: #1a1a1a;
-  color: #fff;
-  font-size: 0.9rem;
-  outline: none;
-}
-
-.historico-input-busca:focus {
-  border-color: var(--blue-primary);
-}
-
-.historico-select-status {
-  padding: 10px;
-  border-radius: 6px;
-  border: 1px solid #444;
-  background: #1a1a1a;
-  color: #fff;
-  font-size: 0.9rem;
-  outline: none;
-}
-
-.historico-doc-item {
-  padding: 14px;
-  border-radius: 8px;
-  background: var(--card-bg, #1E1E1E);
-  border: 1px solid #333;
-  cursor: pointer;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  transition: border-color 0.2s;
-}
-
-.historico-doc-item:hover {
-  border-color: var(--blue-primary);
-}
-
-/* Modal de Detalhes e Edição */
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background-color: rgba(0,0,0,0.8);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-  padding: 15px;
-}
-
-.modal-container {
-  background: var(--card-bg, #1e1e1e);
-  width: 100%;
-  max-width: 600px;
-  max-height: 90vh;
-  border-radius: 12px;
-  border: 1px solid #444;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.6);
-}
-
-.modal-header {
-  padding: 15px 20px;
-  background: #252526;
-  border-bottom: 1px solid #333;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.modal-titulo {
-  margin: 0;
-  font-size: 1.1rem;
-  color: #fff;
-}
-
-.modal-btn-fechar {
-  background: none;
-  border: none;
-  color: #aaa;
-  font-size: 1.2rem;
-  cursor: pointer;
-}
-
-.modal-body {
-  padding: 20px;
-  overflow-y: auto;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-}
-
-.modal-label-campo {
-  font-size: 0.8rem;
-  color: #888;
-}
-
-.modal-valor-campo {
-  margin: 2px 0 0 0;
-  color: #fff;
-  font-weight: bold;
-}
-
-.modal-texto-relato {
-  margin: 4px 0 0 0;
-  color: #ddd;
-  background: #121212;
-  padding: 12px;
-  border-radius: 6px;
-  border: 1px solid #333;
-  white-space: pre-wrap;
-  font-size: 0.9rem;
-}
-
-.modal-foto-preview {
-  width: 70px;
-  height: 70px;
-  object-fit: cover;
-  border-radius: 6px;
-  border: 1px solid #444;
-}
-
-.modal-textarea-edicao {
-  width: 100%;
-  padding: 10px;
-  border-radius: 6px;
-  border: 1px solid #444;
-  background: #121212;
-  color: #fff;
-  resize: vertical;
-  outline: none;
-}
-
-.modal-textarea-edicao:focus {
-  border-color: var(--blue-primary);
-}
-
-.btn-guardar-alteracoes {
-  flex: 1;
-  background: var(--green, #16a34a);
-  color: #fff;
-  border: none;
-  padding: 10px;
-  border-radius: 6px;
-  font-weight: bold;
-  cursor: pointer;
-}
-
-.btn-cancelar-edicao {
-  background: #555;
-  color: #fff;
-  border: none;
-  padding: 10px 15px;
-  border-radius: 6px;
-  cursor: pointer;
-}
-
-
-
-/* --- PERFIL E GESTÃO CORPORATIVA (RBAC) --- */
-.perfil-content-wrapper {
-  max-width: 700px;
-  margin: 0 auto;
-  padding: 15px;
-}
-
-.perfil-header {
-  margin-bottom: 20px;
-}
-
-.perfil-titulo {
-  color: var(--blue-light, #5AB3D4);
-  font-size: 1.4rem;
-  font-weight: bold;
-}
-
-.perfil-subtitulo {
-  color: #888;
-  font-size: 0.85rem;
-  margin-top: 2px;
-}
-
-.perfil-section-card {
-  padding: 20px;
-  margin-bottom: 25px;
-  background: var(--card-bg, #1e1e1e);
-  border-radius: 10px;
-  border: 1px solid #333;
-}
-
-.perfil-section-titulo {
-  font-size: 1.1rem;
-  color: #fff;
-  margin-bottom: 15px;
-  border-bottom: 1px solid #333;
-  padding-bottom: 8px;
-}
-
-.perfil-grid-2 {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-}
-
-.perfil-label {
-  font-size: 0.8rem;
-  color: #aaa;
-  display: block;
-  margin-bottom: 4px;
-}
-
-.perfil-input {
-  width: 100%;
-  padding: 9px;
-  border-radius: 6px;
-  border: 1px solid #444;
-  background: #121212;
-  color: #fff;
-  font-size: 0.9rem;
-  outline: none;
-}
-
-.perfil-input:focus {
-  border-color: var(--blue-primary);
-}
-
-.perfil-input-disabled {
-  width: 100%;
-  padding: 9px;
-  border-radius: 6px;
-  border: 1px solid #333;
-  background: #111;
-  color: #666;
-  font-size: 0.9rem;
-  cursor: not-allowed;
-}
-
-.perfil-acoes-footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 10px;
-  flex-wrap: wrap;
-  gap: 10px;
-}
-
-.btn-salvar-perfil {
-  background: var(--blue-primary, #2AA1C0);
-  color: #fff;
-  border: none;
-  padding: 9px 16px;
-  border-radius: 6px;
-  font-weight: bold;
-  cursor: pointer;
-  font-size: 0.9rem;
-}
-
-.btn-sair-conta {
-  background: var(--red, #C82647);
-  color: #fff;
-  border: none;
-  padding: 9px 16px;
-  border-radius: 6px;
-  font-weight: bold;
-  cursor: pointer;
-  font-size: 0.9rem;
-}
-
-.perfil-feedback-msg {
-  text-align: center;
-  padding: 8px;
-  background: #222;
-  border-radius: 6px;
-  border: 1px solid #444;
-  font-size: 0.85rem;
-  color: #4ade80;
-  margin-top: 10px;
-}
-
-.rbac-descricao {
-  font-size: 0.85rem;
-  color: #888;
-  margin-bottom: 15px;
-}
-
-.rbac-form-convite {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 20px;
-  flex-wrap: wrap;
-}
-
-.btn-convidar {
-  background: var(--green, #16a34a);
-  color: #fff;
-  border: none;
-  padding: 9px 14px;
-  border-radius: 6px;
-  font-weight: bold;
-  cursor: pointer;
-  font-size: 0.9rem;
-}
-
-.rbac-membro-card {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 12px;
-  background: #121212;
-  border-radius: 8px;
-  border: 1px solid #333;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-
-.rbac-membro-nome {
-  margin: 0;
-  font-weight: bold;
-  font-size: 0.9rem;
-  color: #fff;
-}
-
-.rbac-membro-email {
-  font-size: 0.75rem;
-  color: #888;
-}
-
-.rbac-select-papel {
-  padding: 6px 10px;
-  border-radius: 6px;
-  border: 1px solid #444;
-  background: #1a1a1a;
-  font-weight: bold;
-  font-size: 0.8rem;
-  outline: none;
-}
-
-.btn-remover-membro {
-  background: none;
-  border: none;
-  color: #ef4444;
-  cursor: pointer;
-  font-size: 1rem;
-  padding: 4px;
-}
-
-/* --- SELEÇÃO DE OBRA E TURNO --- */
-.selecao-obra-card {
-  max-width: 650px;
-  margin: 30px auto;
-  padding: 30px;
-}
-
-.selecao-obra-header {
-  text-align: center;
-  margin-bottom: 25px;
-}
-
-.selecao-obra-titulo {
-  color: var(--blue-primary, #2AA1C0);
-  margin-bottom: 6px;
-  font-size: 1.5rem;
-}
-
-.selecao-obra-subtitulo {
-  color: #aaa;
-  font-size: 0.9rem;
-}
-
-.selecao-erro-msg {
-  margin-bottom: 20px;
-  padding: 10px;
-  background: rgba(200, 38, 71, 0.2);
-  border: 1px solid var(--red);
-  color: #ff6b81;
-  border-radius: 6px;
-  text-align: center;
-  font-size: 0.9rem;
-}
-
-.selecao-campo-group {
-  margin-bottom: 20px;
-}
-
-.selecao-label {
-  display: block;
-  margin-bottom: 8px;
-  font-size: 0.9rem;
-  color: #ddd;
-  font-weight: bold;
-}
-
-.selecao-select-input {
-  width: 100%;
-  padding: 12px;
-  border-radius: 6px;
-  background: #1a1a1a !important;
-  color: #fff !important;
-  border: 1px solid #555 !important;
-  font-size: 1rem;
-  outline: none;
-}
-
-.selecao-select-input:focus {
-  border-color: var(--blue-primary) !important;
-}
-
-.selecao-select-option {
-  background: #1E1E1E;
-  color: #FFF;
-}
-
-
-.selecao-campo-group-ultimo {
-  margin-bottom: 25px;
-}
+  font-size: 0
