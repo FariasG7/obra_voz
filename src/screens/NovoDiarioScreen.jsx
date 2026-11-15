@@ -1,12 +1,12 @@
 // src/screens/NovoDiarioScreen.jsx
 import React, { useState, useEffect } from 'react';
-import { useVoiceRecorder } from '../hooks/useVoiceRecorder';
-import { salvarDiarioLocal } from '../services/diarioService';
 import '../App.css';
 
 export function NovoDiarioScreen({ obraId, userId, onDiarioSalvo }) {
-  const { isRecording, transcript, erroGravacao, startRecording, stopRecording } = useVoiceRecorder('pt-PT');
-
+  // Estado local para simular ou gerir gravação com segurança contra falhas do Safari
+  const [isRecording, setIsRecording] = useState(false);
+  const [erroGravacao, setErroGravacao] = useState('');
+  
   const [setorPavimento, setSetorPavimento] = useState('');
   const [relato, setRelato] = useState('');
   const [ocorrencias, setOcorrencias] = useState('');
@@ -14,12 +14,47 @@ export function NovoDiarioScreen({ obraId, userId, onDiarioSalvo }) {
   const [salvando, setSalvando] = useState(false);
   const [mensagemStatus, setMensagemStatus] = useState('');
 
-  // Sempre que a transcrição de voz atualiza, concatena ou preenche o relato
-  useEffect(() => {
-    if (transcript) {
-      setRelato(prev => (prev ? `${prev} ${transcript}` : transcript));
+  // Tentativa segura de usar a Web Speech API nativa se suportada pelo iPad
+  const startRecording = () => {
+    try {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRecognition) {
+        setErroGravacao('O reconhecimento de voz não é suportado neste navegador. Escreva no campo.');
+        return;
+      }
+
+      const recognition = new SpeechRecognition();
+      recognition.lang = 'pt-PT';
+      recognition.interimResults = true;
+
+      recognition.onstart = () => setIsRecording(true);
+      recognition.onerror = (event) => {
+        console.error('Erro no reconhecimento de voz:', event.error);
+        setErroGravacao('Erro ao capturar voz. Tente novamente.');
+        setIsRecording(false);
+      };
+      recognition.onend = () => setIsRecording(false);
+      
+      recognition.onresult = (event) => {
+        const transcriptText = Array.from(event.results)
+          .map(result => result[0])
+          .map(result => result.transcript)
+          .join('');
+        
+        setRelato(prev => (prev ? `${prev} ${transcriptText}` : transcriptText));
+      };
+
+      recognition.start();
+    } catch (e) {
+      console.error(e);
+      setErroGravacao('Erro ao iniciar microfone.');
+      setIsRecording(false);
     }
-  }, [transcript]);
+  };
+
+  const stopRecording = () => {
+    setIsRecording(false);
+  };
 
   // Captura de fotos locais via input file (suporta câmara do iPad/telemóvel)
   const handleCapturarFoto = (e) => {
@@ -55,22 +90,21 @@ export function NovoDiarioScreen({ obraId, userId, onDiarioSalvo }) {
         data_relatorio: new Date().toISOString().slice(0, 10),
       };
 
-      const resultado = await salvarDiarioLocal(dadosDiario);
+      // Salvamento seguro direto no localStorage para evitar falhas do Dexie/IndexedDB no Safari
+      const diariosSalvos = JSON.parse(localStorage.getItem('obravoz_diarios_offline') || '[]');
+      diariosSalvos.unshift(dadosDiario);
+      localStorage.setItem('obravoz_diarios_offline', JSON.stringify(diariosSalvos));
 
-      if (resultado.success) {
-        setMensagemStatus('✅ Diário guardado com sucesso offline!');
-        if (onDiarioSalvo) onDiarioSalvo();
+      setMensagemStatus('✅ Diário guardado com sucesso offline!');
+      if (onDiarioSalvo) onDiarioSalvo();
 
-        setTimeout(() => {
-          setRelato('');
-          setOcorrencias('');
-          setSetorPavimento('');
-          setFotosBase64([]);
-          setMensagemStatus('');
-        }, 2000);
-      } else {
-        setMensagemStatus(`❌ Erro: ${resultado.error}`);
-      }
+      setTimeout(() => {
+        setRelato('');
+        setOcorrencias('');
+        setSetorPavimento('');
+        setFotosBase64([]);
+        setMensagemStatus('');
+      }, 2000);
 
     } catch (error) {
       console.error('Erro ao guardar diário:', error);
@@ -82,7 +116,7 @@ export function NovoDiarioScreen({ obraId, userId, onDiarioSalvo }) {
 
   return (
     <div className="card" style={{ maxWidth: '600px', margin: '20px auto', padding: '20px' }}>
-      <h2 style={{ color: 'var(--blue-primary)', marginBottom: '4px', fontSize: '1.4rem' }}>
+      <h2 style={{ color: 'var(--blue-primary, #3b82f6)', marginBottom: '4px', fontSize: '1.4rem' }}>
         🏗️ Registo Diário de Obra
       </h2>
       <p style={{ color: '#aaa', fontSize: '0.85rem', marginBottom: '20px' }}>
@@ -138,8 +172,7 @@ export function NovoDiarioScreen({ obraId, userId, onDiarioSalvo }) {
                 justifyContent: 'center',
                 cursor: 'pointer',
                 fontSize: '1.2rem',
-                boxShadow: isRecording ? '0 0 12px rgba(220, 38, 38, 0.7)' : 'none',
-                animation: isRecording ? 'pulse 1.5s infinite' : 'none'
+                boxShadow: isRecording ? '0 0 12px rgba(220, 38, 38, 0.7)' : 'none'
               }}
             >
               {isRecording ? '⏹️' : '🎙️'}
@@ -248,17 +281,4 @@ export function NovoDiarioScreen({ obraId, userId, onDiarioSalvo }) {
             marginTop: '10px'
           }}
         >
-          {salvando ? 'A guardar no dispositivo...' : '💾 Guardar Diário Offline'}
-        </button>
-      </form>
-
-      {mensagemStatus && (
-        <div style={{ marginTop: '15px', textAlign: 'center', padding: '10px', borderRadius: '6px', background: '#222', border: '1px solid #444', fontSize: '0.9rem' }}>
-          {mensagemStatus}
-        </div>
-      )}
-    </div>
-  );
-}
-
-export default NovoDiarioScreen;
+          {salvando ? 'A guardar no dispositivo
