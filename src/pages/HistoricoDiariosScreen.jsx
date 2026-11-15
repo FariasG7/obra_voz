@@ -1,10 +1,11 @@
+// src/pages/HistoricoDiariosScreen.jsx
 import React, { useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../db/db';
 import { useObraVozDB } from '../hooks/useObraVozDB';
+import { GestaoRelatoriosModal } from '../components/GestaoRelatoriosModal'; // <-- Importação essencial do modal
 
 export function HistoricoDiariosScreen({ onSelecionarDiario }) {
-
   const [mostrarGestaoModal, setMostrarGestaoModal] = useState(false);
   
   const { sincronizarComNeon, diariosPendentes } = useObraVozDB();
@@ -26,7 +27,6 @@ export function HistoricoDiariosScreen({ onSelecionarDiario }) {
     setMensagemStatus('🔄 A sincronizar diários com o Neon...');
 
     try {
-      // Chama a função correta do hook useObraVozDB
       const enviados = await sincronizarComNeon();
       
       if (enviados > 0) {
@@ -57,21 +57,23 @@ export function HistoricoDiariosScreen({ onSelecionarDiario }) {
           </p>
         </div>
 
+        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+          <button
+            onClick={() => setMostrarGestaoModal(true)}
+            className="btn-gestao-relatorios"
+            style={{ background: '#2563eb', color: '#fff', border: 'none', padding: '8px 14px', borderRadius: '6px', cursor: 'pointer', fontSize: '0.85rem', fontWeight: 'bold' }}
+          >
+            ⚙️ Gerir / Editar Relatórios
+          </button>
 
-        <button
-  onClick={() => setMostrarGestaoModal(true)}
-  className="btn-gestao-relatorios"
-  style={{ background: '#2563eb', color: '#fff', border: 'none', padding: '8px 14px', borderRadius: '6px', cursor: 'pointer', fontSize: '0.85rem', fontWeight: 'bold' }}
->
-  ⚙️ Gerir / Editar Relatórios
-</button>
-        <button
-          onClick={handleForcarSincronizacao}
-          disabled={sincronizando}
-          className="obra-sync-btn"
-        >
-          {sincronizando ? '🔄 A enviar...' : `☁️ Sincronizar (${diariosPendentes?.length || 0} pendentes)`}
-        </button>
+          <button
+            onClick={handleForcarSincronizacao}
+            disabled={sincronizando}
+            className="obra-sync-btn"
+          >
+            {sincronizando ? '🔄 A enviar...' : `☁️ Sincronizar (${diariosPendentes?.length || 0} pendentes)`}
+          </button>
+        </div>
       </div>
 
       {/* Mensagem de Feedback de Sync */}
@@ -118,16 +120,18 @@ export function HistoricoDiariosScreen({ onSelecionarDiario }) {
                 </div>
 
                 {/* Prévia do Relato */}
-                <p className="historico-item-relato" style={{ fontSize: '0.9rem', color: '#ccc', display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                <p className="historico-item-relato" style={{ fontSize: '0.9rem', color: '#ccc', display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden', margin: 0 }}>
                   {diario.relato_atividades || diario.textoRelato || 'Sem relato escrito.'}
-                  {mostrarGestaoModal && (
-  <GestaoRelatoriosModal onClose={() => setMostrarGestaoModal(false)} />
-)}
                 </p>
               </div>
             );
           })}
         </div>
+      )}
+
+      {/* Modal de Gestão posicionado corretamente fora da lista */}
+      {mostrarGestaoModal && (
+        <GestaoRelatoriosModal onClose={() => setMostrarGestaoModal(false)} />
       )}
 
     </div>
