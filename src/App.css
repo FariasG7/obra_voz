@@ -23,7 +23,8 @@ body {
   color: #fff;
 }
 
-/* --- 1.1. NAVBAR --- */
+/* --- ADICIONE/ATUALIZE ESTES ITENS NO SEU app.css ou Navbar.css --- */
+
 .obra-navbar {
   display: flex;
   justify-content: space-between;
@@ -41,7 +42,7 @@ body {
 .obra-navbar-left {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 15px;
   flex-wrap: wrap;
 }
 
@@ -51,26 +52,34 @@ body {
   margin: 0;
   display: flex;
   align-items: center;
-  gap: 2px;
+  gap: 4px;
 }
 
-/* Cores solicitadas para o logotipo */
+/* Força as cores independentes conforme solicitado */
 .logo-obra {
-  color: var(--blue-primary, #2AA1C0);
+  color: #2AA1C0 !important; /* Azul primário */
 }
 
 .logo-voz {
-  color: #ffffff;
+  color: #FFFFFF !important; /* Branco puro */
 }
 
-.obra-clima-badge {
+.obra-info-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   font-size: 0.8rem;
   color: #ccc;
   background-color: #252525;
-  padding: 4px 8px;
+  padding: 5px 10px;
   border-radius: 6px;
   border: 1px solid #333;
   white-space: nowrap;
+}
+
+.obra-nome-ativo {
+  color: var(--blue-light, #5AB3D4);
+  font-weight: 600;
 }
 
 .obra-navbar-menu {
