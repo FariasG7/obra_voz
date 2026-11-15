@@ -31,15 +31,20 @@
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
 
+
     <!-- Registo do Service Worker para suporte Offline -->
     <script>
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
           navigator.serviceWorker.register('/sw.js')
             .then(reg => console.log('SW registrado com sucesso!', reg))
-            .catch(err => console.error('Erro ao registrar SW:', err));
+            .catch(err => {
+              // Apenas avisa no console sem estourar erro crítico
+              console.warn('Service Worker não encontrado ou ignorado em desenvolvimento:', err.message);
+            });
         });
       }
     </script>
+    
 </body>
 </html>
