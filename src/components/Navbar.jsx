@@ -54,7 +54,7 @@ export function Navbar({ paginaAtual, setPaginaAtual, obraSelecionada }) {
               <span className="obra-separator">•</span>
             </>
           )}
-          <span className="obra-clima-texto">{clima || 'Clima indisponível'}</span>
+          <span className="obra-clima-texto">{clima}</span>
         </div>
       </div>
 
