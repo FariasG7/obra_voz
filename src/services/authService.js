@@ -14,7 +14,9 @@ export async function autenticarUtilizador(email, senha) {
     }
 
     const usuario = resultado[0];
+    console.log("Utilizador encontrado no banco:", usuario);
 
+    // Valida usando a coluna 'password'
     if (usuario.password !== senha) {
       return { sucesso: false, erro: 'Senha incorreta.' };
     }
@@ -29,13 +31,7 @@ export async function autenticarUtilizador(email, senha) {
     };
 
   } catch (err) {
-    // Exibe todas as propriedades possíveis do erro no console do navegador
-    console.error('DETALHE DO ERRO NO AUTHSERVICE:', {
-      message: err.message,
-      code: err.code,
-      detail: err.detail,
-      fullError: err
-    });
-    return { sucesso: false, erro: 'Erro interno ao processar o login: ' + (err.message || 'Desconhecido') };
+    console.error('DETALHE DO ERRO NO AUTHSERVICE:', err);
+    return { sucesso: false, erro: 'Erro interno ao processar o login.' };
   }
 }
