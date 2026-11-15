@@ -3,7 +3,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App.jsx';
 import './index.css';
-import './app.css';
+import './App.css';
 
 // Componente de segurança de último nível para capturar erros críticos de script
 class RootErrorBoundary extends React.Component {
