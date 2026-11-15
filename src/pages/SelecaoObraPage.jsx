@@ -14,13 +14,18 @@ export function SelecaoObraPage({ onSessaoIniciada }) {
       return;
     }
 
+    const listaColaboradores = colaboradores
+      ? colaboradores.split(',').map(c => c.trim()).filter(Boolean)
+      : [];
+
     const sessaoDados = {
       obraId: obraSelecionada,
+      nomeObra: obraSelecionada,
       obraNome: obraSelecionada,
       setorPavimento: setorPavimento,
       setor: setorPavimento,
       pavimento: setorPavimento,
-      colaboradores: colaboradores ? colaboradores.split(',').map(c => c.trim()) : [],
+      colaboradores: listaColaboradores,
       iniciadoEm: new Date().toISOString()
     };
 
@@ -33,8 +38,6 @@ export function SelecaoObraPage({ onSessaoIniciada }) {
 
   return (
     <div className="card selecao-obra-card">
-      
-      {/* Cabeçalho */}
       <div className="selecao-obra-header">
         <h2 className="selecao-obra-titulo">
           Configurar Turno
@@ -51,8 +54,6 @@ export function SelecaoObraPage({ onSessaoIniciada }) {
       )}
 
       <form onSubmit={handleIniciarTurno} className="login-form">
-        
-        {/* 1. Seleção de Obra */}
         <div className="campo-group selecao-campo-group">
           <label className="selecao-label">
             1. QUAL É A OBRA DE HOJE? *
@@ -70,7 +71,6 @@ export function SelecaoObraPage({ onSessaoIniciada }) {
           </select>
         </div>
 
-        {/* 2. Setor ou Pavimento */}
         <div className="campo-group selecao-campo-group">
           <label className="selecao-label">
             2. SETOR OU PAVIMENTO
@@ -84,8 +84,7 @@ export function SelecaoObraPage({ onSessaoIniciada }) {
           />
         </div>
 
-        {/* 3. Colaboradores Presentes */}
-        <div className="campo-group" style={{ marginBottom: '25px' }}>
+        <div className="campo-group selecao-campo-group-ultimo">
           <label className="selecao-label">
             3. COLABORADORES PRESENTES
           </label>
@@ -98,7 +97,6 @@ export function SelecaoObraPage({ onSessaoIniciada }) {
           />
         </div>
 
-        {/* Botão de Iniciar */}
         <button
           type="submit"
           className="btn-finalizar"
