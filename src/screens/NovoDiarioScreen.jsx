@@ -281,4 +281,17 @@ export function NovoDiarioScreen({ obraId, userId, onDiarioSalvo }) {
             marginTop: '10px'
           }}
         >
-          {salvando ? 'A guardar no dispositivo
+          {salvando ? 'A guardar no dispositivo...' : '💾 Guardar Diário Offline'}
+        </button>
+      </form>
+
+      {mensagemStatus && (
+        <div style={{ marginTop: '15px', textAlign: 'center', padding: '10px', borderRadius: '6px', background: '#222', border: '1px solid #444', fontSize: '0.9rem' }}>
+          {mensagemStatus}
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default NovoDiarioScreen;
