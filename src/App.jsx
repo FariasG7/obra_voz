@@ -8,7 +8,7 @@ import HistoricoDiariosScreen from './pages/HistoricoDiariosScreen';
 import PerfilGestaoPage from './pages/PerfilGestaoPage';
 
 export default function App() {
-  // 1. PRIMEIRO: Declaração de todos os Hooks (sem exceção)
+  // 1. PRIMEIRO: Declaração de todos os Hooks obrigatórios do React (sem exceção)
   const { user, loading, logout } = useAuth();
 
   const [sessaoAtiva, setSessaoAtiva] = useState(() => {
@@ -24,7 +24,7 @@ export default function App() {
     return localStorage.getItem('obravoz_sessao_ativa') ? 'relatos' : 'selecao';
   });
 
-  // 2. SEGUNDO: Condicionais de carregamento e autenticação (após os hooks)
+  // 2. SEGUNDO: Condicionais de carregamento e autenticação (após todos os hooks)
   if (loading) {
     return (
       <div style={{ backgroundColor: '#121212', color: '#fff', height: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
@@ -40,6 +40,18 @@ export default function App() {
   const handleSessaoIniciada = (dados) => {
     setSessaoAtiva(dados);
     setPaginaAtual('relatos');
+  };
+
+  // Função chamada APÓS o diário ser guardado com sucesso na NovoDiarioScreen
+  const handleDiarioSalvoComSucesso = (dadosDiario) => {
+    console.log('Diário guardado com sucesso:', dadosDiario);
+    
+    // SÓ AQUI limpamos os dados do turno/sessão ativa do localStorage e do estado
+    localStorage.removeItem('obravoz_sessao_ativa');
+    setSessaoAtiva(null);
+    
+    // Opcional: Redireciona para o histórico ou mantém na tela limpa para novo turno
+    // setPaginaAtual('historico');
   };
 
   const handleTerminarSessao = () => {
@@ -110,9 +122,7 @@ export default function App() {
           <NovoDiarioScreen 
             obraId={sessaoAtiva?.obraId || 'geral'} 
             userId={user?.id || null}
-            onDiarioSalvo={() => {
-              console.log('Diário guardado com sucesso!');
-            }}
+            onDiarioSalvo={handleDiarioSalvoComSucesso}
           />
         )}
 
