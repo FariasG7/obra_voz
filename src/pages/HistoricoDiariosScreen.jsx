@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../db/db';
 import { sincronizarComNuvem } from '../services/syncService';
+import { useObraVozDB } from '../hooks/useObraVozDB';
 
 export function HistoricoDiariosScreen({ onSelecionarDiario }) {
   const { sincronizarComNeon, diariosPendentes } = useObraVozDB();
