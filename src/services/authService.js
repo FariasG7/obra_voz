@@ -4,19 +4,14 @@ const sql = neon(import.meta.env.VITE_NEON_DATABASE_URL, { disableWarningInBrows
 
 export async function autenticarUtilizador(email, senha) {
   try {
-    console.log("Tentando autenticar e-mail:", email);
     const resultado = await sql`SELECT * FROM usuarios WHERE email = ${email}`;
-
-    console.log("Resultado bruto do Neon:", resultado);
 
     if (!resultado || resultado.length === 0) {
       return { sucesso: false, erro: 'Utilizador não encontrado. Verifique os dados ou cadastre-se.' };
     }
 
     const usuario = resultado[0];
-    console.log("Utilizador encontrado no banco:", usuario);
 
-    // Valida usando a coluna 'password'
     if (usuario.password !== senha) {
       return { sucesso: false, erro: 'Senha incorreta.' };
     }
@@ -24,9 +19,10 @@ export async function autenticarUtilizador(email, senha) {
     return { 
       sucesso: true, 
       usuario: { 
-        id: usuario.id, 
+        id: String(usuario.id), // Garante que o ID UUID seja tratado como string de forma segura
         email: usuario.email, 
-        nome: usuario.nome || 'Guilherme' 
+        nome: usuario.nome || 'Guilherme',
+        permissao: usuario.permissao || 'user'
       } 
     };
 
