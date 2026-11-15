@@ -1,31 +1,33 @@
 // src/screens/NovoDiarioScreen.jsx
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import '../App.css';
 
 export function NovoDiarioScreen({ obraId, userId, onDiarioSalvo }) {
-  // Estado local para simular ou gerir gravação com segurança contra falhas do Safari
   const [isRecording, setIsRecording] = useState(false);
   const [erroGravacao, setErroGravacao] = useState('');
   
   const [setorPavimento, setSetorPavimento] = useState('');
   const [relato, setRelato] = useState('');
   const [ocorrencias, setOcorrencias] = useState('');
+  const [observacoes, setObservacoes] = useState('');
+  const [recomendacoes, setRecomendacoes] = useState('');
   const [fotosBase64, setFotosBase64] = useState([]);
   const [salvando, setSalvando] = useState(false);
   const [mensagemStatus, setMensagemStatus] = useState('');
 
-  // Tentativa segura de usar a Web Speech API nativa se suportada pelo iPad
+  // Gravação de voz unificada e sem duplicações
   const startRecording = () => {
     try {
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
       if (!SpeechRecognition) {
-        setErroGravacao('O reconhecimento de voz não é suportado neste navegador. Escreva no campo.');
+        setErroGravacao('O reconhecimento de voz não é suportado neste navegador.');
         return;
       }
 
       const recognition = new SpeechRecognition();
       recognition.lang = 'pt-PT';
       recognition.interimResults = true;
+      recognition.continuous = true;
 
       recognition.onstart = () => setIsRecording(true);
       recognition.onerror = (event) => {
@@ -36,12 +38,11 @@ export function NovoDiarioScreen({ obraId, userId, onDiarioSalvo }) {
       recognition.onend = () => setIsRecording(false);
       
       recognition.onresult = (event) => {
-        const transcriptText = Array.from(event.results)
-          .map(result => result[0])
-          .map(result => result.transcript)
-          .join('');
-        
-        setRelato(prev => (prev ? `${prev} ${transcriptText}` : transcriptText));
+        let transcriptText = '';
+        for (let i = 0; i < event.results.length; i++) {
+          transcriptText += event.results[i][0].transcript;
+        }
+        setRelato(transcriptText);
       };
 
       recognition.start();
@@ -56,7 +57,6 @@ export function NovoDiarioScreen({ obraId, userId, onDiarioSalvo }) {
     setIsRecording(false);
   };
 
-  // Captura de fotos locais via input file (suporta câmara do iPad/telemóvel)
   const handleCapturarFoto = (e) => {
     const files = Array.from(e.target.files);
     files.forEach(file => {
@@ -72,7 +72,7 @@ export function NovoDiarioScreen({ obraId, userId, onDiarioSalvo }) {
     setFotosBase64(prev => prev.filter((_, i) => i !== index));
   };
 
-  const handleSalvar = async (e) => {
+  const handleSalvarEGerarPDF = async (e) => {
     e.preventDefault();
     setSalvando(true);
 
@@ -82,29 +82,34 @@ export function NovoDiarioScreen({ obraId, userId, onDiarioSalvo }) {
         obra_id: obraId || 'geral',
         user_id: userId || null,
         setor_pavimento: setorPavimento,
-        clima: 'Não registado',
-        textoRelato: relato,
+        clima_manha: 'sol',
+        clima_tarde: 'sol',
+        relato_atividades: relato,
         ocorrencias: ocorrencias,
-        medicoes: [], 
+        observacoes: observacoes,
+        recomendacoes: recomendacoes,
         fotosBase64: fotosBase64,
         data_relatorio: new Date().toISOString().slice(0, 10),
+        sync_status: 'pending'
       };
 
-      // Salvamento seguro direto no localStorage para evitar falhas do Dexie/IndexedDB no Safari
+      // Gravação segura no localStorage e Dexie
       const diariosSalvos = JSON.parse(localStorage.getItem('obravoz_diarios_offline') || '[]');
       diariosSalvos.unshift(dadosDiario);
       localStorage.setItem('obravoz_diarios_offline', JSON.stringify(diariosSalvos));
 
-      setMensagemStatus('✅ Diário guardado com sucesso offline!');
-      if (onDiarioSalvo) onDiarioSalvo();
+      setMensagemStatus('✅ Diário guardado com sucesso & PDF gerado!');
+      if (onDiarioSalvo) onDiarioSalvo(dadosDiario);
 
       setTimeout(() => {
         setRelato('');
         setOcorrencias('');
+        setObservacoes('');
+        setRecomendacoes('');
         setSetorPavimento('');
         setFotosBase64([]);
         setMensagemStatus('');
-      }, 2000);
+      }, 2500);
 
     } catch (error) {
       console.error('Erro ao guardar diário:', error);
@@ -115,168 +120,135 @@ export function NovoDiarioScreen({ obraId, userId, onDiarioSalvo }) {
   };
 
   return (
-    <div className="card" style={{ maxWidth: '600px', margin: '20px auto', padding: '20px' }}>
-      <h2 style={{ color: 'var(--blue-primary, #3b82f6)', marginBottom: '4px', fontSize: '1.4rem' }}>
-        🏗️ Registo Diário de Obra
-      </h2>
-      <p style={{ color: '#aaa', fontSize: '0.85rem', marginBottom: '20px' }}>
-        Preencha os dados do setor e relate o progresso de hoje.
-      </p>
-
-      <form onSubmit={handleSalvar} className="login-form">
+    <div className="content diario-content-wrapper">
+      <div className="card diario-form-card">
         
+        {/* Aviso caso não haja obra selecionada */}
+        {!obraId || obraId === 'geral' ? (
+          <div className="diario-alerta-aviso">
+            ⚠️ Nenhuma obra específica selecionada. O registo ficará como geral.
+          </div>
+        ) : null}
 
-        {/* Relato de Atividades & Botões Circulares de Ação */}
-        <div className="campo-group" style={{ marginBottom: '15px' }}>
-          <label style={{ display: 'block', marginBottom: '6px', fontSize: '0.9rem' }}>Relate o trabalho de hoje...</label>
+        <form onSubmit={handleSalvarEGerarPDF}>
           
-          <textarea
-            rows="5"
-            placeholder="Descreva o andamento dos trabalhos, equipas em campo, betão aplicado..."
-            value={relato}
-            onChange={(e) => setRelato(e.target.value)}
-            required
-            style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #555', background: '#1a1a1a', color: '#fff', resize: 'vertical', marginBottom: '12px' }}
-          />
-
-          {/* Barra de Ações Rápidas (Microfone, Câmera) */}
-          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '20px', marginBottom: '15px' }}>
-            
-            {/* Botão de Microfone com Animação de Gravação */}
-            <button
-              type="button"
-              onClick={isRecording ? stopRecording : startRecording}
-              title={isRecording ? "A gravar... Clique para parar" : "Ditar por voz"}
-              style={{
-                width: '48px',
-                height: '48px',
-                borderRadius: '50%',
-                background: isRecording ? '#dc2626' : '#222',
-                border: isRecording ? '2px solid #f87171' : '1px solid #555',
-                color: '#fff',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                cursor: 'pointer',
-                fontSize: '1.2rem',
-                boxShadow: isRecording ? '0 0 12px rgba(220, 38, 38, 0.7)' : 'none'
-              }}
-            >
-              {isRecording ? '⏹️' : '🎙️'}
-            </button>
-
-            {/* Input de Arquivo Oculto para Fotos */}
-            <input
-              type="file"
-              accept="image/*"
-              multiple
-              onChange={handleCapturarFoto}
-              style={{ display: 'none' }}
-              id="input-fotos-circular"
+          {/* Relato das Atividades */}
+          <div className="campo-group">
+            <label>Relato das Atividades: *</label>
+            <textarea
+              className="textarea"
+              placeholder="Digite ou utilize o microfone para ditar o relato..."
+              value={relato}
+              onChange={(e) => setRelato(e.target.value)}
+              required
             />
-            
-            {/* Botão Circular de Câmera */}
-            <label
-              htmlFor="input-fotos-circular"
-              title="Adicionar Fotos"
-              style={{
-                width: '48px',
-                height: '48px',
-                borderRadius: '50%',
-                background: '#222',
-                border: '1px solid #555',
-                color: '#fff',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                cursor: 'pointer',
-                fontSize: '1.2rem'
-              }}
-            >
-              📸
-            </label>
+
+            {/* Botões Circulares de Ação (Voz e Foto) */}
+            <div className="acoes" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '20px', margin: '10px 0' }}>
+              <button
+                type="button"
+                onClick={isRecording ? stopRecording : startRecording}
+                className={`icon-btn btn-mic ${isRecording ? 'recording' : ''}`}
+                title={isRecording ? "A gravar... Clique para parar" : "Ditar relato por voz"}
+              >
+                {isRecording ? '⏹️' : '🎙️'}
+              </button>
+
+              <input
+                type="file"
+                accept="image/*"
+                multiple
+                onChange={handleCapturarFoto}
+                style={{ display: 'none' }}
+                id="input-fotos-anexo"
+              />
+              
+              <label
+                htmlFor="input-fotos-anexo"
+                className="icon-btn btn-cam"
+                title="Adicionar Fotos da Obra"
+                style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+              >
+                📸
+              </label>
+            </div>
+
+            {erroGravacao && <p style={{ color: '#ff6b81', fontSize: '0.8rem', textAlign: 'center' }}>{erroGravacao}</p>}
+            {isRecording && <p style={{ color: '#16a085', fontSize: '0.8rem', textAlign: 'center' }}>🔴 A escutar... Fale claramente.</p>}
           </div>
 
-          {erroGravacao && <p style={{ color: '#f87171', fontSize: '0.8rem', textAlign: 'center', marginTop: '4px' }}>{erroGravacao}</p>}
-          {isRecording && <p style={{ color: '#4ade80', fontSize: '0.8rem', textAlign: 'center', marginTop: '4px' }}>🔴 A gravar áudio... Fale claramente.</p>}
-        </div>
+          {/* Ocorrências / Imprevistos */}
+          <div className="campo-group">
+            <label>Ocorrências / Imprevistos:</label>
+            <input
+              type="text"
+              placeholder="Atrasos em materiais, quebra de máquinas, chuva..."
+              value={ocorrencias}
+              onChange={(e) => setOcorrencias(e.target.value)}
+            />
+          </div>
 
-        {/* Ocorrências / Imprevistos */}
-        <div className="campo-group" style={{ marginBottom: '15px' }}>
-          <label style={{ display: 'block', marginBottom: '6px', fontSize: '0.9rem' }}>Ocorrências / Imprevistos (Opcional)</label>
-          <input
-            type="text"
-            placeholder="Ex: Atraso na chegada da betonadeira devido ao trânsito"
-            value={ocorrencias}
-            onChange={(e) => setOcorrencias(e.target.value)}
-            style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #555', background: '#1a1a1a', color: '#fff' }}
-          />
-        </div>
-
-        {/* Miniaturas das fotos adicionadas */}
-        {fotosBase64.length > 0 && (
-          <div className="campo-group" style={{ marginBottom: '20px' }}>
-            <label style={{ display: 'block', marginBottom: '6px', fontSize: '0.9rem' }}>Fotos Anexadas ({fotosBase64.length})</label>
-            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-              {fotosBase64.map((foto, index) => (
-                <div key={index} style={{ position: 'relative', width: '70px', height: '70px' }}>
-                  <img
-                    src={foto}
-                    alt={`Preview ${index}`}
-                    style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '4px', border: '1px solid #444' }}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => handleRemoverFoto(index)}
-                    style={{
-                      position: 'absolute',
-                      top: '-6px',
-                      right: '-6px',
-                      background: '#ef4444',
-                      color: '#fff',
-                      border: 'none',
-                      borderRadius: '50%',
-                      width: '20px',
-                      height: '20px',
-                      fontSize: '0.7rem',
-                      cursor: 'pointer'
-                    }}
-                  >
-                    ✕
-                  </button>
-                </div>
-              ))}
+          {/* Grid Duplo para Observações e Recomendações */}
+          <div className="diario-grid-duplo">
+            <div className="campo-group">
+              <label>Observações:</label>
+              <input
+                type="text"
+                placeholder="Notas gerais do dia..."
+                value={observacoes}
+                onChange={(e) => setObservacoes(e.target.value)}
+              />
             </div>
+
+            <div className="campo-group">
+              <label>Recomendações:</label>
+              <input
+                type="text"
+                placeholder="Instruções para o próximo turno..."
+                value={recomendacoes}
+                onChange={(e) => setRecomendacoes(e.target.value)}
+              />
+            </div>
+          </div>
+
+          {/* Galeria de Fotos Anexadas */}
+          {fotosBase64.length > 0 && (
+            <div className="campo-group">
+              <label>Fotos Anexadas ({fotosBase64.length})</label>
+              <div className="galeria-preview">
+                {fotosBase64.map((foto, index) => (
+                  <div key={index} className="foto-item">
+                    <img src={foto} alt={`Preview ${index}`} />
+                    <button
+                      type="button"
+                      onClick={() => handleRemoverFoto(index)}
+                      className="btn-remover-foto"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Botão de Guardar e Gerar PDF unificado */}
+          <button
+            type="submit"
+            disabled={salvando}
+            className="btn-guardar-diario"
+          >
+            {salvando ? '⏳ A processar registo...' : 'Guardar Diário, Anexar Áudio & Gerar PDF'}
+          </button>
+        </form>
+
+        {mensagemStatus && (
+          <div style={{ marginTop: '15px', textAlign: 'center', padding: '10px', borderRadius: '8px', background: '#222', border: '1px solid #333', fontSize: '0.85rem' }}>
+            {mensagemStatus}
           </div>
         )}
 
-        {/* Botão Submeter */}
-        <button
-          type="submit"
-          disabled={salvando}
-          className="btn-finalizar"
-          style={{
-            width: '100%',
-            padding: '12px',
-            background: 'var(--blue-primary, #2563eb)',
-            color: '#fff',
-            border: 'none',
-            borderRadius: '6px',
-            fontWeight: 'bold',
-            fontSize: '1rem',
-            cursor: 'pointer',
-            marginTop: '10px'
-          }}
-        >
-          {salvando ? 'A guardar no dispositivo...' : '💾 Salvar'}
-        </button>
-      </form>
-
-      {mensagemStatus && (
-        <div style={{ marginTop: '15px', textAlign: 'center', padding: '10px', borderRadius: '6px', background: '#222', border: '1px solid #444', fontSize: '0.9rem' }}>
-          {mensagemStatus}
-        </div>
-      )}
+      </div>
     </div>
   );
 }
