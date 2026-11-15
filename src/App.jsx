@@ -8,7 +8,7 @@ import HistoricoDiariosScreen from './pages/HistoricoDiariosScreen';
 import PerfilGestaoPage from './pages/PerfilGestaoPage';
 
 export default function App() {
-  const { user, loading } = useAuth(); // Puxa o estado de autenticação real
+  const { user, loading, logout } = useAuth(); // Puxa o estado de autenticação real e a função logout
 
   const [sessaoAtiva, setSessaoAtiva] = useState(() => {
     try {
@@ -42,10 +42,10 @@ export default function App() {
     setPaginaAtual('relatos');
   };
 
-  const handleMudarObra = () => {
+  const handleTerminarSessao = () => {
     localStorage.removeItem('obravoz_sessao_ativa');
     setSessaoAtiva(null);
-    setPaginaAtual('selecao');
+    logout(); // Encerra a sessão do utilizador e redireciona de volta para o Login
   };
 
   return (
@@ -93,11 +93,11 @@ export default function App() {
 
           {sessaoAtiva && (
             <button 
-              onClick={handleMudarObra}
-              title="Terminar turno atual"
+              onClick={handleTerminarSessao}
+              title="Terminar turno e sair da conta"
               className="app-btn-sair-turno"
             >
-              Sair Turno
+              Terminar Sessão
             </button>
           )}
         </nav>
@@ -114,14 +114,4 @@ export default function App() {
 
         {paginaAtual === 'historico' && (
           <HistoricoDiariosScreen 
-            onSelecionarDiario={(diario) => console.log('Diário selecionado:', diario)} 
-          />
-        )}
-
-        {paginaAtual === 'perfil' && (
-          <PerfilGestaoPage />
-        )}
-      </main>
-    </div>
-  );
-}
+            onSelecionarDiario={(diario) => console
