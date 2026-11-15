@@ -1,5 +1,5 @@
 // src/hooks/useVoiceRecorder.js
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef } from 'react';
 
 export function useVoiceRecorder(idioma = 'pt-PT') {
   const [isRecording, setIsRecording] = useState(false);
@@ -9,9 +9,13 @@ export function useVoiceRecorder(idioma = 'pt-PT') {
   const mediaRecorderRef = useRef(null);
   const audioChunksRef = useRef([]);
   const recognitionRef = useRef(null);
+  
+  // Guardamos o texto definitivo já confirmado pelo motor de voz
+  const finalTranscriptRef = useRef('');
 
   const startRecording = async () => {
     setTranscript('');
+    finalTranscriptRef.current = '';
     setErroGravacao(null);
     audioChunksRef.current = [];
 
@@ -30,7 +34,7 @@ export function useVoiceRecorder(idioma = 'pt-PT') {
         }
       };
 
-      mediaRecorder.start(250); // Recolhe chunks a cada 250ms para evitar perda se houver crash
+      mediaRecorder.start(250);
 
       // 3. Configura a SpeechRecognition API para transcrição em tempo real
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -41,21 +45,42 @@ export function useVoiceRecorder(idioma = 'pt-PT') {
         recognition.lang = idioma;
 
         recognition.onresult = (event) => {
-          let currentTranscript = '';
-          for (let i = 0; i < event.results.length; i++) {
-            currentTranscript += event.results[i][0].transcript;
+          let interimText = '';
+
+          // Percorre os resultados sem duplicar o histórico acumulado
+          for (let i = event.resultIndex; i < event.results.length; ++i) {
+            const item = event.results[i];
+            if (item.isFinal) {
+              finalTranscriptRef.current += ' ' + item[0].transcript.trim();
+            } else {
+              interimText += item[0].transcript;
+            }
           }
-          setTranscript(currentTranscript);
+
+          // Junta o texto definitivo com o texto interino atual da fala
+          const textoCompleto = (finalTranscriptRef.current + ' ' + interimText).trim();
+          setTranscript(textoCompleto);
         };
 
         recognition.onerror = (event) => {
           console.warn("Aviso no reconhecimento de voz:", event.error);
         };
 
+        recognition.onend = () => {
+          // Se ainda estiver a gravar mas o recognition parou sozinho (comum em pausas longas), reinicia se necessário
+          if (isRecording && recognitionRef.current) {
+            try {
+              recognitionRef.current.start();
+            } catch (e) {
+              // Ignora se já estiver ativo
+            }
+          }
+        };
+
         recognition.start();
         recognitionRef.current = recognition;
       } else {
-        console.warn("SpeechRecognition não suportado neste navegador (ex: Firefox mobile). O áudio será gravado, mas sem transcrição em tempo real.");
+        console.warn("SpeechRecognition não suportado neste navegador.");
       }
 
       setIsRecording(true);
@@ -68,6 +93,16 @@ export function useVoiceRecorder(idioma = 'pt-PT') {
 
   const stopRecording = () => {
     return new Promise((resolve) => {
+      // Para a Transcrição de Voz primeiro
+      if (recognitionRef.current) {
+        try {
+          recognitionRef.current.onend = null; // Remove o restart automático
+          recognitionRef.current.stop();
+        } catch (e) {
+          // Ignora se já estiver parado
+        }
+      }
+
       // Para o Gravador de Áudio
       if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
         mediaRecorderRef.current.onstop = () => {
@@ -89,15 +124,6 @@ export function useVoiceRecorder(idioma = 'pt-PT') {
           audioBlob: new Blob([], { type: 'audio/webm' }),
           transcription: transcript
         });
-      }
-
-      // Para a Transcrição de Voz
-      if (recognitionRef.current) {
-        try {
-          recognitionRef.current.stop();
-        } catch (e) {
-          // Ignora se já estiver parado
-        }
       }
 
       setIsRecording(false);
