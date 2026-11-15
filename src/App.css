@@ -23,8 +23,7 @@ body {
   color: #fff;
 }
 
-/* --- ADICIONE/ATUALIZE ESTES ITENS NO SEU app.css ou Navbar.css --- */
-
+/* Navbar.css */
 .obra-navbar {
   display: flex;
   justify-content: space-between;
@@ -46,16 +45,20 @@ body {
   flex-wrap: wrap;
 }
 
-.obra-logo {
-  font-size: 1.2rem;
-  font-weight: bold;
-  margin: 0;
+.obra-logo-container {
+  font-size: 1.25rem;
+  font-weight: 800;
   display: flex;
   align-items: center;
   gap: 4px;
+  letter-spacing: -0.5px;
 }
 
-/* Força as cores independentes conforme solicitado */
+.obra-logo-icone {
+  font-size: 1.1rem;
+}
+
+/* Força absoluta das cores solicitadas */
 .logo-obra {
   color: #2AA1C0 !important; /* Azul primário */
 }
@@ -71,15 +74,23 @@ body {
   font-size: 0.8rem;
   color: #ccc;
   background-color: #252525;
-  padding: 5px 10px;
+  padding: 6px 12px;
   border-radius: 6px;
   border: 1px solid #333;
   white-space: nowrap;
 }
 
 .obra-nome-ativo {
-  color: var(--blue-light, #5AB3D4);
+  color: #5AB3D4;
   font-weight: 600;
+}
+
+.obra-separator {
+  color: #555;
+}
+
+.obra-clima-texto {
+  color: #aaa;
 }
 
 .obra-navbar-menu {
