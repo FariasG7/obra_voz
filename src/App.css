@@ -132,6 +132,93 @@ body {
   cursor: not-allowed;
 }
 
+
+/* --- LAYOUT PRINCIPAL E NAVBAR DO APP --- */
+.app-root-container {
+  min-height: 100vh;
+  background-color: var(--bg-dark, #121212);
+  color: #fff;
+  padding-bottom: 50px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+.app-navbar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 20px;
+  border-bottom: 1px solid #333;
+  background: #1a1a1a;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.app-navbar-brand-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.app-navbar-titulo {
+  font-size: 1.2rem;
+  color: var(--blue-primary, #2AA1C0);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 800;
+}
+
+.app-navbar-badge-obra {
+  font-size: 0.8rem;
+  color: #888;
+  background: #222;
+  padding: 4px 8px;
+  border-radius: 4px;
+  border: 1px solid #333;
+}
+
+.app-navbar-menu {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.app-nav-btn {
+  background: #222;
+  color: #fff;
+  border: 1px solid #444;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+.app-nav-btn.ativo {
+  background: var(--blue-primary, #2AA1C0);
+  font-weight: bold;
+  border-color: var(--blue-primary);
+}
+
+.app-btn-sair-turno {
+  background: rgba(200, 38, 71, 0.2);
+  color: #ff6b81;
+  border: 1px solid rgba(200, 38, 71, 0.5);
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.8rem;
+}
+
+.app-main-content {
+  max-width: 700px;
+  margin: 20px auto;
+  padding: 10px;
+}
 /* --- 2. LAYOUT --- */
 .container { 
   min-height: 100vh; 
