@@ -1,5 +1,3 @@
-// src/utils/textFormatter.js
-
 export function formatarEPolirTexto(textoBruto) {
   if (!textoBruto) return '';
 
