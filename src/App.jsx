@@ -1,134 +1,94 @@
 // src/App.jsx
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import './App.css';
-import { AuthProvider, useAuth } from './context/AuthContext';
-import Login from './components/Login';
-import Navbar from './components/Navbar';
-import SelecaoObraPage from './pages/SelecaoObraPage';
-import NovoDiarioScreen from './screens/NovoDiarioScreen';
-import HistoricoDiariosScreen from './pages/HistoricoDiariosScreen';
-import PerfilGestaoPage from './pages/PerfilGestaoPage';
 
-
-class ErrorBoundary extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = { hasError: false, errorMessage: '', errorStack: '' };
-  }
-
-  static getDerivedStateFromError(error) {
-    return { hasError: true, errorMessage: error?.toString() || 'Erro desconhecido' };
-  }
-
-  componentDidCatch(error, errorInfo) {
-    this.setState({ errorStack: errorInfo?.componentStack || '' });
-  }
-
-  render() {
-    if (this.state.hasError) {
-      return (
-        <div style={{ padding: '20px', backgroundColor: '#1e1e1e', color: '#ff6b6b', minHeight: '100vh', fontFamily: 'monospace' }}>
-          <h3>🚨 Erro capturado na renderização:</h3>
-          <p style={{ color: '#fff', fontWeight: 'bold' }}>{this.state.errorMessage}</p>
-          <pre style={{ fontSize: '12px', overflowX: 'auto', whiteSpace: 'pre-wrap', color: '#ccc' }}>
-            {this.state.errorStack}
-          </pre>
-          <button 
-            onClick={() => window.location.reload()}
-            style={{ marginTop: '16px', padding: '10px 16px', background: '#2563eb', color: '#fff', border: 'none', borderRadius: '6px' }}
-          >
-            Recarregar App
-          </button>
-        </div>
-      );
-    }
-    return this.props.children;
-  }
-}
-
-function Roteador() {
-  const { logado, carregando } = useAuth();
-  const [sessaoAtiva, setSessaoAtiva] = useState(null);
-
-  // Controla a página ativa: 'selecao', 'relatos', 'historico' ou 'perfil'
-  const [paginaAtual, setPaginaAtual] = useState(() => {
-    const sessao = localStorage.getItem('obravoz_sessao_ativa');
-    return sessao ? 'relatos' : 'selecao';
+export default function App() {
+  const [etapa, setEtapa] = useState(() => {
+    return localStorage.getItem('obravoz_sessao_ativa') ? 'principal' : 'login';
   });
 
-  // Recupera a sessão ativa do localStorage ao carregar
-  useEffect(() => {
-    const sessaoSalva = localStorage.getItem('obravoz_sessao_ativa');
-    if (sessaoSalva) {
-      try {
-        setSessaoAtiva(JSON.parse(sessaoSalva));
-      } catch (e) {
-        console.error('Erro ao ler sessão salva:', e);
-      }
-    }
-  }, []);
+  const [obra, setObra] = useState('');
+  const [setor, setSetor] = useState('');
 
-  if (carregando) {
-    return (
-      <div className="login-container">
-        <div className="login-box" style={{ color: 'var(--blue-light)' }}>
-          🚩 A carregar ObraVoz...
-        </div>
-      </div>
-    );
-  }
+  const handleIniciar = (e) => {
+    e.preventDefault();
+    if (!obra) return;
+    
+    const dados = { obraId: obra, setorPavimento: setor };
+    localStorage.setItem('obravoz_sessao_ativa', JSON.stringify(dados));
+    setEtapa('principal');
+  };
 
-  if (!logado) {
-    return <Login />;
-  }
-
-  const handleSessaoIniciada = (sessao) => {
-    setSessaoAtiva(sessao);
-    setPaginaAtual('relatos');
+  const handleReset = () => {
+    localStorage.clear();
+    setEtapa('login');
+    setObra('');
+    setSetor('');
   };
 
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#121212', color: '#fff', paddingBottom: '60px' }}>
-      {/* Barra de Navegação Superior */}
-      <Navbar paginaAtual={paginaAtual} setPaginaAtual={setPaginaAtual} />
-
-      {/* Conteúdo Principal Alternado por Estado */}
-      <main style={{ maxWidth: '700px', margin: '0 auto', padding: '10px' }}>
-        {paginaAtual === 'selecao' && (
-          <SelecaoObraPage onSessaoIniciada={handleSessaoIniciada} />
+    <div style={{ minHeight: '100vh', background: '#121212', color: '#fff', padding: '20px', fontFamily: 'sans-serif' }}>
+      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #333', paddingBottom: '15px', marginBottom: '30px' }}>
+        <h1 style={{ color: '#3b82f6', fontSize: '1.4rem', margin: 0 }}>🏗️ ObraVoz - Modo Seguro</h1>
+        {etapa === 'principal' && (
+          <button 
+            onClick={handleReset}
+            style={{ background: '#ef4444', color: '#fff', border: 'none', padding: '8px 14px', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}
+          >
+            Sair / Reset
+          </button>
         )}
+      </header>
 
-        {paginaAtual === 'relatos' && (
-          <NovoDiarioScreen 
-            obraId={sessaoAtiva?.obraId || 'geral'} 
-            setorInicial={sessaoAtiva?.setorPavimento || ''}
-            onDiarioSalvo={() => setPaginaAtual('historico')} 
-          />
-        )}
+      <main style={{ maxWidth: '600px', margin: '0 auto', background: '#1a1a1a', padding: '25px', borderRadius: '8px', border: '1px solid #333' }}>
+        {etapa === 'login' ? (
+          <form onSubmit={handleIniciar}>
+            <h2 style={{ color: '#3b82f6', marginBottom: '15px', fontSize: '1.2rem' }}>Configurar Turno</h2>
+            
+            <div style={{ marginBottom: '15px' }}>
+              <label style={{ display: 'block', marginBottom: '6px', fontSize: '0.9rem' }}>Obra:</label>
+              <select 
+                value={obra} 
+                onChange={(e) => setObra(e.target.value)}
+                required
+                style={{ width: '100%', padding: '12px', background: '#222', color: '#fff', border: '1px solid #555', borderRadius: '6px' }}
+              >
+                <option value="" disabled>-- Selecione uma obra --</option>
+                <option value="Residencias Vale do Lobo">The Residences Vale do Lobo</option>
+                <option value="Obra Geral Algarve">Obra Geral Algarve</option>
+                <option value="Edificio Marina Olhao">Edifício Marina Olhão</option>
+              </select>
+            </div>
 
-        {paginaAtual === 'historico' && (
-          <HistoricoDiariosScreen 
-            onSelecionarDiario={(diario) => {
-              console.log('Diário selecionado para inspeção:', diario);
-            }} 
-          />
-        )}
+            <div style={{ marginBottom: '20px' }}>
+              <label style={{ display: 'block', marginBottom: '6px', fontSize: '0.9rem' }}>Setor / Pavimento:</label>
+              <input 
+                type="text"
+                placeholder="Ex: Bloco A - Piso 2"
+                value={setor}
+                onChange={(e) => setSetor(e.target.value)}
+                style={{ width: '100%', padding: '12px', background: '#222', color: '#fff', border: '1px solid #555', borderRadius: '6px' }}
+              />
+            </div>
 
-        {paginaAtual === 'perfil' && (
-          <PerfilGestaoPage />
+            <button 
+              type="submit"
+              style={{ width: '100%', padding: '14px', background: '#2563eb', color: '#fff', border: 'none', borderRadius: '6px', fontWeight: 'bold', fontSize: '1rem', cursor: 'pointer' }}
+            >
+              Iniciar Registo
+            </button>
+          </form>
+        ) : (
+          <div>
+            <h2 style={{ color: '#4ade80', marginBottom: '10px' }}>✅ Turno Ativo!</h2>
+            <p style={{ color: '#ccc', marginBottom: '20px' }}>O sistema está pronto a operar e os dados estão salvos para o PDF.</p>
+            <div style={{ background: '#222', padding: '15px', borderRadius: '6px', border: '1px solid #444' }}>
+              <p><strong>Obra:</strong> {obra || 'Carregada da Sessão'}</p>
+              <p><strong>Setor:</strong> {setor || 'Não especificado'}</p>
+            </div>
+          </div>
         )}
       </main>
     </div>
   );
 }
-
-export default function App() {
-  return (
-    <ErrorBoundary>
-      <AuthProvider>
-        <Roteador />
-      </AuthProvider>
-    </ErrorBoundary>
-  );
-}
-
