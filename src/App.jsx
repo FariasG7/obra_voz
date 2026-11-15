@@ -26,6 +26,11 @@ export default function App() {
     setPaginaAtual('relatos');
   };
 
+  const handleLogout = () => {
+  localStorage.removeItem('usuarioLogado'); // ou o token/estado que você usa
+  setAutenticado(false); // ou redireciona para a tela de login
+};
+
   const handleMudarObra = () => {
     localStorage.removeItem('obravoz_sessao_ativa');
     setSessaoAtiva(null);
