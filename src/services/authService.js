@@ -40,7 +40,7 @@ export async function autenticarUtilizador(email, password) {
       } catch (neonErr) {
         console.warn('Neon indisponível, a usar base de dados local Dexie...', neonErr);
       }
-    }
+    
 
     // Fallback ou Modo Offline usando o Dexie
     const usuarioLocal = await db.usuarios.where('email').equals(emailLimpo).first();
