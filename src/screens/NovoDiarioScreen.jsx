@@ -1,12 +1,10 @@
 // src/screens/NovoDiarioScreen.jsx
 import React, { useState, useEffect } from 'react';
-import { useClima } from '../hooks/useClima';
 import { useVoiceRecorder } from '../hooks/useVoiceRecorder';
-import { salvarDiarioLocal } from '../services/diarioService'; // Ou a função que guarda no Dexie
+import { salvarDiarioLocal } from '../services/diarioService';
 import '../App.css';
 
 export function NovoDiarioScreen({ obraId, userId, onDiarioSalvo }) {
-  const { clima, carregando: carregandoClima } = useClima();
   const { isRecording, transcript, erroGravacao, startRecording, stopRecording } = useVoiceRecorder('pt-PT');
 
   const [setorPavimento, setSetorPavimento] = useState('');
@@ -23,7 +21,7 @@ export function NovoDiarioScreen({ obraId, userId, onDiarioSalvo }) {
     }
   }, [transcript]);
 
-  // Captura de fotos locais via input file (suporta câmara do telemóvel)
+  // Captura de fotos locais via input file (suporta câmara do iPad/telemóvel)
   const handleCapturarFoto = (e) => {
     const files = Array.from(e.target.files);
     files.forEach(file => {
@@ -39,7 +37,7 @@ export function NovoDiarioScreen({ obraId, userId, onDiarioSalvo }) {
     setFotosBase64(prev => prev.filter((_, i) => i !== index));
   };
 
-    const handleSalvar = async (e) => {
+  const handleSalvar = async (e) => {
     e.preventDefault();
     setSalvando(true);
 
@@ -49,7 +47,7 @@ export function NovoDiarioScreen({ obraId, userId, onDiarioSalvo }) {
         obra_id: obraId || 'geral',
         user_id: userId || null,
         setor_pavimento: setorPavimento,
-        clima: clima,
+        clima: 'Não registado',
         textoRelato: relato,
         ocorrencias: ocorrencias,
         medicoes: [], 
@@ -57,14 +55,12 @@ export function NovoDiarioScreen({ obraId, userId, onDiarioSalvo }) {
         data_relatorio: new Date().toISOString().slice(0, 10),
       };
 
-      // Chamada correta para o serviço que criámos
       const resultado = await salvarDiarioLocal(dadosDiario);
 
       if (resultado.success) {
         setMensagemStatus('✅ Diário guardado com sucesso offline!');
         if (onDiarioSalvo) onDiarioSalvo();
 
-        // Limpa o formulário após 2 segundos
         setTimeout(() => {
           setRelato('');
           setOcorrencias('');
@@ -84,23 +80,14 @@ export function NovoDiarioScreen({ obraId, userId, onDiarioSalvo }) {
     }
   };
 
-
   return (
     <div className="card" style={{ maxWidth: '600px', margin: '20px auto', padding: '20px' }}>
       <h2 style={{ color: 'var(--blue-primary)', marginBottom: '4px', fontSize: '1.4rem' }}>
         🏗️ Registo Diário de Obra
       </h2>
       <p style={{ color: '#aaa', fontSize: '0.85rem', marginBottom: '20px' }}>
-        Preencha os dados do setor, dita as atividades por voz e Registe o progresso de hoje.
+        Preencha os dados do setor e relate o progresso de hoje.
       </p>
-
-      {/* Badge de Clima Automático */}
-      <div className="clima-badge" style={{ marginBottom: '20px', padding: '10px 14px', borderRadius: '8px', background: '#222', border: '1px solid #444', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <span style={{ fontSize: '0.9rem', color: '#ddd' }}>🌤️ Condição Atmosférica:</span>
-        <strong style={{ color: '#4ade80', fontSize: '0.9rem' }}>
-          {carregandoClima ? 'A detetar GPS...' : clima}
-        </strong>
-      </div>
 
       <form onSubmit={handleSalvar} className="login-form">
         
@@ -118,41 +105,80 @@ export function NovoDiarioScreen({ obraId, userId, onDiarioSalvo }) {
           />
         </div>
 
-        {/* Relato de Atividades (com Botão de Voz) */}
+        {/* Relato de Atividades & Botões Circulares de Ação */}
         <div className="campo-group" style={{ marginBottom: '15px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-            <label style={{ fontSize: '0.9rem' }}>Relato de Atividades (Dite ou Escreva)</label>
-            <button
-              type="button"
-              onClick={isRecording ? stopRecording : startRecording}
-              style={{
-                background: isRecording ? '#dc2626' : '#2563eb',
-                color: '#fff',
-                border: 'none',
-                padding: '6px 12px',
-                borderRadius: '20px',
-                fontSize: '0.8rem',
-                cursor: 'pointer',
-                fontWeight: 'bold',
-                display: 'flex',
-                alignItem: 'center',
-                gap: '6px'
-              }}
-            >
-              {isRecording ? '🔴 A gravar... (Clique para parar)' : '🎙️ Ditar por Voz'}
-            </button>
-          </div>
-
-          {erroGravacao && <p style={{ color: '#f87171', fontSize: '0.8rem', marginTop: '4px' }}>{erroGravacao}</p>}
-
+          <label style={{ display: 'block', marginBottom: '6px', fontSize: '0.9rem' }}>Relate o trabalho de hoje...</label>
+          
           <textarea
             rows="5"
             placeholder="Descreva o andamento dos trabalhos, equipas em campo, betão aplicado..."
             value={relato}
             onChange={(e) => setRelato(e.target.value)}
             required
-            style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #555', background: '#1a1a1a', color: '#fff', resize: 'vertical' }}
+            style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #555', background: '#1a1a1a', color: '#fff', resize: 'vertical', marginBottom: '12px' }}
           />
+
+          {/* Barra de Ações Rápidas (Microfone, Câmera) */}
+          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '20px', marginBottom: '15px' }}>
+            
+            {/* Botão de Microfone com Animação de Gravação */}
+            <button
+              type="button"
+              onClick={isRecording ? stopRecording : startRecording}
+              title={isRecording ? "A gravar... Clique para parar" : "Ditar por voz"}
+              style={{
+                width: '48px',
+                height: '48px',
+                borderRadius: '50%',
+                background: isRecording ? '#dc2626' : '#222',
+                border: isRecording ? '2px solid #f87171' : '1px solid #555',
+                color: '#fff',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+                fontSize: '1.2rem',
+                boxShadow: isRecording ? '0 0 12px rgba(220, 38, 38, 0.7)' : 'none',
+                animation: isRecording ? 'pulse 1.5s infinite' : 'none'
+              }}
+            >
+              {isRecording ? '⏹️' : '🎙️'}
+            </button>
+
+            {/* Input de Arquivo Oculto para Fotos */}
+            <input
+              type="file"
+              accept="image/*"
+              multiple
+              onChange={handleCapturarFoto}
+              style={{ display: 'none' }}
+              id="input-fotos-circular"
+            />
+            
+            {/* Botão Circular de Câmera */}
+            <label
+              htmlFor="input-fotos-circular"
+              title="Adicionar Fotos"
+              style={{
+                width: '48px',
+                height: '48px',
+                borderRadius: '50%',
+                background: '#222',
+                border: '1px solid #555',
+                color: '#fff',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+                fontSize: '1.2rem'
+              }}
+            >
+              📸
+            </label>
+          </div>
+
+          {erroGravacao && <p style={{ color: '#f87171', fontSize: '0.8rem', textAlign: 'center', marginTop: '4px' }}>{erroGravacao}</p>}
+          {isRecording && <p style={{ color: '#4ade80', fontSize: '0.8rem', textAlign: 'center', marginTop: '4px' }}>🔴 A gravar áudio... Fale claramente.</p>}
         </div>
 
         {/* Ocorrências / Imprevistos */}
@@ -167,38 +193,11 @@ export function NovoDiarioScreen({ obraId, userId, onDiarioSalvo }) {
           />
         </div>
 
-        {/* Registo Fotográfico */}
-        <div className="campo-group" style={{ marginBottom: '20px' }}>
-          <label style={{ display: 'block', marginBottom: '6px', fontSize: '0.9rem' }}>Registo Fotográfico da Obra</label>
-          <input
-            type="file"
-            accept="image/*"
-            multiple
-            onChange={handleCapturarFoto}
-            style={{ display: 'none' }}
-            id="input-fotos"
-          />
-          <label
-            htmlFor="input-fotos"
-            style={{
-              display: 'block',
-              textAlign: 'center',
-              padding: '12px',
-              border: '2px dashed #555',
-              borderRadius: '6px',
-              cursor: 'pointer',
-              color: '#ccc',
-              fontSize: '0.85rem',
-              background: '#1e1e1e',
-              marginBottom: '10px'
-            }}
-          >
-            📸 Adicionar Fotos (Câmara ou Galeria)
-          </label>
-
-          {/* Miniaturas das fotos */}
-          {fotosBase64.length > 0 && (
-            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginTop: '10px' }}>
+        {/* Miniaturas das fotos adicionadas */}
+        {fotosBase64.length > 0 && (
+          <div className="campo-group" style={{ marginBottom: '20px' }}>
+            <label style={{ display: 'block', marginBottom: '6px', fontSize: '0.9rem' }}>Fotos Anexadas ({fotosBase64.length})</label>
+            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
               {fotosBase64.map((foto, index) => (
                 <div key={index} style={{ position: 'relative', width: '70px', height: '70px' }}>
                   <img
@@ -228,8 +227,8 @@ export function NovoDiarioScreen({ obraId, userId, onDiarioSalvo }) {
                 </div>
               ))}
             </div>
-          )}
-        </div>
+          </div>
+        )}
 
         {/* Botão Submeter */}
         <button
@@ -245,7 +244,8 @@ export function NovoDiarioScreen({ obraId, userId, onDiarioSalvo }) {
             borderRadius: '6px',
             fontWeight: 'bold',
             fontSize: '1rem',
-            cursor: 'pointer'
+            cursor: 'pointer',
+            marginTop: '10px'
           }}
         >
           {salvando ? 'A guardar no dispositivo...' : '💾 Guardar Diário Offline'}
