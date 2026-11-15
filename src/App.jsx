@@ -20,6 +20,15 @@ export default function App() {
   });
 
   const [paginaAtual, setPaginaAtual] = useState(() => {
+{paginaAtual === 'relatos' && (
+  <NovoDiarioScreen 
+    obraId={sessaoAtiva?.obraId || 'geral'} 
+    userId={user?.id || null}
+    onDiarioSalvo={() => {
+      console.log('Diário guardado com sucesso, atualizar histórico se necessário.');
+    }}
+  />
+)}  
     return localStorage.getItem('obravoz_sessao_ativa') ? 'relatos' : 'selecao';
   });
 
