@@ -381,3 +381,51 @@ body {
 .btn-finalizar {
   width: 100%; 
   background: linear-gradient(135deg, var(--blue-primary) 0%, #17708C 100%)
+
+
+  /* --- AUDIO PLAYER OFFLINE --- */
+.audio-sem-registro {
+  color: #888;
+  font-size: 0.9rem;
+}
+
+.audio-card-offline {
+  background: var(--card-bg, #1E1E1E);
+  border: 1px solid var(--border, #2C2C2C);
+  border-radius: 12px;
+  padding: 15px;
+  margin-top: 10px;
+}
+
+.audio-titulo {
+  font-size: 0.85rem;
+  font-weight: bold;
+  color: var(--blue-light, #5AB3D4);
+  margin-bottom: 10px;
+  text-transform: uppercase;
+}
+
+.audio-player-nativo {
+  width: 100%;
+  margin-bottom: 10px;
+  outline: none;
+}
+
+.audio-transcricao-box {
+  background: #252525;
+  border: 1px solid #333;
+  border-radius: 8px;
+  padding: 10px;
+  font-size: 0.85rem;
+  color: #ccc;
+}
+
+.audio-transcricao-label {
+  color: #fff;
+}
+
+.audio-transcricao-texto {
+  font-style: italic;
+  margin-top: 4px;
+  color: #aaa;
+}
