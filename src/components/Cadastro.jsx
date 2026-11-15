@@ -1,3 +1,4 @@
+// src/components/Cadastro.jsx
 import React, { useState } from 'react';
 import { cadastrarUsuarioLocal } from '../db/usuarioService';
 import { sql } from '../services/neonClient';
@@ -8,7 +9,6 @@ export function Cadastro({ aoVoltarAoLogin }) {
   const [senha, setSenha] = useState('');
   const [confirmarSenha, setConfirmarSenha] = useState('');
   
-  // Estados para controlar a visibilidade de cada palavra-passe
   const [mostrarSenha, setMostrarSenha] = useState(false);
   const [mostrarConfirmarSenha, setMostrarConfirmarSenha] = useState(false);
 
@@ -22,7 +22,6 @@ export function Cadastro({ aoVoltarAoLogin }) {
     setErro('');
     setMensagem('');
 
-    // Validação de correspondência das senhas
     if (senha !== confirmarSenha) {
       setErro('As palavras-passe não coincidem.');
       return;
@@ -33,7 +32,6 @@ export function Cadastro({ aoVoltarAoLogin }) {
     try {
       const emailLimpo = email.toLowerCase().trim();
 
-      // 1. Guarda localmente no Dexie
       const resLocal = await cadastrarUsuarioLocal(nome, emailLimpo, permissao);
       
       if (!resLocal.sucesso) {
@@ -42,7 +40,6 @@ export function Cadastro({ aoVoltarAoLogin }) {
         return;
       }
 
-      // 2. Se houver internet, insere também na nuvem (Neon)
       if (navigator.onLine) {
         try {
           await sql`
@@ -64,7 +61,6 @@ export function Cadastro({ aoVoltarAoLogin }) {
       setSenha('');
       setConfirmarSenha('');
       
-      // Voltar ao login após 2 segundos
       setTimeout(() => {
         if (aoVoltarAoLogin) aoVoltarAoLogin();
       }, 2000);
@@ -80,13 +76,13 @@ export function Cadastro({ aoVoltarAoLogin }) {
     <div className="login-container">
       <div className="login-box">
         <h1>
-            🏗️ <span style={{ color: 'var(--blue-primary, #2AA1C0)' }}>Obra</span><span style={{ color: '#fff' }}>Voz</span>
+          🏗️ <span className="logo-obra">Obra</span><span className="logo-voz">Voz</span>
         </h1>
         <p className="login-subtitulo">Diário de Obra Inteligente</p>
         
         {erro && <div className="login-erro">{erro}</div>}
         {mensagem && (
-          <div style={{ background: 'rgba(0, 122, 255, 0.2)', border: '1px solid #007AFF', color: '#007AFF', padding: '10px', borderRadius: '6px', marginBottom: '15px', fontSize: '0.85rem' }}>
+          <div className="cadastro-sucesso-msg">
             {mensagem}
           </div>
         )}
@@ -119,14 +115,13 @@ export function Cadastro({ aoVoltarAoLogin }) {
           {/* Campo Palavra-passe */}
           <div className="campo-group">
             <label>Palavra-passe</label>
-            <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+            <div className="password-wrapper">
               <input 
-                className="login-input" 
+                className="login-input password-input" 
                 type={mostrarSenha ? 'text' : 'password'} 
                 placeholder="••••••••" 
                 value={senha} 
                 onChange={e => setSenha(e.target.value)} 
-                style={{ paddingRight: '42px', width: '100%' }}
                 required 
               />
               <button
@@ -138,21 +133,7 @@ export function Cadastro({ aoVoltarAoLogin }) {
                 onContextMenu={(e) => e.preventDefault()}
                 aria-label="Segure para visualizar a palavra-passe"
                 title="Segure para ver a palavra-passe"
-                style={{
-                  position: 'absolute',
-                  right: '10px',
-                  background: 'none',
-                  border: 'none',
-                  padding: '4px',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: '#888',
-                  userSelect: 'none',
-                  WebkitUserSelect: 'none',
-                  touchAction: 'none'
-                }}
+                className="password-toggle-btn"
               >
                 {mostrarSenha ? (
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -172,14 +153,13 @@ export function Cadastro({ aoVoltarAoLogin }) {
           {/* Campo Confirmar Palavra-passe */}
           <div className="campo-group">
             <label>Confirmar Palavra-passe</label>
-            <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+            <div className="password-wrapper">
               <input 
-                className="login-input" 
+                className="login-input password-input" 
                 type={mostrarConfirmarSenha ? 'text' : 'password'} 
                 placeholder="••••••••" 
                 value={confirmarSenha} 
                 onChange={e => setConfirmarSenha(e.target.value)} 
-                style={{ paddingRight: '42px', width: '100%' }}
                 required 
               />
               <button
@@ -191,21 +171,7 @@ export function Cadastro({ aoVoltarAoLogin }) {
                 onContextMenu={(e) => e.preventDefault()}
                 aria-label="Segure para visualizar a confirmação"
                 title="Segure para ver a confirmação"
-                style={{
-                  position: 'absolute',
-                  right: '10px',
-                  background: 'none',
-                  border: 'none',
-                  padding: '4px',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: '#888',
-                  userSelect: 'none',
-                  WebkitUserSelect: 'none',
-                  touchAction: 'none'
-                }}
+                className="password-toggle-btn"
               >
                 {mostrarConfirmarSenha ? (
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -229,8 +195,8 @@ export function Cadastro({ aoVoltarAoLogin }) {
               value={permissao} 
               onChange={e => setPermissao(e.target.value)}
             >
-              <option value="user" style={{ background: '#1E1E1E', color: '#FFF' }}>Utilizador (Operacional)</option>
-              <option value="admin" style={{ background: '#1E1E1E', color: '#FFF' }}>Administrador</option>
+              <option value="user" className="login-select-option">Utilizador (Operacional)</option>
+              <option value="admin" className="login-select-option">Administrador</option>
             </select>
           </div>
 
@@ -240,18 +206,11 @@ export function Cadastro({ aoVoltarAoLogin }) {
         </form>
 
         {aoVoltarAoLogin && (
-          <div style={{ marginTop: '15px', textAlign: 'center' }}>
+          <div className="login-voltar-container">
             <button 
               type="button"
               onClick={aoVoltarAoLogin}
-              style={{ 
-                background: 'none', 
-                border: 'none', 
-                color: 'var(--blue-primary, #007AFF)', 
-                cursor: 'pointer', 
-                fontSize: '0.9rem',
-                textDecoration: 'underline' 
-              }}
+              className="btn-link-voltar"
             >
               Login
             </button>
@@ -261,3 +220,5 @@ export function Cadastro({ aoVoltarAoLogin }) {
     </div>
   );
 }
+
+export default Cadastro;
