@@ -90,7 +90,6 @@ export function Navbar({ paginaAtual, setPaginaAtual, obraSelecionada, onLogout 
           {loading ? 'A sync...' : '🔄 Sync'}
         </button>
 
-        {/* Botão Sair integrado que dispara a função de logout do App principal */}
         <button 
           className="obra-nav-btn obra-btn-sair" 
           onClick={onLogout}
