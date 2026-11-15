@@ -4,7 +4,8 @@ const sql = neon(import.meta.env.VITE_NEON_DATABASE_URL, { disableWarningInBrows
 
 export async function autenticarUtilizador(email, senha) {
   try {
-    const resultado = await sql`SELECT * FROM users WHERE email = ${email}`;
+    // Ajustado para a tabela 'usuarios' e coluna 'password'
+    const resultado = await sql`SELECT * FROM usuarios WHERE email = ${email}`;
 
     if (!resultado || resultado.length === 0) {
       return { sucesso: false, erro: 'Utilizador não encontrado. Verifique os dados ou cadastre-se.' };
@@ -12,8 +13,8 @@ export async function autenticarUtilizador(email, senha) {
 
     const usuario = resultado[0];
 
-    // Valida o campo de senha (verifique se na sua tabela o campo se chama 'senha' ou 'password')
-    if (usuario.senha !== senha) {
+    // Valida usando a coluna 'password' do seu Neon Console
+    if (usuario.password !== senha) {
       return { sucesso: false, erro: 'Senha incorreta.' };
     }
 
