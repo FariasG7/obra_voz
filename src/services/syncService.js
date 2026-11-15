@@ -1,4 +1,12 @@
+// src/services/sincronizarComNuvem.js (ou syncService.js)
 import { sql } from './neonClient';
+
+// Mapeamento seguro para converter o nome da obra em texto num UUID válido exigido pelo PostgreSQL/Neon
+const MAPA_OBRAS_UUID = {
+  "Residencias Vale do Lobo": "a0000000-0000-0000-0000-000000000001",
+  "Obra Geral Algarve": "a0000000-0000-0000-0000-000000000002",
+  "Edificio Marina Olhao": "a0000000-0000-0000-0000-000000000003"
+};
 
 export async function sincronizarComNuvem(localDb) {
   if (!navigator.onLine) {
@@ -33,11 +41,14 @@ export async function sincronizarComNuvem(localDb) {
     const diariosPendentes = await localDb.diarios_obra.where('synced').equals(0).toArray();
 
     for (const diario of diariosPendentes) {
+      // Converte o nome textual em UUID compatível com a base de dados
+      const projetoIdUuid = MAPA_OBRAS_UUID[diario.obra_id] || diario.obra_id;
+
       await sql`
         INSERT INTO diarios (id, projeto_id, data)
         VALUES (
           ${diario.id}, 
-          ${diario.obra_id}, 
+          ${projetoIdUuid}, 
           ${diario.data_relatorio}
         )
         ON CONFLICT (id) DO UPDATE SET
