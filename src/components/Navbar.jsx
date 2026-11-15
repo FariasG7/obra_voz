@@ -3,9 +3,8 @@ import React, { useState } from 'react';
 import { useClima } from '../hooks/useClima';
 import { db, generateUUID } from '../db/db';
 import { sincronizarComNuvem } from '../services/syncService';
-import './Navbar.css';
 
-export function Navbar({ paginaAtual, setPaginaAtual, obraSelecionada }) {
+export function Navbar({ paginaAtual, setPaginaAtual, obraSelecionada, onLogout }) {
   const { clima } = useClima();
   const [loading, setLoading] = useState(false);
 
@@ -89,6 +88,15 @@ export function Navbar({ paginaAtual, setPaginaAtual, obraSelecionada }) {
           title="Testar Sincronização com o Neon"
         >
           {loading ? 'A sync...' : '🔄 Sync'}
+        </button>
+
+        {/* Botão Sair integrado que dispara a função de logout do App principal */}
+        <button 
+          className="obra-nav-btn obra-btn-sair" 
+          onClick={onLogout}
+          title="Encerrar sessão"
+        >
+          Sair
         </button>
       </div>
     </nav>
