@@ -1,18 +1,16 @@
+// src/pages/PerfilGestaoPage.jsx
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
-import '../App.css';
 
 export function PerfilGestaoPage() {
   const { usuario, logout } = useAuth();
 
-  // Estados para dados de perfil
   const [nome, setNome] = useState(usuario?.nome || 'Encarregado Principal');
   const [email, setEmail] = useState(usuario?.email || 'encarregado@obravoz.pt');
   const [cargo, setCargo] = useState(usuario?.cargo || 'Encarregado de Construção Civil');
   const [companyId] = useState(usuario?.companyId || 'EMP_VALE_DO_LOBO_01');
   const [statusPerfilMsg, setStatusPerfilMsg] = useState('');
 
-  // Estados para Gestão de Equipa (RBAC)
   const [equipa, setEquipa] = useState([
     { id: 1, nome: 'Guilherme Farias', email: 'guilherme@obravoz.pt', papel: 'Administrador' },
     { id: 2, nome: 'Eudes Cadete', email: 'eudes@obravoz.pt', papel: 'Gestor' },
@@ -25,7 +23,6 @@ export function PerfilGestaoPage() {
 
   const handleSalvarPerfil = (e) => {
     e.preventDefault();
-    // Aqui atualizaríamos no contexto ou base de dados local
     setStatusPerfilMsg('✅ Dados de perfil guardados com sucesso!');
     setTimeout(() => setStatusPerfilMsg(''), 3000);
   };
@@ -58,73 +55,73 @@ export function PerfilGestaoPage() {
   };
 
   return (
-    <div className="content" style={{ maxWidth: '700px', margin: '0 auto', padding: '15px' }}>
+    <div className="content perfil-content-wrapper">
       
       {/* Cabeçalho */}
-      <div style={{ marginBottom: '20px' }}>
-        <h2 style={{ color: 'var(--blue-light, #3b82f6)', fontSize: '1.4rem', fontWeight: 'bold' }}>
+      <div className="perfil-header">
+        <h2 className="perfil-titulo">
           🔐 Perfil & Gestão Corporativa
         </h2>
-        <p style={{ color: '#888', fontSize: '0.85rem', marginTop: '2px' }}>
+        <p className="perfil-subtitulo">
           Controlo de conta, empresa (Tenant) e permissões de utilizadores (RBAC)
         </p>
       </div>
 
       {/* SEÇÃO 1: DADOS DO PERFIL / EMPRESA */}
-      <div className="card" style={{ padding: '20px', marginBottom: '25px', background: '#1e1e1e', borderRadius: '10px', border: '1px solid #333' }}>
-        <h3 style={{ fontSize: '1.1rem', color: '#fff', marginBottom: '15px', borderBottom: '1px solid #333', paddingBottom: '8px' }}>
+      <div className="card perfil-section-card">
+        <h3 className="perfil-section-titulo">
           👤 Os Meus Dados & Vínculo
         </h3>
 
         <form onSubmit={handleSalvarPerfil} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+          <div className="perfil-grid-2">
             <div>
-              <label style={{ fontSize: '0.8rem', color: '#aaa', display: 'block', marginBottom: '4px' }}>Nome Completo</label>
+              <label className="perfil-label">Nome Completo</label>
               <input
                 type="text"
                 value={nome}
                 onChange={(e) => setNome(e.target.value)}
-                style={{ width: '100%', padding: '9px', borderRadius: '6px', border: '1px solid #444', background: '#121212', color: '#fff', fontSize: '0.9rem' }}
+                className="perfil-input"
                 required
               />
             </div>
             <div>
-              <label style={{ fontSize: '0.8rem', color: '#aaa', display: 'block', marginBottom: '4px' }}>E-mail de Acesso</label>
+              <label className="perfil-label">E-mail de Acesso</label>
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                style={{ width: '100%', padding: '9px', borderRadius: '6px', border: '1px solid #444', background: '#121212', color: '#fff', fontSize: '0.9rem' }}
+                className="perfil-input"
                 required
               />
             </div>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+          <div className="perfil-grid-2">
             <div>
-              <label style={{ fontSize: '0.8rem', color: '#aaa', display: 'block', marginBottom: '4px' }}>Cargo / Função</label>
+              <label className="perfil-label">Cargo / Função</label>
               <input
                 type="text"
                 value={cargo}
                 onChange={(e) => setCargo(e.target.value)}
-                style={{ width: '100%', padding: '9px', borderRadius: '6px', border: '1px solid #444', background: '#121212', color: '#fff', fontSize: '0.9rem' }}
+                className="perfil-input"
               />
             </div>
             <div>
-              <label style={{ fontSize: '0.8rem', color: '#aaa', display: 'block', marginBottom: '4px' }}>ID da Empresa (Tenant ID)</label>
+              <label className="perfil-label">ID da Empresa (Tenant ID)</label>
               <input
                 type="text"
                 value={companyId}
                 disabled
-                style={{ width: '100%', padding: '9px', borderRadius: '6px', border: '1px solid #333', background: '#111', color: '#666', fontSize: '0.9rem', cursor: 'not-allowed' }}
+                className="perfil-input-disabled"
               />
             </div>
           </div>
 
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '10px' }}>
+          <div className="perfil-acoes-footer">
             <button
               type="submit"
-              style={{ background: 'var(--blue-primary, #2563eb)', color: '#fff', border: 'none', padding: '9px 16px', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer', fontSize: '0.9rem' }}
+              className="btn-salvar-perfil"
             >
               💾 Atualizar Perfil
             </button>
@@ -132,14 +129,14 @@ export function PerfilGestaoPage() {
             <button
               type="button"
               onClick={logout}
-              style={{ background: '#dc2626', color: '#fff', border: 'none', padding: '9px 16px', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer', fontSize: '0.9rem' }}
+              className="btn-sair-conta"
             >
               🚪 Sair da Conta
             </button>
           </div>
 
           {statusPerfilMsg && (
-            <div style={{ textAlign: 'center', padding: '8px', background: '#222', borderRadius: '6px', border: '1px solid #444', fontSize: '0.85rem', color: '#4ade80' }}>
+            <div className="perfil-feedback-msg">
               {statusPerfilMsg}
             </div>
           )}
@@ -147,98 +144,89 @@ export function PerfilGestaoPage() {
       </div>
 
       {/* SEÇÃO 2: GESTÃO DE EQUIPA E PERMISSÕES (RBAC) */}
-      <div className="card" style={{ padding: '20px', background: '#1e1e1e', borderRadius: '10px', border: '1px solid #333' }}>
-        <h3 style={{ fontSize: '1.1rem', color: '#fff', marginBottom: '10px', borderBottom: '1px solid #333', paddingBottom: '8px' }}>
+      <div className="card perfil-section-card">
+        <h3 className="perfil-section-titulo">
           👥 Gestão de Equipa & Permissões (RBAC)
         </h3>
-        <p style={{ fontSize: '0.85rem', color: '#888', marginBottom: '15px' }}>
+        <p className="rbac-descricao">
           Atribua papéis operacionais: <strong style={{ color: '#fff' }}>Administrador</strong> (controlo total), <strong style={{ color: '#fff' }}>Gestor</strong> (aprovações e relatórios) ou <strong style={{ color: '#fff' }}>Colaborador</strong> (registo em campo).
         </p>
 
         {/* Formulário para convidar novo membro */}
-        <form onSubmit={handleConvidarMembro} style={{ display: 'flex', gap: '10px', marginBottom: '20px', flexWrap: 'wrap' }}>
+        <form onSubmit={handleConvidarMembro} className="rbac-form-convite">
           <input
             type="email"
             placeholder="colaborador@empresa.pt"
             value={novoEmailConvite}
             onChange={(e) => setNovoEmailConvite(e.target.value)}
-            style={{ flex: 1, minWidth: '200px', padding: '9px', borderRadius: '6px', border: '1px solid #444', background: '#121212', color: '#fff', fontSize: '0.9rem' }}
+            className="perfil-input"
+            style={{ flex: 1, minWidth: '200px' }}
             required
           />
           <select
             value={novoPapelConvite}
             onChange={(e) => setNovoPapelConvite(e.target.value)}
-            style={{ padding: '9px', borderRadius: '6px', border: '1px solid #444', background: '#121212', color: '#fff', fontSize: '0.9rem' }}
+            className="perfil-input"
+            style={{ width: 'auto' }}
           >
-            <option value="Colaborador">Colaborador</option>
-            <option value="Gestor">Gestor</option>
-            <option value="Administrador">Administrador</option>
+            <option value="Colaborador" style={{ background: '#1E1E1E', color: '#FFF' }}>Colaborador</option>
+            <option value="Gestor" style={{ background: '#1E1E1E', color: '#FFF' }}>Gestor</option>
+            <option value="Administrador" style={{ background: '#1E1E1E', color: '#FFF' }}>Administrador</option>
           </select>
           <button
             type="submit"
-            style={{ background: '#16a34a', color: '#fff', border: 'none', padding: '9px 14px', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer', fontSize: '0.9rem' }}
+            className="btn-convidar"
           >
             ✉️ Convidar
           </button>
         </form>
 
         {statusConviteMsg && (
-          <div style={{ marginBottom: '15px', textAlign: 'center', padding: '8px', background: '#222', borderRadius: '6px', border: '1px solid #444', fontSize: '0.85rem', color: '#4ade80' }}>
+          <div className="perfil-feedback-msg" style={{ marginBottom: '15px' }}>
             {statusConviteMsg}
           </div>
         )}
 
         {/* Tabela / Lista de Membros */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-          {equipa.map((membro) => (
-            <div
-              key={membro.id}
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                padding: '12px',
-                background: '#121212',
-                borderRadius: '8px',
-                border: '1px solid #333',
-                gap: '10px',
-                flexWrap: 'wrap'
-              }}
-            >
-              <div>
-                <p style={{ margin: 0, fontWeight: 'bold', fontSize: '0.9rem', color: '#fff' }}>{membro.nome}</p>
-                <span style={{ fontSize: '0.75rem', color: '#888' }}>{membro.email}</span>
-              </div>
+          {equipa.map((membro) => {
+            const corPapel = 
+              membro.papel === 'Administrador' ? '#facc15' : 
+              membro.papel === 'Gestor' ? '#3b82f6' : '#4ade80';
 
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <select
-                  value={membro.papel}
-                  onChange={(e) => handleAlterarPapel(membro.id, e.target.value)}
-                  style={{
-                    padding: '6px 10px',
-                    borderRadius: '6px',
-                    border: '1px solid #444',
-                    background: '#1a1a1a',
-                    color: membro.papel === 'Administrador' ? '#facc15' : membro.papel === 'Gestor' ? '#3b82f6' : '#4ade80',
-                    fontWeight: 'bold',
-                    fontSize: '0.8rem'
-                  }}
-                >
-                  <option value="Colaborador">Colaborador</option>
-                  <option value="Gestor">Gestor</option>
-                  <option value="Administrador">Administrador</option>
-                </select>
+            return (
+              <div
+                key={membro.id}
+                className="rbac-membro-card"
+              >
+                <div>
+                  <p className="rbac-membro-nome">{membro.nome}</p>
+                  <span className="rbac-membro-email">{membro.email}</span>
+                </div>
 
-                <button
-                  onClick={() => handleRemoverMembro(membro.id)}
-                  style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', fontSize: '1rem', padding: '4px' }}
-                  title="Remover membro"
-                >
-                  🗑️
-                </button>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <select
+                    value={membro.papel}
+                    onChange={(e) => handleAlterarPapel(membro.id, e.target.value)}
+                    className="rbac-select-papel"
+                    style={{ color: corPapel }}
+                  >
+                    <option value="Colaborador" style={{ background: '#1E1E1E', color: '#4ade80' }}>Colaborador</option>
+                    <option value="Gestor" style={{ background: '#1E1E1E', color: '#3b82f6' }}>Gestor</option>
+                    <option value="Administrador" style={{ background: '#1E1E1E', color: '#facc15' }}>Administrador</option>
+                  </select>
+
+                  <button
+                    onClick={() => handleRemoverMembro(membro.id)}
+                    className="btn-remover-membro"
+                    title="Remover membro"
+                  >
+                    🗑️
+                  </button>
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </div>
