@@ -4,9 +4,9 @@ import '../App.css';
 import { useVoiceRecorder } from '../hooks/useVoiceRecorder';
 import { salvarAudioComTranscricao } from '../services/audioService';
 import { db, generateUUID } from '../db/db';
+import { formatarEPolirTexto } from '../utils/textFormatter'; // <-- Importa o formatador
 
 export function NovoDiarioScreen({ obraId, userId, onDiarioSalvo }) {
-  // Utiliza o hook dedicado de voz
   const { isRecording, transcript, erroGravacao, startRecording, stopRecording } = useVoiceRecorder('pt-PT');
   
   const [setorPavimento, setSetorPavimento] = useState('');
@@ -18,25 +18,31 @@ export function NovoDiarioScreen({ obraId, userId, onDiarioSalvo }) {
   const [salvando, setSalvando] = useState(false);
   const [mensagemStatus, setMensagemStatus] = useState('');
 
-  // Sincroniza a transcrição em tempo real do hook com o campo de relato
+  // Sincroniza a transcrição e aplica polimento automático leve
   useEffect(() => {
     if (transcript) {
       setRelato(transcript);
     }
   }, [transcript]);
 
-  // Controlo do botão do microfone
   const handleToggleRecording = async () => {
     if (isRecording) {
       const resultado = await stopRecording();
-      // O resultado contém { audioBlob, transcription }
       if (resultado && resultado.transcription) {
-        setRelato(resultado.transcription);
+        // Aplica correção ortográfica e pontuação automática ao parar de ditar
+        const textoPolido = formatarEPolirTexto(resultado.transcription);
+        setRelato(textoPolido);
       }
-      // Guardamos o blob para uso ao salvar se necessário
       window._ultimoAudioBlob = resultado?.audioBlob;
     } else {
       startRecording();
+    }
+  };
+
+  const handleBlurRelato = () => {
+    // Quando o utilizador sai do campo de texto (blur), aplica a polidela automática
+    if (relato) {
+      setRelato(formatarEPolirTexto(relato));
     }
   };
 
@@ -61,6 +67,8 @@ export function NovoDiarioScreen({ obraId, userId, onDiarioSalvo }) {
 
     try {
       const diarioId = generateUUID();
+      // Garante o texto totalmente polido e pontuado antes de salvar
+      const relatoFinal = formatarEPolirTexto(relato);
 
       const dadosDiario = {
         id: diarioId,
@@ -69,7 +77,7 @@ export function NovoDiarioScreen({ obraId, userId, onDiarioSalvo }) {
         setor_pavimento: setorPavimento,
         clima_manha: 'sol',
         clima_tarde: 'sol',
-        relato_atividades: relato,
+        relato_atividades: relatoFinal,
         ocorrencias: ocorrencias,
         observacoes: observacoes,
         recomendacoes: recomendacoes,
@@ -78,25 +86,22 @@ export function NovoDiarioScreen({ obraId, userId, onDiarioSalvo }) {
         sync_status: 'pending'
       };
 
-      // 1. Salva no Dexie.js
       await db.diarios_obra.put(dadosDiario);
 
-      // 2. Salva o áudio se estiver disponível
       if (window._ultimoAudioBlob && window._ultimoAudioBlob.size > 0) {
         await salvarAudioComTranscricao({
           diarioId: diarioId,
           audioBlob: window._ultimoAudioBlob,
-          transcricao: relato
+          transcricao: relatoFinal
         });
         window._ultimoAudioBlob = null;
       }
 
-      // 3. Backup no localStorage para segurança no Safari/iPad
       const diariosSalvos = JSON.parse(localStorage.getItem('obravoz_diarios_offline') || '[]');
       diariosSalvos.unshift(dadosDiario);
       localStorage.setItem('obravoz_diarios_offline', JSON.stringify(diariosSalvos));
 
-      setMensagemStatus('✅ Diário, áudio e PDF guardados com sucesso!');
+      setMensagemStatus('✅ Diário, áudio e PDF polidos e guardados com sucesso!');
       if (onDiarioSalvo) onDiarioSalvo(dadosDiario);
 
       setTimeout(() => {
@@ -136,6 +141,7 @@ export function NovoDiarioScreen({ obraId, userId, onDiarioSalvo }) {
               placeholder="Digite ou utilize o microfone para ditar o relato..."
               value={relato}
               onChange={(e) => setRelato(e.target.value)}
+              onBlur={handleBlurRelato} // Aplica formatação automática ao sair do campo
               required
             />
 
@@ -169,7 +175,7 @@ export function NovoDiarioScreen({ obraId, userId, onDiarioSalvo }) {
             </div>
 
             {erroGravacao && <p style={{ color: '#ff6b81', fontSize: '0.8rem', textAlign: 'center' }}>{erroGravacao}</p>}
-            {isRecording && <p style={{ color: '#16a085', fontSize: '0.8rem', textAlign: 'center' }}>🔴 A gravar áudio sem duplicações... Fale claramente.</p>}
+            {isRecording && <p style={{ color: '#16a085', fontSize: '0.8rem', textAlign: 'center' }}>🔴 A gravar áudio... Fale claramente.</p>}
           </div>
 
           <div className="campo-group">
