@@ -3,6 +3,29 @@ import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { Cadastro } from './Cadastro';
 
+
+
+import React from 'react';
+
+class ErrorBoundary extends React.Component {
+  state = { hasError: false, error: null };
+
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error, errorInfo) {
+    console.error("Erro capturado:", error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return <div style={{ padding: 20, color: 'red' }}>Ocorreu um erro: {this.state.error?.toString()}</div>;
+    }
+    return this.props.children;
+  }
+}
+export default ErrorBoundary;
 export function Login() {
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
