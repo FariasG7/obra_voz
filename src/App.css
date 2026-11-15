@@ -497,3 +497,117 @@ body {
 .btn-link-voltar:hover {
   color: var(--blue-light);
 }
+
+
+
+/* --- FORMULÁRIO DE DIÁRIO DE OBRA --- */
+.diario-content-wrapper {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 15px;
+}
+
+.diario-sessao-card {
+  background: var(--card-bg, #1E1E1E);
+  border: 1px solid var(--border, #2C2C2C);
+  border-radius: 15px;
+  padding: 20px;
+  margin-bottom: 15px;
+}
+
+.diario-sessao-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.diario-sessao-tag {
+  font-size: 0.75rem;
+  font-weight: bold;
+  color: var(--blue-light, #5AB3D4);
+  text-transform: uppercase;
+}
+
+.diario-sessao-data {
+  font-size: 0.75rem;
+  color: #888;
+}
+
+.diario-sessao-titulo {
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: #fff;
+  margin-bottom: 8px;
+}
+
+.diario-sessao-texto {
+  font-size: 0.9rem;
+  color: #ccc;
+  margin-bottom: 4px;
+}
+
+.diario-sessao-texto strong {
+  color: #fff;
+}
+
+.diario-alerta-aviso {
+  background: rgba(235, 149, 50, 0.1);
+  border-left: 4px solid var(--orange, #EB9532);
+  color: #EB9532;
+  padding: 15px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  margin-bottom: 15px;
+}
+
+.diario-form-card {
+  background: var(--card-bg, #1E1E1E);
+  border: 1px solid var(--border, #2C2C2C);
+  border-radius: 15px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.diario-textarea {
+  width: 100%;
+  background: #333 !important;
+  border: 1px solid #444 !important;
+  border-radius: 8px;
+  padding: 12px;
+  color: #fff !important;
+  font-size: 15px;
+  resize: none;
+  outline: none;
+}
+
+.diario-textarea:focus {
+  border-color: var(--blue-primary) !important;
+}
+
+.diario-grid-duplo {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 15px;
+}
+
+.btn-guardar-diario {
+  width: 100%;
+  background: linear-gradient(135deg, var(--blue-primary, #2AA1C0) 0%, #17708C 100%) !important;
+  color: #ffffff !important;
+  padding: 14px;
+  border-radius: 12px;
+  border: none;
+  font-weight: bold;
+  font-size: 1rem;
+  cursor: pointer;
+  margin-top: 10px;
+  box-shadow: 0 4px 15px rgba(42, 161, 192, 0.3);
+}
+
+.btn-guardar-diario:hover {
+  opacity: 0.9;
+}
