@@ -114,4 +114,16 @@ export default function App() {
 
         {paginaAtual === 'historico' && (
           <HistoricoDiariosScreen 
-            onSelecionarDiario={(diario) => console
+            onSelecionarDiario={(diario) => {
+              console.log('Diário selecionado:', diario);
+            }} 
+          />
+        )}
+
+        {paginaAtual === 'perfil' && (
+          <PerfilGestaoPage />
+        )}
+      </main>
+    </div>
+  );
+}
