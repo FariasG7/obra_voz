@@ -1,8 +1,8 @@
+// src/components/CadastroUsuario.jsx
 import React, { useState } from 'react';
 import { db } from '../db/db';
-import '../App.css';
 
-function CadastroUsuario() {
+export function CadastroUsuario() {
   const [formData, setFormData] = useState({
     nome: '',
     email: '',
@@ -82,8 +82,7 @@ function CadastroUsuario() {
             name="permissao" 
             value={formData.permissao} 
             onChange={handleChange} 
-            className="select-elemento"
-            style={{ width: '100%', height: '42px' }}
+            className="cadastro-select-permissao"
           >
             <option value="leitor">👀 Leitor (Apenas visualizar)</option>
             <option value="editor">✍️ Editor (Criar e editar relatos)</option>
