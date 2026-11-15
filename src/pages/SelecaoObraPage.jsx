@@ -1,166 +1,130 @@
 // src/pages/SelecaoObraPage.jsx
 import React, { useState } from 'react';
-import { useLiveQuery } from 'dexie-react-hooks';
-import { db } from '../db/db';
+import '../App.css';
 
 export function SelecaoObraPage({ onSessaoIniciada }) {
-  const obras = useLiveQuery(() => db.obras.toArray(), []);
+  const [obraSelecionada, setObraSelecionada] = useState('');
+  const [setorPavimento, setSetorPavimento] = useState('');
+  const [colaboradores, setColaboradores] = useState('');
+  const [erro, setErro] = useState('');
 
-  const [obraId, setObraId] = useState('');
-  const [novaObraNome, setNovaObraNome] = useState('');
-  const [setor, setSetor] = useState('');
-  const [colaboradorInput, setColaboradorInput] = useState('');
-  const [colaboradores, setColaboradores] = useState([]);
-
-  const handleAddColaborador = (e) => {
+  const handleIniciarTurno = (e) => {
     e.preventDefault();
-    if (colaboradorInput.trim()) {
-      setColaboradores([...colaboradores, colaboradorInput.trim()]);
-      setColaboradorInput('');
-    }
-  };
-
-  const handleRemoveColaborador = (index) => {
-    setColaboradores(colaboradores.filter((_, i) => i !== index));
-  };
-
-  const handleConfirmarContexto = (e) => {
-    e.preventDefault();
-
-    if (!obraId) {
-      alert('Por favor, selecione uma obra para prosseguir.');
+    if (!obraSelecionada) {
+      setErro('Por favor, selecione uma obra para continuar.');
       return;
     }
 
-    let nomeObraFinal = '';
-    let enderecoFinal = '';
-
-    if (obraId === 'outro') {
-      if (!novaObraNome.trim()) {
-        alert('Por favor, digite o nome da nova obra.');
-        return;
-      }
-      nomeObraFinal = novaObraNome.trim();
-    } else {
-      const obraSelecionada = obras?.find((o) => o.id === Number(obraId) || o.id === obraId);
-      nomeObraFinal = obraSelecionada?.nome_obra || '';
-      enderecoFinal = obraSelecionada?.endereco_completo || '';
-    }
-
-    const sessaoObra = {
-      obraId: obraId === 'outro' ? 'custom_' + Date.now() : obraId,
-      nomeObra: nomeObraFinal,
-      enderecoObra: enderecoFinal,
-      setorPavimento: setor,
-      colaboradores,
-      dataInicioSessao: new Date().toISOString(),
+    // Estrutura completa guardada para alimentar o cabeçalho do PDF e relatórios
+    const sessaoDados = {
+      obraId: obraSelecionada,
+      obraNome: obraSelecionada, // Ajuste se tiver a lista com o nome real
+      setorPavimento: setorPavimento,
+      setor: setorPavimento,
+      pavimento: setorPavimento,
+      colaboradores: colaboradores,
+      iniciadoEm: new Date().toISOString()
     };
 
-    localStorage.setItem('obravoz_sessao_ativa', JSON.stringify(sessaoObra));
+    // Salva no localStorage para persistir na sessão ativa
+    localStorage.setItem('obravoz_sessao_ativa', JSON.stringify(sessaoDados));
 
-    if (typeof onSessaoIniciada === 'function') {
-      onSessaoIniciada(sessaoObra);
-    } else {
-      window.location.reload();
+    if (onSessaoIniciada) {
+      onSessaoIniciada(sessaoDados);
     }
   };
 
   return (
-    <div className="content">
-      {/* Cabeçalho idêntico ao fluxo do diário */}
-      <div style={{ textAlign: 'center', margin: '20px 0' }}>
-        <h2 style={{ color: 'var(--blue-light)', fontSize: '1.5rem', fontWeight: 'bold' }}>Configurar Turno</h2>
-        <p style={{ color: '#888', fontSize: '0.9rem', marginTop: '4px' }}>Selecione as informações da obra para iniciar</p>
+    <div className="card" style={{ maxWidth: '650px', margin: '30px auto', padding: '30px' }}>
+      
+      {/* Título posicionado corretamente no topo seguindo o padrão */}
+      <div style={{ textAlign: 'center', marginBottom: '25px' }}>
+        <h2 style={{ color: 'var(--blue-primary, #3b82f6)', marginBottom: '6px', fontSize: '1.5rem' }}>
+          Configurar Turno
+        </h2>
+        <p style={{ color: '#aaa', fontSize: '0.9rem' }}>
+          Selecione as informações da obra para iniciar o registo
+        </p>
       </div>
 
-      <div className="card">
-        <form onSubmit={handleConfirmarContexto} className="login-form">
-          
-          <div className="campo-group">
-            <label>1. Qual é a Obra de Hoje? *</label>
-            <select
-              value={obraId}
-              onChange={(e) => setObraId(e.target.value)}
-              required
-              className="obra-select"
-            >
-              <option value="">-- Selecione uma obra --</option>
-              {obras?.map((obra) => (
-                <option key={obra.id} value={obra.id}>
-                  {obra.nome_obra}
-                </option>
-              ))}
-              <option value="outro">Outro (Digitar nome...)</option>
-            </select>
-          </div>
+      {erro && (
+        <div style={{ marginBottom: '20px', padding: '10px', background: '#7f1d1d', color: '#fca5a5', borderRadius: '6px', textAlign: 'center', fontSize: '0.9rem' }}>
+          {erro}
+        </div>
+      )}
 
-          {obraId === 'outro' && (
-            <div className="campo-group">
-              <label>Nome da Nova Obra *</label>
-              <input
-                type="text"
-                placeholder="Digite o nome da obra"
-                value={novaObraNome}
-                onChange={(e) => setNovaObraNome(e.target.value)}
-                required
-                className="login-input"
-              />
-            </div>
-          )}
+      <form onSubmit={handleIniciarTurno} className="login-form">
+        
+        {/* 1. Seleção de Obra (Caixa dimensionada corretamente com a classe login-input) */}
+        <div className="campo-group" style={{ marginBottom: '20px' }}>
+          <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.9rem', color: '#ddd', fontWeight: 'bold' }}>
+            1. QUAL É A OBRA DE HOJE? *
+          </label>
+          <select
+            value={obraSelecionada}
+            onChange={(e) => { setObraSelecionada(e.target.value); setErro(''); }}
+            className="login-input"
+            style={{ width: '100%', padding: '12px', borderRadius: '6px', background: '#1a1a1a', color: '#fff', border: '1px solid #555', fontSize: '1rem' }}
+            required
+          >
+            <option value="" disabled>-- Selecione uma obra --</option>
+            <option value="Residencias Vale do Lobo">The Residences Vale do Lobo</option>
+            <option value="Obra Geral Algarve">Obra Geral Algarve</option>
+            <option value="Edificio Marina Olhao">Edifício Marina Olhão</option>
+          </select>
+        </div>
 
-          <div className="campo-group">
-            <label>2. Setor ou Pavimento</label>
-            <input
-              type="text"
-              placeholder="Ex: Bloco A - Laje do 2º Piso"
-              value={setor}
-              onChange={(e) => setSetor(e.target.value)}
-              className="login-input"
-            />
-          </div>
+        {/* 2. Setor ou Pavimento */}
+        <div className="campo-group" style={{ marginBottom: '20px' }}>
+          <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.9rem', color: '#ddd', fontWeight: 'bold' }}>
+            2. SETOR OU PAVIMENTO
+          </label>
+          <input
+            type="text"
+            placeholder="Ex: Bloco A - Laje do 2º Piso"
+            value={setorPavimento}
+            onChange={(e) => setSetorPavimento(e.target.value)}
+            className="login-input"
+            style={{ width: '100%', padding: '12px', borderRadius: '6px', background: '#1a1a1a', color: '#fff', border: '1px solid #555', fontSize: '1rem' }}
+          />
+        </div>
 
-          <div className="campo-group">
-            <label>3. Colaboradores Presentes</label>
-            <div className="obra-row-add">
-              <input
-                type="text"
-                placeholder="Nome do colaborador"
-                value={colaboradorInput}
-                onChange={(e) => setColaboradorInput(e.target.value)}
-                className="login-input"
-              />
-              <button
-                type="button"
-                onClick={handleAddColaborador}
-                className="btn-add-colaborador"
-              >
-                +
-              </button>
-            </div>
+        {/* 3. Colaboradores Presentes */}
+        <div className="campo-group" style={{ marginBottom: '25px' }}>
+          <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.9rem', color: '#ddd', fontWeight: 'bold' }}>
+            3. COLABORADORES PRESENTES
+          </label>
+          <input
+            type="text"
+            placeholder="Nome dos colaboradores (ex: Eudes, Albano)"
+            value={colaboradores}
+            onChange={(e) => setColaboradores(e.target.value)}
+            className="login-input"
+            style={{ width: '100%', padding: '12px', borderRadius: '6px', background: '#1a1a1a', color: '#fff', border: '1px solid #555', fontSize: '1rem' }}
+          />
+        </div>
 
-            {colaboradores.length > 0 && (
-              <div className="colaboradores-chips-container">
-                {colaboradores.map((colaborador, index) => (
-                  <span key={index} className="colaborador-chip">
-                    {colaborador}
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveColaborador(index)}
-                      className="btn-remover-chip"
-                    >
-                      ✕
-                    </button>
-                  </span>
-                ))}
-              </div>
-            )}
-          </div>
-
-          <button type="submit" className="btn-login" style={{ marginTop: '15px' }}>
-            Iniciar Registo de Obra
-          </button>
-        </form>
-      </div>
+        {/* Botão de Iniciar */}
+        <button
+          type="submit"
+          className="btn-finalizar"
+          style={{
+            width: '100%',
+            padding: '14px',
+            background: 'var(--blue-primary, #2563eb)',
+            color: '#fff',
+            border: 'none',
+            borderRadius: '6px',
+            fontWeight: 'bold',
+            fontSize: '1rem',
+            cursor: 'pointer'
+          }}
+        >
+          Iniciar Registo de Obra
+        </button>
+      </form>
     </div>
   );
 }
+
+export default SelecaoObraPage;
