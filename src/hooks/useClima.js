@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 
 export function useClima() {
   const [clima, setClima] = useState('Buscando localização...');
-  const [carregando, setCarregando] = useState<boolean>(true);
+  const [carregando, setCarregando] = useState(true);
 
   const buscarClima = useCallback(async () => {
     if (!navigator.geolocation) {
