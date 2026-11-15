@@ -2,9 +2,12 @@
 import React, { useState } from 'react';
 
 export default function SelecaoObraPage({ onSessaoIniciada }) {
-  const [obraId, setObraId] = useState('');
-  const [setorPavimento, setSetorPavimento] = useState('');
-  const [colaboradores, setColaboradores] = useState('');
+  const sessaoSalva=JSON.parse(localStorage.getItem('obravoz_sessao_ativa') || 'null');
+  
+  const [obraId, setObraId] = useState(sessaoSalva?.obraId || '');
+  const [setorPavimento, setSetorPavimento] = useState(sessaoSalva?.setorPavimento || '');
+  const [colaboradores, setColaboradores] = useState(
+    sessaoSalva?.colaboradores ? sessaoSalva.colaboradores.join(', ') : '');
 
   const handleSubmit = (e) => {
     e.preventDefault();
