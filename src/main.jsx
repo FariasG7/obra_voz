@@ -1,7 +1,8 @@
-// src/main.jsx (ou src/index.js)
+// src/main.jsx
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App.jsx';
+import { AuthProvider } from './context/AuthContext'; // <--- Importe o AuthProvider aqui
 import './index.css';
 import './App.css';
 
@@ -40,7 +41,10 @@ try {
   ReactDOM.createRoot(document.getElementById('root')).render(
     <React.StrictMode>
       <RootErrorBoundary>
-        <App />
+        {/* O AuthProvider envolve o App para que o useAuth e a função login fiquem disponíveis */}
+        <AuthProvider>
+          <App />
+        </AuthProvider>
       </RootErrorBoundary>
     </React.StrictMode>
   );
