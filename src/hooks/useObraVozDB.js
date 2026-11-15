@@ -1,4 +1,15 @@
-  // src/hooks/useObraVozDB.js (Função sincronizarComNeon atualizada)
+// src/hooks/useObraVozDB.js
+import { useLiveQuery } from 'dexie-react-hooks';
+import { db, generateUUID } from '../db/db';
+
+export function useObraVozDB() {
+  // Lista reativa de obras para popular o campo de seleção
+  const obras = useLiveQuery(() => db.obras.toArray(), []);
+
+
+
+
+// src/hooks/useObraVozDB.js (Função sincronizarComNeon atualizada)
   const sincronizarComNeon = async () => {
     try {
       const todosOsDiarios = await db.diarios_obra.toArray();
