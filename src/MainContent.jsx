@@ -24,11 +24,9 @@ function MainContent() {
   const [tipoMedicaoGlobal, setTipoMedicaoGlobal] = useState('cofragem'); 
 
   const [medicoes, setMedicoes] = useState(() => {
-    try { 
-      return JSON.parse(localStorage.getItem('diario_medicoes')) || [
-        { id: 1, tipo: 'cofragem', nome: 'Pilar', quantidade: 1, largura: '', altura: '', comprimento: '' }
-      ]; 
-    } catch { 
+  try { 
+    return JSON.parse(localStorage.getItem('diario_medicoes')) || [...]; 
+  } catch {
       return [{ id: Date.now(), tipo: 'cofragem', nome: 'Pilar', quantidade: 1, largura: '', altura: '', comprimento: '' }]; 
     }
   });
