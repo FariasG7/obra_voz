@@ -4,8 +4,10 @@ const sql = neon(import.meta.env.VITE_NEON_DATABASE_URL, { disableWarningInBrows
 
 export async function autenticarUtilizador(email, senha) {
   try {
-    // Ajustado para a tabela 'usuarios' e coluna 'password'
+    console.log("Tentando autenticar e-mail:", email);
     const resultado = await sql`SELECT * FROM usuarios WHERE email = ${email}`;
+
+    console.log("Resultado bruto do Neon:", resultado);
 
     if (!resultado || resultado.length === 0) {
       return { sucesso: false, erro: 'Utilizador não encontrado. Verifique os dados ou cadastre-se.' };
@@ -13,7 +15,6 @@ export async function autenticarUtilizador(email, senha) {
 
     const usuario = resultado[0];
 
-    // Valida usando a coluna 'password' do seu Neon Console
     if (usuario.password !== senha) {
       return { sucesso: false, erro: 'Senha incorreta.' };
     }
@@ -28,7 +29,13 @@ export async function autenticarUtilizador(email, senha) {
     };
 
   } catch (err) {
-    console.error('Erro no serviço de autenticação:', err);
-    return { sucesso: false, erro: 'Erro de conexão com o banco de dados.' };
+    // Exibe todas as propriedades possíveis do erro no console do navegador
+    console.error('DETALHE DO ERRO NO AUTHSERVICE:', {
+      message: err.message,
+      code: err.code,
+      detail: err.detail,
+      fullError: err
+    });
+    return { sucesso: false, erro: 'Erro interno ao processar o login: ' + (err.message || 'Desconhecido') };
   }
 }
