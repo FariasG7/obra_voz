@@ -5,6 +5,7 @@ import { db } from '../db/db';
 import { sincronizarComNuvem } from '../services/syncService';
 
 export function HistoricoDiariosScreen({ onSelecionarDiario }) {
+  const { sincronizarComNeon, diariosPendentes } = useObraVozDB();
   // Lista reativa de todos os diários guardados no Dexie.js ordenados por data decrescente
   const diarios = useLiveQuery(() => db.diarios_obra.orderBy('data_relatorio').reverse().toArray(), []);
   
@@ -37,6 +38,8 @@ export function HistoricoDiariosScreen({ onSelecionarDiario }) {
     }
   };
 
+
+  
   return (
     <div className="content historico-content-wrapper">
       
@@ -51,6 +54,12 @@ export function HistoricoDiariosScreen({ onSelecionarDiario }) {
           </p>
         </div>
 
+
+// No botão de sincronizar:
+<button onClick={sincronizarComNeon} className="obra-sync-btn">
+  🔄 Sincronizar ({diariosPendentes?.length || 0} pendentes)
+</button>
+        
         <button
           onClick={handleForcarSincronizacao}
           disabled={sincronizando}
