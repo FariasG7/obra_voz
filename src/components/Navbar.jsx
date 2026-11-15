@@ -5,7 +5,7 @@ import { db, generateUUID } from '../db/db';
 import { sincronizarComNuvem } from '../services/syncService';
 import './Navbar.css';
 
-export function Navbar({ paginaAtual, setPaginaAtual }) {
+export function Navbar({ paginaAtual, setPaginaAtual, obraSelecionada }) {
   const { clima } = useClima();
   const [loading, setLoading] = useState(false);
 
@@ -42,8 +42,15 @@ export function Navbar({ paginaAtual, setPaginaAtual }) {
         <h1 className="obra-logo">
           🏗️ <span className="logo-obra">Obra</span><span className="logo-voz">Voz</span>
         </h1>
-        <div className="obra-clima-badge">
-          {clima || 'Clima indisponível'}
+        
+        <div className="obra-info-badge">
+          {obraSelecionada && (
+            <>
+              <span className="obra-nome-ativo">📍 {obraSelecionada}</span>
+              <span>•</span>
+            </>
+          )}
+          <span>{clima || 'Clima indisponível'}</span>
         </div>
       </div>
 
