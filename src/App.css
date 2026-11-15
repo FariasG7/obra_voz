@@ -23,7 +23,7 @@ body {
   color: #fff;
 }
 
-/* Navbar.css */
+/* --- 1.1. NAVBAR --- */
 .obra-navbar {
   display: flex;
   justify-content: space-between;
@@ -58,13 +58,13 @@ body {
   font-size: 1.1rem;
 }
 
-/* Força absoluta das cores solicitadas */
+/* Força absoluta das cores solicitadas para o logo */
 .logo-obra {
-  color: #2AA1C0 !important; /* Azul primário */
+  color: #2AA1C0 !important; /* Azul */
 }
 
 .logo-voz {
-  color: #FFFFFF !important; /* Branco puro */
+  color: #FFFFFF !important; /* Branco */
 }
 
 .obra-info-badge {
@@ -380,50 +380,4 @@ body {
 /* --- 7. BOTÃO GERAR PDF E SAIR --- */
 .btn-finalizar {
   width: 100%; 
-  background: linear-gradient(135deg, var(--blue-primary) 0%, #17708C 100%) !important;
-  color: white !important; 
-  font-size: 16px; 
-  padding: 18px; 
-  border-radius: 15px;
-  border: none; 
-  font-weight: bold; 
-  text-transform: uppercase;
-  box-shadow: 0 4px 15px rgba(42, 161, 192, 0.3); 
-  cursor: pointer;
-  display: block;
-}
-
-.btn-sair { 
-  background: none !important; 
-  border: none !important; 
-  color: #777 !important; 
-  width: 100%; 
-  margin-top: 20px; 
-  cursor: pointer; 
-  font-size: 0.95rem;
-  text-align: center;
-  display: block;
-  text-decoration: none;
-}
-
-.btn-sair:hover {
-  color: #aaa !important;
-}
-
-.clima-badge { 
-  font-size: 11px; 
-  background: rgba(42, 161, 192, 0.1); 
-  color: var(--blue-light); 
-  padding: 4px 10px; 
-  border-radius: 10px; 
-  margin-top: 5px; 
-  display: inline-block; 
-}
-
-/* --- 8. TELA DE LOGIN E CADASTRO --- */
-.login-container {
-  min-height: 100vh; 
-  display: flex; 
-  justify-content: center; 
-  align-items: center;
-  background: var
+  background: linear-gradient(135deg, var(--blue-primary) 0%, #17708C 100%)
