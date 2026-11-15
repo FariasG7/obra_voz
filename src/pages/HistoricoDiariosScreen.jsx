@@ -1,15 +1,3 @@
-// Adicione o estado no HistoricoDiariosScreen.jsx:
-
-
-{/* No cabeçalho do Histórico, adicione o botão: */}
-
-
-{/* No final do componente, renderize o modal se ativado: */}
-
-
-
-
-// src/pages/HistoricoDiariosScreen.jsx
 import React, { useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../db/db';
