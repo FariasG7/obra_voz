@@ -1,100 +1,33 @@
-import { db } from '../db/db.js';
-import { sql } from '../services/neonClient.js';
+import { neon } from '@neondatabase/serverless';
 
-export async function autenticarUtilizador(email, password) {
-  const emailLimpo = email.toLowerCase().trim();
+const sql = neon(import.meta.env.VITE_NEON_DATABASE_URL, { disableWarningInBrowsers: true });
 
+export async function autenticarUtilizador(email, senha) {
   try {
-    if (navigator.onLine && typeof sql === 'function') {
-      try {
-        const timeoutPromise = new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('Timeout de ligação')), 4000)
-        );
+    const resultado = await sql`SELECT * FROM users WHERE email = ${email}`;
 
-        const queryPromise = sql`
-          SELECT id, nome, email, permissao, password 
-          FROM usuarios 
-          WHERE email = ${emailLimpo} AND password = ${password}
-          LIMIT 1;
-        `;
-
-        const resultado = await Promise.race([queryPromise, timeoutPromise]);
-
-        if (resultado && resultado.length > 0) {
-          const usuario = resultado[0];
-          
-          await db.usuarios.put({
-            id: usuario.id,
-            nome: usuario.nome,
-            email: usuario.email,
-            permissao: usuario.permissao,
-            synced: 1
-          });
-
-          return { sucesso: true, usuario };
-        }
-      } catch (neonErr) {
-        console.warn('Neon indisponível, a usar base de dados local Dexie...', neonErr);
-      }
+    if (!resultado || resultado.length === 0) {
+      return { sucesso: false, erro: 'Utilizador não encontrado. Verifique os dados ou cadastre-se.' };
     }
 
-    const usuarioLocal = await db.usuarios.where('email').equals(emailLimpo).first();
-    
-    if (usuarioLocal) {
-      if (!usuarioLocal.password || usuarioLocal.password === password) {
-        return { sucesso: true, usuario: usuarioLocal };
-      }
-      return { sucesso: false, erro: 'Palavra-passe incorreta (local).' };
+    const usuario = resultado[0];
+
+    // Valida o campo de senha (verifique se na sua tabela o campo se chama 'senha' ou 'password')
+    if (usuario.senha !== senha) {
+      return { sucesso: false, erro: 'Senha incorreta.' };
     }
 
-    return { sucesso: false, erro: 'Utilizador não encontrado. Verifique os dados ou cadastre-se.' };
+    return { 
+      sucesso: true, 
+      usuario: { 
+        id: usuario.id, 
+        email: usuario.email, 
+        nome: usuario.nome || 'Guilherme' 
+      } 
+    };
 
-  } catch (error) {
-    console.error('Erro crítico no serviço de autenticação:', error);
-    return { sucesso: false, erro: 'Erro interno ao efetuar login.' };
-  }
-}
-
-export async function cadastrarUsuarioLocal(nome, email, permissao) {
-  try {
-    const emailLimpo = email.toLowerCase().trim();
-    const usuarioExistente = await db.usuarios.where('email').equals(emailLimpo).first();
-
-    if (usuarioExistente) {
-      await db.usuarios.update(usuarioExistente.id, { nome, permissao });
-      return { sucesso: true, mensagem: "Permissão atualizada com sucesso!" };
-    }
-
-    const id = await db.usuarios.add({
-      id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()),
-      nome,
-      email: emailLimpo,
-      permissao,
-      criadoEm: new Date()
-    });
-
-    return { sucesso: true, id, mensagem: "Utilizador autorizado com sucesso!" };
-  } catch (error) {
-    console.error("Erro ao cadastrar utilizador no Dexie:", error);
-    return { sucesso: false, erro: "Erro ao guardar no banco local." };
-  }
-}
-
-export async function listarUsuariosLocais() {
-  try {
-    return await db.usuarios.toArray();
-  } catch (error) {
-    console.error("Erro ao listar utilizadores:", error);
-    return [];
-  }
-}
-
-export async function removerUsuarioLocal(id) {
-  try {
-    await db.usuarios.delete(id);
-    return { sucesso: true };
-  } catch (error) {
-    console.error("Erro ao remover utilizador:", error);
-    return { sucesso: false, erro: "Não foi possível remover." };
+  } catch (err) {
+    console.error('Erro no serviço de autenticação:', err);
+    return { sucesso: false, erro: 'Erro de conexão com o banco de dados.' };
   }
 }
