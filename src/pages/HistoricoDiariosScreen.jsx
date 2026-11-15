@@ -1,3 +1,14 @@
+// Adicione o estado no HistoricoDiariosScreen.jsx:
+
+
+{/* No cabeçalho do Histórico, adicione o botão: */}
+
+
+{/* No final do componente, renderize o modal se ativado: */}
+
+
+
+
 // src/pages/HistoricoDiariosScreen.jsx
 import React, { useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
@@ -5,6 +16,9 @@ import { db } from '../db/db';
 import { useObraVozDB } from '../hooks/useObraVozDB';
 
 export function HistoricoDiariosScreen({ onSelecionarDiario }) {
+
+  const [mostrarGestaoModal, setMostrarGestaoModal] = useState(false);
+  
   const { sincronizarComNeon, diariosPendentes } = useObraVozDB();
   
   // Lista reativa de todos os diários guardados no Dexie.js ordenados por data decrescente
@@ -55,6 +69,14 @@ export function HistoricoDiariosScreen({ onSelecionarDiario }) {
           </p>
         </div>
 
+
+        <button
+  onClick={() => setMostrarGestaoModal(true)}
+  className="btn-gestao-relatorios"
+  style={{ background: '#2563eb', color: '#fff', border: 'none', padding: '8px 14px', borderRadius: '6px', cursor: 'pointer', fontSize: '0.85rem', fontWeight: 'bold' }}
+>
+  ⚙️ Gerir / Editar Relatórios
+</button>
         <button
           onClick={handleForcarSincronizacao}
           disabled={sincronizando}
@@ -110,6 +132,9 @@ export function HistoricoDiariosScreen({ onSelecionarDiario }) {
                 {/* Prévia do Relato */}
                 <p className="historico-item-relato" style={{ fontSize: '0.9rem', color: '#ccc', display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
                   {diario.relato_atividades || diario.textoRelato || 'Sem relato escrito.'}
+                  {mostrarGestaoModal && (
+  <GestaoRelatoriosModal onClose={() => setMostrarGestaoModal(false)} />
+)}
                 </p>
               </div>
             );
