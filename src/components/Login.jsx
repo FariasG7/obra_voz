@@ -7,6 +7,8 @@ export default function Login() {
   const [password, setPassword] = useState('');
   const [erro, setErro] = useState('');
   const [loading, setLoading] = useState(false);
+  
+  // Puxa a função login do contexto aqui
   const { login } = useAuth();
 
   const handleSubmit = async (e) => {
@@ -18,6 +20,7 @@ export default function Login() {
       const res = await autenticarUtilizador(email, password);
 
       if (res && res.sucesso) {
+        // Agora a função login existe e será executada com sucesso
         await login(res.usuario);
       } else {
         setErro(res?.erro || 'Credenciais inválidas.');
