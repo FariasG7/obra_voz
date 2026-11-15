@@ -1,111 +1,53 @@
-// src/components/Navbar.jsx
-import React, { useState } from 'react';
-import { useClima } from '../hooks/useClima';
-import { useAuth } from '../context/AuthContext';
-import { db, generateUUID } from '../db/db';
-import { sincronizarComNuvem } from '../services/syncService';
+// src/context/AuthContext.jsx
+import React, { createContext, useContext, useState, useEffect } from 'react';
 
-export function Navbar({ paginaAtual, setPaginaAtual, obraSelecionada }) {
-  const { clima } = useClima();
-  const { logout } = useAuth(); // Puxa o logout diretamente do AuthContext
-  const [loading, setLoading] = useState(false);
+const AuthContext = createContext({});
 
-  const executarTesteSync = async () => {
-    setLoading(true);
+export function AuthProvider({ children }) {
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // Verificar se existe um utilizador guardado (ex: localStorage ou sessão)
     try {
-      const novoId = generateUUID();
-      
-      await db.obras.add({
-        id: novoId,
-        nome_obra: 'Obra Teste - Navbar',
-        status: 'em_andamento',
-        synced: 0,
-      });
-
-      const res = await sincronizarComNuvem(db);
-
-
-      if (loading) {
-  return <div style={{ color: '#fff', textAlign: 'center', marginTop: '20vh' }}>A carregar...</div>;
-}
-      if (res.success) {
-        alert('✅ Sucesso! Obra sincronizada com o Neon.');
-      } else {
-        alert(`⚠️ Gravado localmente no Dexie, mas falhou no Neon: ${res.error || res.reason}`);
+      const usuarioSalvo = localStorage.getItem('diario_usuario');
+      if (usuarioSalvo) {
+        setUser(JSON.parse(usuarioSalvo));
       }
     } catch (err) {
-      console.error('Erro no teste de sincronização:', err);
-      alert(`❌ Erro: ${err.message}`);
+      console.error("Erro ao carregar sessão:", err);
     } finally {
       setLoading(false);
     }
+  }, []);
+
+  const login = async (email, senha) => {
+    // Exemplo de lógica de login (substitua pela sua chamada real ou Firebase/Supabase/Neon)
+    try {
+      // Simulação de autenticação bem-sucedida
+      const dadosUsuario = { email, nome: email.split('@')[0] };
+      setUser(dadosUsuario);
+      localStorage.setItem('diario_usuario', JSON.stringify(dadosUsuario));
+      return { sucesso: true };
+    } catch (err) {
+      return { sucesso: false, erro: 'Credenciais inválidas.' };
+    }
+  };
+
+  const logout = () => {
+    setUser(null);
+    localStorage.removeItem('diario_usuario');
   };
 
   return (
-    <nav className="obra-navbar">
-      <div className="obra-navbar-left">
-        <div className="obra-logo-container">
-          <span className="obra-logo-icone">🏗️</span>
-          <span className="logo-obra">Obra</span>
-          <span className="logo-voz">Voz</span>
-        </div>
-        
-        <div className="obra-info-badge">
-          {obraSelecionada && (
-            <>
-              <span className="obra-nome-ativo">📍 {obraSelecionada}</span>
-              <span className="obra-separator">•</span>
-            </>
-          )}
-          <span className="obra-clima-texto">{clima || 'Clima indisponível'}</span>
-        </div>
-      </div>
-
-      <div className="obra-navbar-menu">
-        <button 
-          className={`obra-nav-btn ${paginaAtual === 'selecao' ? 'ativo' : ''}`}
-          onClick={() => setPaginaAtual('selecao')}
-        >
-          Turno / Obra
-        </button>
-        <button 
-          className={`obra-nav-btn ${paginaAtual === 'relatos' ? 'ativo' : ''}`}
-          onClick={() => setPaginaAtual('relatos')}
-        >
-          Relatos (Diário)
-        </button>
-        <button 
-          className={`obra-nav-btn ${paginaAtual === 'historico' ? 'ativo' : ''}`}
-          onClick={() => setPaginaAtual('historico')}
-        >
-          Histórico
-        </button>
-        <button 
-          className={`obra-nav-btn ${paginaAtual === 'perfil' ? 'ativo' : ''}`}
-          onClick={() => setPaginaAtual('perfil')}
-        >
-          Perfil
-        </button>
-
-        <button 
-          className="obra-sync-btn" 
-          onClick={executarTesteSync}
-          disabled={loading}
-          title="Testar Sincronização com o Neon"
-        >
-          {loading ? 'A sync...' : '🔄 Sync'}
-        </button>
-
-        <button 
-          className="obra-nav-btn obra-btn-sair" 
-          onClick={logout}
-          title="Encerrar sessão"
-        >
-          Sair
-        </button>
-      </div>
-    </nav>
+    <AuthContext.Provider value={{ user, login, logout, loading }}>
+      {!loading && children}
+    </AuthContext.Provider>
   );
 }
 
-export default Navbar;
+export function useAuth() {
+  return useContext(AuthContext);
+}
+
+export default AuthContext;
