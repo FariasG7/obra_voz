@@ -60,7 +60,7 @@ export function NovoDiarioScreen({ obraId, userId, onDiarioSalvo }) {
     setFotosBase64(prev => prev.filter((_, i) => i !== index));
   };
 
-  const handleSalvarEGerarPDF = async (e) => {
+    const handleSalvarEGerarPDF = async (e) => {
     e.preventDefault();
     setSalvando(true);
 
@@ -79,13 +79,15 @@ export function NovoDiarioScreen({ obraId, userId, onDiarioSalvo }) {
         ocorrencias: ocorrencias,
         observacoes: observacoes,
         recomendacoes: recomendacoes,
-        fotosBase64: fotosBase64, // Já guardadas em tamanho proporcional e otimizado
+        fotosBase64: fotosBase64,
         data_relatorio: new Date().toISOString().slice(0, 10),
         sync_status: 'pending'
       };
 
+      // 1. Guarda no Dexie.js
       await db.diarios_obra.put(dadosDiario);
 
+      // 2. Guarda o áudio se existir
       if (window._ultimoAudioBlob && window._ultimoAudioBlob.size > 0) {
         await salvarAudioComTranscricao({
           diarioId: diarioId,
@@ -95,22 +97,20 @@ export function NovoDiarioScreen({ obraId, userId, onDiarioSalvo }) {
         window._ultimoAudioBlob = null;
       }
 
+      // 3. Atualiza o array offline no localStorage
       const diariosSalvos = JSON.parse(localStorage.getItem('obravoz_diarios_offline') || '[]');
       diariosSalvos.unshift(dadosDiario);
       localStorage.setItem('obravoz_diarios_offline', JSON.stringify(diariosSalvos));
 
       setMensagemStatus('✅ Diário, fotos e PDF guardados com sucesso!');
+      
+      // NOTA: Removemos a limpeza automática agressiva dos campos do turno (setor, etc.)
+      // para que os dados do turno não sejam apagados antes da confirmação ou nova acção.
       if (onDiarioSalvo) onDiarioSalvo(dadosDiario);
 
       setTimeout(() => {
-        setRelato('');
-        setOcorrencias('');
-        setObservacoes('');
-        setRecomendacoes('');
-        setSetorPavimento('');
-        setFotosBase64([]);
         setMensagemStatus('');
-      }, 2500);
+      }, 3000);
 
     } catch (error) {
       console.error('Erro ao guardar diário:', error);
