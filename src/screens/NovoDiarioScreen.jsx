@@ -125,19 +125,6 @@ export function NovoDiarioScreen({ obraId, userId, onDiarioSalvo }) {
 
       <form onSubmit={handleSalvar} className="login-form">
         
-        {/* Setor / Pavimento */}
-        <div className="campo-group" style={{ marginBottom: '15px' }}>
-          <label style={{ display: 'block', marginBottom: '6px', fontSize: '0.9rem' }}>Setor / Pavimento</label>
-          <input
-            type="text"
-            placeholder="Ex: Bloco A - Piso 2 (Cofragem de pilares)"
-            value={setorPavimento}
-            onChange={(e) => setSetorPavimento(e.target.value)}
-            required
-            className="login-input"
-            style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #555', background: '#1a1a1a', color: '#fff' }}
-          />
-        </div>
 
         {/* Relato de Atividades & Botões Circulares de Ação */}
         <div className="campo-group" style={{ marginBottom: '15px' }}>
@@ -281,7 +268,7 @@ export function NovoDiarioScreen({ obraId, userId, onDiarioSalvo }) {
             marginTop: '10px'
           }}
         >
-          {salvando ? 'A guardar no dispositivo...' : '💾 Guardar Diário Offline'}
+          {salvando ? 'A guardar no dispositivo...' : '💾 Salvar'}
         </button>
       </form>
 
