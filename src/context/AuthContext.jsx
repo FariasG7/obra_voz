@@ -24,6 +24,10 @@ export function Navbar({ paginaAtual, setPaginaAtual, obraSelecionada }) {
 
       const res = await sincronizarComNuvem(db);
 
+
+      if (loading) {
+  return <div style={{ color: '#fff', textAlign: 'center', marginTop: '20vh' }}>A carregar...</div>;
+}
       if (res.success) {
         alert('✅ Sucesso! Obra sincronizada com o Neon.');
       } else {
