@@ -1,37 +1,33 @@
-import React, { createContext, useContext, useState } from 'react';
+import { neon } from '@neondatabase/serverless';
 
-const AuthContext = createContext({});
+const sql = neon(import.meta.env.VITE_NEON_DATABASE_URL, { disableWarningInBrowsers: true });
 
-export function AuthProvider({ children }) {
-  const [user, setUser] = useState(() => {
-    try {
-      const salvo = localStorage.getItem('obravoz_usuario_logado');
-      return salvo ? JSON.parse(salvo) : null;
-    } catch {
-      return null;
+export async function autenticarUtilizador(email, senha) {
+  try {
+    const resultado = await sql`SELECT * FROM usuarios WHERE email = ${email}`;
+
+    if (!resultado || resultado.length === 0) {
+      return { sucesso: false, erro: 'Utilizador não encontrado. Verifique os dados ou cadastre-se.' };
     }
-  });
 
-  const [loading, setLoading] = useState(false);
+    const usuario = resultado[0];
 
-  // Certifique-se de que a função 'login' está definida aqui
-  const login = async (dadosUsuario) => {
-    setUser(dadosUsuario);
-    localStorage.setItem('obravoz_usuario_logado', JSON.stringify(dadosUsuario));
-  };
+    if (usuario.password !== senha) {
+      return { sucesso: false, erro: 'Senha incorreta.' };
+    }
 
-  const logout = () => {
-    setUser(null);
-    localStorage.removeItem('obravoz_usuario_logado');
-  };
+    return { 
+      sucesso: true, 
+      usuario: { 
+        id: String(usuario.id), // Garante que o ID UUID seja tratado como string de forma segura
+        email: usuario.email, 
+        nome: usuario.nome || 'Guilherme',
+        permissao: usuario.permissao || 'user'
+      } 
+    };
 
-  return (
-    <AuthContext.Provider value={{ user, login, logout, loading }}>
-      {children}
-    </AuthContext.Provider>
-  );
-}
-
-export function useAuth() {
-  return useContext(AuthContext);
+  } catch (err) {
+    console.error('DETALHE DO ERRO NO AUTHSERVICE:', err);
+    return { sucesso: false, erro: 'Erro interno ao processar o login.' };
+  }
 }
