@@ -41,8 +41,10 @@ export function Navbar({ paginaAtual, setPaginaAtual, obraSelecionada }) {
       <div className="obra-navbar-left">
         <div className="obra-logo-container">
           <span className="obra-logo-icone">🏗️</span>
-          <span className="logo-obra">Obra</span>
-          <span className="logo-voz">Voz</span>
+         <h1> <span className="logo-obra">Obra</span></h1>
+
+         <h1><span className="logo-voz">Voz</span></h1>
+        
         </div>
         
         <div className="obra-info-badge">
