@@ -429,3 +429,71 @@ body {
   margin-top: 4px;
   color: #aaa;
 }
+
+
+/* --- TELA DE CADASTRO E BOTÕES DE SENHA --- */
+.cadastro-sucesso-msg {
+  background: rgba(42, 161, 192, 0.2);
+  border: 1px solid var(--blue-primary);
+  color: var(--blue-light);
+  padding: 10px;
+  border-radius: 8px;
+  margin-bottom: 15px;
+  font-size: 0.85rem;
+  text-align: center;
+}
+
+.password-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.password-input {
+  padding-right: 42px !important;
+  width: 100%;
+}
+
+.password-toggle-btn {
+  position: absolute;
+  right: 10px;
+  background: none;
+  border: none;
+  padding: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #888;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: none;
+}
+
+.password-toggle-btn:hover {
+  color: #fff;
+}
+
+.login-select-option {
+  background: #1E1E1E;
+  color: #FFF;
+}
+
+.login-voltar-container {
+  margin-top: 15px;
+  text-align: center;
+}
+
+.btn-link-voltar {
+  background: none;
+  border: none;
+  color: var(--blue-primary);
+  cursor: pointer;
+  font-size: 0.9rem;
+  text-decoration: underline;
+}
+
+.btn-link-voltar:hover {
+  color: var(--blue-light);
+}
