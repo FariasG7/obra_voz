@@ -1,12 +1,22 @@
-// src/services/sincronizarComNuvem.js (ou syncService.js)
+// src/services/syncService.js
 import { sql } from './neonClient';
 
-// Mapeamento seguro para converter o nome da obra em texto num UUID válido exigido pelo PostgreSQL/Neon
+// Mapeamento de nomes para os UUIDs reais cadastrados no Neon/PostgreSQL
 const MAPA_OBRAS_UUID = {
   "Residencias Vale do Lobo": "a0000000-0000-0000-0000-000000000001",
   "Obra Geral Algarve": "a0000000-0000-0000-0000-000000000002",
-  "Edificio Marina Olhao": "a0000000-0000-0000-0000-000000000003"
+  "Edifício Marina Olhão": "a0000000-0000-0000-0000-000000000003"
 };
+
+// Prepara e converte o ID da obra para um UUID válido exigido pelo PostgreSQL
+function prepararParaSync(diarioLocal) {
+  const obraIdFormatado = MAPA_OBRAS_UUID[diarioLocal.obra_id] || "a0000000-0000-0000-0000-000000000001"; // Fallback se não encontrar
+
+  return {
+    ...diarioLocal,
+    obra_id: obraIdFormatado
+  };
+}
 
 export async function sincronizarComNuvem(localDb) {
   if (!navigator.onLine) {
@@ -41,15 +51,15 @@ export async function sincronizarComNuvem(localDb) {
     const diariosPendentes = await localDb.diarios_obra.where('synced').equals(0).toArray();
 
     for (const diario of diariosPendentes) {
-      // Converte o nome textual em UUID compatível com a base de dados
-      const projetoIdUuid = MAPA_OBRAS_UUID[diario.obra_id] || diario.obra_id;
+      // Aplica a função de conversão para UUID antes de enviar ao banco
+      const diarioPronto = prepararParaSync(diario);
 
       await sql`
         INSERT INTO diarios (id, projeto_id, data)
         VALUES (
-          ${diario.id}, 
-          ${projetoIdUuid}, 
-          ${diario.data_relatorio}
+          ${diarioPronto.id}, 
+          ${diarioPronto.projeto_id || diarioPronto.obra_id}, 
+          ${diarioPronto.data_relatorio}
         )
         ON CONFLICT (id) DO UPDATE SET
           updated_at = CURRENT_TIMESTAMP;
