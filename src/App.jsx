@@ -1,5 +1,3 @@
-/**
-
 // src/App.jsx
 import React, { useState } from 'react';
 import SelecaoObraPage from './pages/SelecaoObraPage';
@@ -34,8 +32,6 @@ export default function App() {
 
   return (
     <div className="app-root-container">
-      
-      {/* Navbar Superior Completa */}
       <header className="app-navbar-header">
         <div className="app-navbar-brand-wrapper">
           <h1 className="app-navbar-titulo">
@@ -48,7 +44,6 @@ export default function App() {
           )}
         </div>
 
-        {/* Abas de Navegação */}
         <nav className="app-navbar-menu">
           <button
             onClick={() => setPaginaAtual('selecao')}
@@ -90,7 +85,6 @@ export default function App() {
         </nav>
       </header>
 
-      {/* Conteúdo Dinâmico Baseado na Aba Selecionada */}
       <main className="app-main-content">
         {paginaAtual === 'selecao' && (
           <SelecaoObraPage onSessaoIniciada={handleSessaoIniciada} />
@@ -110,19 +104,6 @@ export default function App() {
           <PerfilGestaoPage />
         )}
       </main>
-    </div>
-  );
-}
-
--*/
-// src/App.jsx (Versão de Diagnóstico Mínima)
-import React from 'react';
-
-export default function App() {
-  return (
-    <div style={{ padding: '40px', background: '#121212', color: '#fff', textAlign: 'center', fontFamily: 'sans-serif' }}>
-      <h1 style={{ color: '#2AA1C0' }}>🏗️ ObraVoz - Diagnóstico</h1>
-      <p style={{ marginTop: '15px', color: '#ccc' }}>O PWA está online e a carregar corretamente!</p>
     </div>
   );
 }
