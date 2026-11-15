@@ -646,3 +646,22 @@ body {
   background: rgba(200, 38, 71, 0.3) !important;
   border-color: var(--red) !important;
 }
+
+
+
+/* --- SELECT DE CADASTRO DE UTILIZADOR --- */
+.cadastro-select-permissao {
+  width: 100% !important;
+  height: 42px !important;
+  background: #333 !important;
+  border: 1px solid #444 !important;
+  color: #fff !important;
+  border-radius: 6px;
+  padding: 0 10px;
+  outline: none;
+}
+
+.cadastro-select-permissao option {
+  background: #1E1E1E;
+  color: #fff;
+}
