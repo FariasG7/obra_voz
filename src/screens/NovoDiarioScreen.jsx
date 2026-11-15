@@ -4,7 +4,8 @@ import '../App.css';
 import { useVoiceRecorder } from '../hooks/useVoiceRecorder';
 import { salvarAudioComTranscricao } from '../services/audioService';
 import { db, generateUUID } from '../db/db';
-import { formatarEPolirTexto } from '../utils/textFormatter'; // <-- Importa o formatador
+import { formatarEPolirTexto } from '../utils/textFormatter';
+import { redimensionarImagem } from '../utils/imageUtils'; // <-- Importa o redimensionador
 
 export function NovoDiarioScreen({ obraId, userId, onDiarioSalvo }) {
   const { isRecording, transcript, erroGravacao, startRecording, stopRecording } = useVoiceRecorder('pt-PT');
@@ -18,7 +19,6 @@ export function NovoDiarioScreen({ obraId, userId, onDiarioSalvo }) {
   const [salvando, setSalvando] = useState(false);
   const [mensagemStatus, setMensagemStatus] = useState('');
 
-  // Sincroniza a transcrição e aplica polimento automático leve
   useEffect(() => {
     if (transcript) {
       setRelato(transcript);
@@ -29,9 +29,7 @@ export function NovoDiarioScreen({ obraId, userId, onDiarioSalvo }) {
     if (isRecording) {
       const resultado = await stopRecording();
       if (resultado && resultado.transcription) {
-        // Aplica correção ortográfica e pontuação automática ao parar de ditar
-        const textoPolido = formatarEPolirTexto(resultado.transcription);
-        setRelato(textoPolido);
+        setRelato(formatarEPolirTexto(resultado.transcription));
       }
       window._ultimoAudioBlob = resultado?.audioBlob;
     } else {
@@ -40,21 +38,22 @@ export function NovoDiarioScreen({ obraId, userId, onDiarioSalvo }) {
   };
 
   const handleBlurRelato = () => {
-    // Quando o utilizador sai do campo de texto (blur), aplica a polidela automática
     if (relato) {
       setRelato(formatarEPolirTexto(relato));
     }
   };
 
-  const handleCapturarFoto = (e) => {
+  // Captura e redimensiona a imagem automaticamente
+  const handleCapturarFoto = async (e) => {
     const files = Array.from(e.target.files);
-    files.forEach(file => {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setFotosBase64(prev => [...prev, reader.result]);
-      };
-      reader.readAsDataURL(file);
-    });
+    for (const file of files) {
+      try {
+        const fotoOtimizada = await redimensionarImagem(file, 1024, 0.75);
+        setFotosBase64(prev => [...prev, fotoOtimizada]);
+      } catch (err) {
+        console.error("Erro ao otimizar imagem:", err);
+      }
+    }
   };
 
   const handleRemoverFoto = (index) => {
@@ -67,7 +66,6 @@ export function NovoDiarioScreen({ obraId, userId, onDiarioSalvo }) {
 
     try {
       const diarioId = generateUUID();
-      // Garante o texto totalmente polido e pontuado antes de salvar
       const relatoFinal = formatarEPolirTexto(relato);
 
       const dadosDiario = {
@@ -81,7 +79,7 @@ export function NovoDiarioScreen({ obraId, userId, onDiarioSalvo }) {
         ocorrencias: ocorrencias,
         observacoes: observacoes,
         recomendacoes: recomendacoes,
-        fotosBase64: fotosBase64,
+        fotosBase64: fotosBase64, // Já guardadas em tamanho proporcional e otimizado
         data_relatorio: new Date().toISOString().slice(0, 10),
         sync_status: 'pending'
       };
@@ -101,7 +99,7 @@ export function NovoDiarioScreen({ obraId, userId, onDiarioSalvo }) {
       diariosSalvos.unshift(dadosDiario);
       localStorage.setItem('obravoz_diarios_offline', JSON.stringify(diariosSalvos));
 
-      setMensagemStatus('✅ Diário, áudio e PDF polidos e guardados com sucesso!');
+      setMensagemStatus('✅ Diário, fotos e PDF guardados com sucesso!');
       if (onDiarioSalvo) onDiarioSalvo(dadosDiario);
 
       setTimeout(() => {
@@ -141,7 +139,7 @@ export function NovoDiarioScreen({ obraId, userId, onDiarioSalvo }) {
               placeholder="Digite ou utilize o microfone para ditar o relato..."
               value={relato}
               onChange={(e) => setRelato(e.target.value)}
-              onBlur={handleBlurRelato} // Aplica formatação automática ao sair do campo
+              onBlur={handleBlurRelato}
               required
             />
 
@@ -210,17 +208,19 @@ export function NovoDiarioScreen({ obraId, userId, onDiarioSalvo }) {
             </div>
           </div>
 
+          {/* Galeria de Fotos Anexadas com pré-visualização proporcional */}
           {fotosBase64.length > 0 && (
             <div className="campo-group">
               <label>Fotos Anexadas ({fotosBase64.length})</label>
-              <div className="galeria-preview">
+              <div className="galeria-preview" style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginTop: '8px' }}>
                 {fotosBase64.map((foto, index) => (
-                  <div key={index} className="foto-item">
-                    <img src={foto} alt={`Preview ${index}`} />
+                  <div key={index} className="foto-item" style={{ position: 'relative', width: '80px', height: '80px', borderRadius: '8px', overflow: 'hidden', border: '1px solid #444' }}>
+                    <img src={foto} alt={`Preview ${index}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                     <button
                       type="button"
                       onClick={() => handleRemoverFoto(index)}
                       className="btn-remover-foto"
+                      style={{ position: 'absolute', top: '2px', right: '2px', background: 'rgba(0,0,0,0.7)', color: '#fff', border: 'none', borderRadius: '50%', width: '22px', height: '22px', fontSize: '0.7rem', cursor: 'pointer' }}
                     >
                       ✕
                     </button>
