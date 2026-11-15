@@ -582,7 +582,7 @@ function MainContent() {
               </div>
             </div>
 
-            {/* Corpo do Modal com o visualizador do PDF */}
+                      {/* Corpo do Modal com o visualizador do PDF */}
             <div style={{ flex: 1, backgroundColor: '#525659', padding: '10px' }}>
               <iframe 
                 src={pdfUrl} 
@@ -602,4 +602,4 @@ function MainContent() {
   );
 }
 
-export MainContent;
+export default MainContent;
