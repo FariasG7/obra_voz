@@ -1254,3 +1254,8 @@ body {
   background: #1E1E1E;
   color: #FFF;
 }
+
+
+.selecao-campo-group-ultimo {
+  margin-bottom: 25px;
+}
