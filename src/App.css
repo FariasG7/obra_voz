@@ -1,8 +1,9 @@
-/* --- 1. RESET E VARIÁVEIS --- */
+/* --- 1. RESET E VARIÁVEIS GLOBAIS --- */
 :root {
   --icon-size: 55px;
   --bg-dark: #121212;
   --card-bg: #1E1E1E;
+  --border-color: #2C2C2C;
   --green: #16A085;
   --red: #C82647;
   --orange: #EB9532;
@@ -24,116 +25,194 @@ body {
   min-height: 100vh;
 }
 
-/* --- 1.1. NAVBAR --- */
-.obra-navbar {
+/* --- 2. LAYOUT E ESTRUTURA PRINCIPAL --- */
+.app-root-container {
+  min-height: 100vh;
+  background-color: var(--bg-dark);
+  color: #fff;
+  padding-bottom: 50px;
+}
+
+.app-navbar-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background-color: #1A1A1A;
   padding: 12px 20px;
   border-bottom: 1px solid #333;
+  background: #1a1a1a;
   position: sticky;
   top: 0;
   z-index: 100;
-  box-sizing: border-box;
-  width: 100%;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 
-.obra-navbar-left {
+.app-navbar-brand-wrapper {
   display: flex;
   align-items: center;
   gap: 15px;
+}
+
+.app-navbar-titulo {
+  font-size: 1.2rem;
+  color: var(--blue-primary);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 800;
+}
+
+.logo-obra { color: #2AA1C0 !important; }
+.logo-voz { color: #FFFFFF !important; }
+
+.app-navbar-badge-obra {
+  font-size: 0.8rem;
+  color: #888;
+  background: #222;
+  padding: 4px 8px;
+  border-radius: 4px;
+  border: 1px solid #333;
+}
+
+.app-navbar-menu {
+  display: flex;
+  gap: 8px;
+  align-items: center;
   flex-wrap: wrap;
 }
 
-.obra-logo-container {
-  font-size: 1.25rem;
-  font-weight: 800;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  letter-spacing: -0.5px;
-}
-
-.obra-logo-icone {
-  font-size: 1.1rem;
-}
-
-/* Cores solicitadas para o logo */
-.logo-obra {
-  color: #2AA1C0 !important;
-}
-
-.logo-voz {
-  color: #FFFFFF !important;
-}
-
-.obra-info-badge {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 0.8rem;
-  color: #ccc;
-  background-color: #252525;
+.app-nav-btn {
+  background: #222;
+  color: #fff;
+  border: 1px solid #444;
   padding: 6px 12px;
   border-radius: 6px;
-  border: 1px solid #333;
-  white-space: nowrap;
-}
-
-.obra-nome-ativo {
-  color: #5AB3D4;
-  font-weight: 600;
-}
-
-.obra-separator {
-  color: #555;
-}
-
-.obra-clima-texto {
-  color: #aaa;
-}
-
-.obra-navbar-menu {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  flex-wrap: wrap;
-}
-
-.obra-nav-btn {
-  background: #252525;
-  color: #fff;
-  border: 1px solid #333;
-  padding: 8px 12px;
-  border-radius: 8px;
-  font-size: 0.85rem;
   cursor: pointer;
-  font-weight: 600;
+  font-size: 0.85rem;
   transition: background 0.2s;
 }
 
-.obra-nav-btn.ativo {
-  background: var(--blue-primary, #2AA1C0);
+.app-nav-btn.ativo {
+  background: var(--blue-primary);
+  font-weight: bold;
+  border-color: var(--blue-primary);
 }
 
-.obra-sync-btn {
-  background: var(--blue-primary, #2AA1C0);
-  color: #fff;
-  border: 1px solid #333;
-  padding: 8px 12px;
-  border-radius: 8px;
-  font-size: 0.85rem;
+.app-btn-sair-turno {
+  background: rgba(200, 38, 71, 0.2);
+  color: #ff6b81;
+  border: 1px solid rgba(200, 38, 71, 0.5);
+  padding: 6px 10px;
+  border-radius: 6px;
   cursor: pointer;
+  font-size: 0.8rem;
   font-weight: 600;
 }
 
-.obra-sync-btn:disabled {
-  background: #555;
-  cursor: not-allowed;
+.app-main-content {
+  max-width: 700px;
+  margin: 20px auto;
+  padding: 15px;
 }
 
-/* --- TELA DE LOGIN --- */
+/* --- 3. PADRÃO UNIFICADO DE CARDS E CONTEÚDO (ESTILO RELATOS) --- */
+.content, 
+.diario-content-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+}
+
+.card {
+  background: var(--card-bg);
+  padding: 22px;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  border: 1px solid var(--border-color);
+}
+
+/* Títulos de secção internos aos cards */
+.card h2, .card h3, 
+.diario-sessao-titulo {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 12px;
+}
+
+/* --- 4. FORMULÁRIOS, INPUTS, SELECTS E TEXTAREAS --- */
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.campo-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.campo-group label {
+  font-size: 0.8rem;
+  color: #aaa;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+input, select, textarea, .textarea {
+  width: 100%;
+  background: #252525 !important;
+  border: 1px solid #333 !important;
+  border-radius: 10px;
+  padding: 12px;
+  color: #fff !important;
+  font-size: 0.95rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+input:focus, select:focus, textarea:focus, .textarea:focus {
+  border-color: var(--blue-primary) !important;
+  box-shadow: 0 0 0 2px rgba(42, 161, 192, 0.2);
+}
+
+.textarea {
+  height: 140px;
+  resize: vertical;
+}
+
+/* --- 5. BOTÕES PADRÃO DO SISTEMA --- */
+button {
+  font-family: inherit;
+}
+
+.btn-guardar-diario,
+.btn-login,
+.btn-finalizar {
+  width: 100%;
+  background: linear-gradient(135deg, var(--blue-primary) 0%, #17708C 100%);
+  color: #fff;
+  border: none;
+  padding: 14px;
+  border-radius: 12px;
+  font-weight: bold;
+  font-size: 1rem;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(42, 161, 192, 0.3);
+  transition: opacity 0.2s;
+}
+
+.btn-guardar-diario:hover,
+.btn-login:hover,
+.btn-finalizar:hover {
+  opacity: 0.9;
+}
+
+/* --- 6. TELA DE LOGIN --- */
 .login-container {
   display: flex;
   justify-content: center;
@@ -147,7 +226,7 @@ body {
   background: var(--card-bg);
   padding: 35px 30px;
   border-radius: 16px;
-  border: 1px solid #2C2C2C;
+  border: 1px solid var(--border-color);
   width: 100%;
   max-width: 420px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
@@ -181,220 +260,15 @@ body {
   text-align: center;
 }
 
-.login-form {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  text-align: left;
-}
-
-.campo-group {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.campo-group label {
-  font-size: 0.8rem;
-  color: #aaa;
-  font-weight: bold;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.login-input {
-  width: 100%;
-  padding: 12px;
-  background: #252525;
-  border: 1px solid #333;
-  border-radius: 8px;
-  color: #fff;
-  font-size: 0.95rem;
-  outline: none;
-  transition: border-color 0.2s;
-}
-
-.login-input:focus {
-  border-color: var(--blue-primary);
-}
-
-.btn-login {
-  width: 100%;
-  background: linear-gradient(135deg, var(--blue-primary) 0%, #17708C 100%);
-  color: #fff;
-  border: none;
-  padding: 12px;
-  border-radius: 8px;
-  font-size: 1rem;
-  font-weight: bold;
-  cursor: pointer;
-  margin-top: 10px;
-  box-shadow: 0 4px 15px rgba(42, 161, 192, 0.3);
-  transition: opacity 0.2s;
-}
-
-.btn-login:hover {
-  opacity: 0.9;
-}
-
-.btn-login:disabled {
-  background: #555;
-  cursor: not-allowed;
-  box-shadow: none;
-}
-
-/* --- LAYOUT PRINCIPAL E NAVBAR DO APP --- */
-.app-root-container {
-  min-height: 100vh;
-  background-color: var(--bg-dark);
-  color: #fff;
-  padding-bottom: 50px;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-}
-
-.app-navbar-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 12px 20px;
-  border-bottom: 1px solid #333;
-  background: #1a1a1a;
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  flex-wrap: wrap;
-  gap: 10px;
-}
-
-.app-navbar-brand-wrapper {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-}
-
-.app-navbar-titulo {
-  font-size: 1.2rem;
-  color: var(--blue-primary);
-  margin: 0;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-weight: 800;
-}
-
-.app-navbar-badge-obra {
-  font-size: 0.8rem;
-  color: #888;
-  background: #222;
-  padding: 4px 8px;
-  border-radius: 4px;
-  border: 1px solid #333;
-}
-
-.app-navbar-menu {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  flex-wrap: wrap;
-}
-
-.app-nav-btn {
-  background: #222;
-  color: #fff;
-  border: 1px solid #444;
-  padding: 6px 12px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 0.85rem;
-}
-
-.app-nav-btn.ativo {
-  background: var(--blue-primary);
-  font-weight: bold;
-  border-color: var(--blue-primary);
-}
-
-.app-btn-sair-turno {
-  background: rgba(200, 38, 71, 0.2);
-  color: #ff6b81;
-  border: 1px solid rgba(200, 38, 71, 0.5);
-  padding: 6px 10px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 0.8rem;
-}
-
-.app-main-content {
-  max-width: 700px;
-  margin: 20px auto;
-  padding: 10px;
-}
-
-/* --- 2. LAYOUT --- */
-.container { 
-  min-height: 100vh; 
-  padding-bottom: 30px; 
-}
-
-.header { 
-  background: #1A1A1A; 
-  padding: 15px; 
-  text-align: center; 
-  border-bottom: 1px solid #333; 
-  position: sticky; 
-  top: 0; 
-  z-index: 10;
-}
-
-.header h1 { 
-  color: var(--blue-primary); 
-  font-size: 1.4rem; 
-}
-
-.content { 
-  padding: 15px; 
-  width: 100%;
-  max-width: 700px; 
-  margin: 0 auto; 
-}
-
-.card { 
-  background: var(--card-bg); 
-  padding: 20px; 
-  border-radius: 15px; 
-  box-shadow: 0 4px 15px rgba(0,0,0,0.5); 
-  border: 1px solid #2C2C2C;
-}
-
-/* --- 3. INPUTS E TEXTAREA --- */
-.textarea { 
-  width: 100%; 
-  height: 140px; 
-  background: #252525; 
-  border: 2px solid #333;
-  border-radius: 10px; 
-  padding: 12px; 
-  color: #fff; 
-  font-size: 16px; 
-  resize: none; 
-  outline: none; 
-  margin-bottom: 10px;
-}
-
-.textarea:focus {
-  border-color: var(--blue-primary);
-}
-
-/* --- 4. BOTÃO DE GRAVAÇÃO POR VOZ --- */
+/* --- 7. BOTÃO DE VOZ E COMPONENTES ESPECÍFICOS --- */
 .acoes {
   display: flex;
   justify-content: center;
   align-items: center;
   padding: 10px 0;
-  background: transparent !important;
 }
 
-.icon-btn {
+.icon-btn.btn-mic {
   cursor: pointer;
   position: relative;
   display: inline-flex;
@@ -411,12 +285,12 @@ body {
   box-shadow: 0 4px 12px rgba(42, 161, 192, 0.2);
 }
 
-.icon-btn:hover {
+.icon-btn.btn-mic:hover {
   background: var(--blue-primary) !important;
   transform: scale(1.05);
 }
 
-.recording { 
+.icon-btn.btn-mic.recording { 
   animation: pulsar 1.5s infinite;
   background-color: var(--red) !important;
   border-color: #f87171 !important;
@@ -428,77 +302,15 @@ body {
   100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
 }
 
-/* --- 5. BOTÃO GERAR PDF --- */
-.btn-guardar-diario {
-  width: 100%; 
-  background: linear-gradient(135deg, var(--blue-primary) 0%, #17708C 100%);
-  color: #fff;
-  border: none;
-  padding: 14px;
-  border-radius: 12px;
-  font-weight: bold;
-  font-size: 1rem;
-  cursor: pointer;
-  margin-top: 15px;
-  box-shadow: 0 4px 15px rgba(42, 161, 192, 0.3);
-  transition: opacity 0.2s;
+/* Grids responsivos */
+.diario-grid-duplo {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
 }
 
-.btn-guardar-diario:hover {
-  opacity: 0.9;
+@media (max-width: 600px) {
+  .diario-grid-duplo {
+    grid-template-columns: 1fr;
+  }
 }
-
-/* --- 6. CONTEXTO DO DIÁRIO --- */
-.diario-content-wrapper {
-  max-width: 700px;
-  margin: 0 auto;
-  padding: 15px;
-}
-
-.diario-sessao-card {
-  background: var(--card-bg, #1E1E1E);
-  border: 1px solid #2C2C2C;
-  border-radius: 15px;
-  padding: 20px;
-  margin-bottom: 15px;
-}
-
-.diario-sessao-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 8px;
-}
-
-.diario-sessao-tag {
-  font-size: 0.75rem;
-  font-weight: bold;
-  text-transform: uppercase;
-  color: var(--blue-light);
-  background: rgba(42, 161, 192, 0.1);
-  padding: 4px 8px;
-  border-radius: 4px;
-}
-
-.diario-sessao-data {
-  font-size: 0.85rem;
-  color: #888;
-}
-
-.diario-sessao-titulo {
-  font-size: 1.25rem;
-  font-weight: bold;
-  color: #fff;
-  margin-bottom: 6px;
-}
-
-.diario-sessao-texto {
-  font-size: 0.9rem;
-  color: #bbb;
-  margin-top: 4px;
-}
-
-.diario-alerta-aviso {
-  background: rgba(235, 149, 50, 0.15);
-  border: 1px solid rgba(235, 149, 50, 0.4);
-  color: #f6
