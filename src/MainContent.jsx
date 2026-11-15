@@ -21,7 +21,7 @@ function MainContent() {
   // --- ESTADOS ---
   const [texto, setTexto] = useState(() => localStorage.getItem('diario_texto') || '');
   const [fotos, setFotos] = useState([]);
-  const [tipoMedicao, setTipoMedicao] = useState('cofragem'); 
+  const [tipoMedicaoGlobal, setTipoMedicaoGlobal] = useState('cofragem'); 
 
   const [medicoes, setMedicoes] = useState(() => {
     try { 
@@ -49,6 +49,15 @@ function MainContent() {
     localStorage.setItem('diario_texto', texto);
     localStorage.setItem('diario_medicoes', JSON.stringify(medicoes));
   }, [texto, medicoes]);
+
+  // --- LIMPEZA DE URL DO OBJETO PDF AO DESMONTAR ---
+  useEffect(() => {
+    return () => {
+      if (pdfUrl) {
+        URL.revokeObjectURL(pdfUrl);
+      }
+    };
+  }, [pdfUrl]);
 
   // --- CLIMA ---
   const buscarClima = useCallback(async () => {
@@ -89,6 +98,12 @@ function MainContent() {
       rec.onend = () => setGravando(false);
       recognitionRef.current = rec;
     }
+
+    return () => {
+      if (recognitionRef.current) {
+        recognitionRef.current.stop();
+      }
+    };
   }, [buscarClima]);
 
   const alternarGravacao = async () => {
@@ -126,7 +141,7 @@ function MainContent() {
   const adicionarLinhaMedicao = () => {
     setMedicoes(prev => [
       ...prev,
-      { id: Date.now(), tipo: tipoMedicao, nome: 'Pilar', quantidade: 1, largura: '', altura: '', comprimento: '' }
+      { id: Date.now(), tipo: tipoMedicaoGlobal, nome: 'Pilar', quantidade: 1, largura: '', altura: '', comprimento: '' }
     ]);
   };
 
@@ -144,7 +159,7 @@ function MainContent() {
     setTexto('');
     setFotos([]);
     const medicaoInicial = [
-      { id: Date.now(), tipo: tipoMedicao, nome: 'Pilar', quantidade: 1, largura: '', altura: '', comprimento: '' }
+      { id: Date.now(), tipo: 'cofragem', nome: 'Pilar', quantidade: 1, largura: '', altura: '', comprimento: '' }
     ];
     setMedicoes(medicaoInicial);
 
@@ -317,6 +332,8 @@ function MainContent() {
       }
 
       const pdfBlob = doc.output('blob');
+      
+      if (pdfUrl) URL.revokeObjectURL(pdfUrl);
       const blobUrl = URL.createObjectURL(pdfBlob);
       const dataHoje = new Date().toISOString().slice(0, 10);
       
@@ -337,6 +354,7 @@ function MainContent() {
         <div style={{ textAlign: 'center', margin: '20px 0' }}>
           <h2 style={{ color: 'var(--blue-light)', fontSize: '1.5rem', fontWeight: 'bold' }}>Relatório do dia</h2>
           <p style={{ color: '#888', fontSize: '0.9rem', marginTop: '4px' }}>Descreva as atividades realizadas</p>
+          <p style={{ fontSize: '0.8rem', color: '#666', marginTop: '2px' }}>{status} | {clima}</p>
         </div>
 
         <div className="card">
@@ -388,8 +406,8 @@ function MainContent() {
                 <FaPlus />
               </button>
               <select 
-                value={tipoMedicao} 
-                onChange={(e) => setTipoMedicao(e.target.value)}
+                value={tipoMedicaoGlobal} 
+                onChange={(e) => setTipoMedicaoGlobal(e.target.value)}
                 className="select-tipo-medicao"
               >
                 <option value="cofragem">📐 Cofragem (m²)</option>
@@ -399,11 +417,22 @@ function MainContent() {
           </div>
 
           {medicoes.map((item) => (
-            <div key={item.id} className="row-inputs">
+            <div key={item.id} className="row-inputs" style={{ display: 'flex', gap: '8px', alignItems: 'center', marginBottom: '8px' }}>
+              <select
+                className="select-elemento"
+                value={item.tipo || 'cofragem'}
+                onChange={(e) => atualizarMedicao(item.id, 'tipo', e.target.value)}
+                style={{ flex: '0.8' }}
+              >
+                <option value="cofragem">Cofragem</option>
+                <option value="betao">Betão</option>
+              </select>
+
               <select
                 className="select-elemento"
                 value={item.nome}
                 onChange={(e) => atualizarMedicao(item.id, 'nome', e.target.value)}
+                style={{ flex: '1' }}
               >
                 <option value="Pilar">Pilar</option>
                 <option value="Parede">Parede</option>
@@ -421,6 +450,7 @@ function MainContent() {
                 value={item.quantidade}
                 min="1"
                 onChange={(e) => atualizarMedicao(item.id, 'quantidade', e.target.value)}
+                style={{ width: '50px' }}
               />
 
               <input 
@@ -429,6 +459,7 @@ function MainContent() {
                 title="Largura"
                 value={item.largura}
                 onChange={(e) => atualizarMedicao(item.id, 'largura', e.target.value)}
+                style={{ width: '50px' }}
               />
 
               <input 
@@ -437,6 +468,7 @@ function MainContent() {
                 title="Altura"
                 value={item.altura}
                 onChange={(e) => atualizarMedicao(item.id, 'altura', e.target.value)}
+                style={{ width: '50px' }}
               />
 
               <input 
@@ -445,6 +477,7 @@ function MainContent() {
                 title="Comprimento"
                 value={item.comprimento}
                 onChange={(e) => atualizarMedicao(item.id, 'comprimento', e.target.value)}
+                style={{ width: '50px' }}
               />
 
               <button 
@@ -461,11 +494,11 @@ function MainContent() {
 
         {/* BOTÕES FINAIS */}
         <div style={{ marginTop: '20px' }}>
-          <button className="btn-finalizar" onClick={gerarPDF}>
+          <button className="btn-finalizar" onClick={gerarPDF} style={{ width: '100%', marginBottom: '10px' }}>
             <FaRegFilePdf style={{ marginRight: '8px' }} /> Gerar Relatório PDF
           </button>
 
-          <button onClick={logout} className="btn-sair">
+          <button onClick={logout} className="btn-sair" style={{ width: '100%' }}>
             <FaSignOutAlt style={{ marginRight: '5px' }} /> Sair da Conta
           </button>
         </div>
@@ -569,4 +602,4 @@ function MainContent() {
   );
 }
 
-export default MainContent;
+export MainContent;
