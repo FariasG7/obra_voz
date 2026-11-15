@@ -39,18 +39,20 @@ export function Navbar({ paginaAtual, setPaginaAtual, obraSelecionada }) {
   return (
     <nav className="obra-navbar">
       <div className="obra-navbar-left">
-        <h1 className="obra-logo">
-          🏗️ <span className="logo-obra">Obra</span><span className="logo-voz">Voz</span>
-        </h1>
+        <div className="obra-logo-container">
+          <span className="obra-logo-icone">🏗️</span>
+          <span className="logo-obra">Obra</span>
+          <span className="logo-voz">Voz</span>
+        </div>
         
         <div className="obra-info-badge">
           {obraSelecionada && (
             <>
               <span className="obra-nome-ativo">📍 {obraSelecionada}</span>
-              <span>•</span>
+              <span className="obra-separator">•</span>
             </>
           )}
-          <span>{clima || 'Clima indisponível'}</span>
+          <span className="obra-clima-texto">{clima || 'Clima indisponível'}</span>
         </div>
       </div>
 
@@ -59,26 +61,25 @@ export function Navbar({ paginaAtual, setPaginaAtual, obraSelecionada }) {
           className={`obra-nav-btn ${paginaAtual === 'selecao' ? 'ativo' : ''}`}
           onClick={() => setPaginaAtual('selecao')}
         >
-          Turno
+          Turno / Obra
         </button>
         <button 
           className={`obra-nav-btn ${paginaAtual === 'relatos' ? 'ativo' : ''}`}
           onClick={() => setPaginaAtual('relatos')}
         >
-          Relatos
+          Relatos (Diário)
         </button>
         <button 
           className={`obra-nav-btn ${paginaAtual === 'historico' ? 'ativo' : ''}`}
           onClick={() => setPaginaAtual('historico')}
         >
-          📚 Histórico
+          Histórico
         </button>
-
         <button 
           className={`obra-nav-btn ${paginaAtual === 'perfil' ? 'ativo' : ''}`}
           onClick={() => setPaginaAtual('perfil')}
         >
-          🔐 Perfil & Equipa
+          Perfil
         </button>
 
         <button 
