@@ -1,13 +1,14 @@
+// src/components/Login.jsx
 import React, { useState } from 'react';
-import { autenticarUtilizador } from '../services/authService'; // ou o caminho correto do seu serviço
+import { autenticarUtilizador } from '../services/authService';
 import { useAuth } from '../context/AuthContext';
 
-export function Login() {
+export default function Login() {
   const [email, setEmail] = useState('');
-  const [senha, setSenha] = useState('');
+  const [password, setPassword] = useState('');
   const [erro, setErro] = useState('');
   const [loading, setLoading] = useState(false);
-  const { login } = useAuth(); // Função do contexto que guarda o utilizador no estado e localStorage
+  const { login } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -15,18 +16,16 @@ export function Login() {
     setLoading(true);
 
     try {
-      // 1. Valida com a função robusta que partilhou (Neon + Dexie fallback)
-      const res = await autenticarUtilizador(email, senha);
+      const res = await autenticarUtilizador(email, password);
 
-      if (res.sucesso) {
-        // 2. Guarda o utilizador no AuthContext da aplicação
-        await login(res.usuario); 
+      if (res && res.sucesso) {
+        await login(res.usuario);
       } else {
-        setErro(res.erro || 'Credenciais inválidas.');
+        setErro(res?.erro || 'Credenciais inválidas.');
       }
     } catch (err) {
-      console.error('Erro no login:', err);
-      setErro('Ocorreu um erro inesperado.');
+      console.error('Erro detalhado no login:', err);
+      setErro('Ocorreu um erro ao processar o login.');
     } finally {
       setLoading(false);
     }
@@ -35,7 +34,9 @@ export function Login() {
   return (
     <div className="login-container">
       <div className="login-box">
-        <h1><span className="logo-obra">Obra</span><span className="logo-voz">Voz</span></h1>
+        <h1>
+          <span className="logo-obra">Obra</span><span className="logo-voz">Voz</span>
+        </h1>
         <p className="login-subtitulo">Diário de Obra Inteligente</p>
 
         {erro && <div className="login-erro">{erro}</div>}
@@ -59,8 +60,8 @@ export function Login() {
               <input 
                 type="password" 
                 className="login-input password-input"
-                value={senha}
-                onChange={(e) => setSenha(e.target.value)}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 placeholder="********"
                 required 
               />
@@ -75,5 +76,3 @@ export function Login() {
     </div>
   );
 }
-
-export default Login;
