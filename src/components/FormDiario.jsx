@@ -1,16 +1,19 @@
 // src/components/FormDiario.jsx
 import React, { useState, useEffect } from 'react';
 import { useObraVozDB } from '../hooks/useObraVozDB';
-import jsPDF from 'jspdf'; // Certifique-se de ter o jspdf instalado no projeto
+import { useVoiceRecorder } from '../hooks/useVoiceRecorder';
+import jsPDF from 'jspdf';
 
 export function FormDiario() {
   const { salvarDiarioOffline } = useObraVozDB();
+  const { isRecording, transcript, erroGravacao, startRecording, stopRecording } = useVoiceRecorder('pt-PT');
 
   const [sessao, setSessao] = useState(null);
   const [relato, setRelato] = useState('');
   const [ocorrencias, setOcorrencias] = useState('');
   const [observacoes, setObservacoes] = useState('');
   const [recomendacoes, setRecomendacoes] = useState('');
+  const [audioBlobSalvo, setAudioBlobSalvo] = useState(null);
 
   useEffect(() => {
     const sessaoGuardada = localStorage.getItem('obravoz_sessao_ativa');
@@ -19,12 +22,31 @@ export function FormDiario() {
     }
   }, []);
 
-  // Função para gerar o PDF imediatamente após salvar
+  // Atualiza o relato automaticamente conforme a transcrição por voz vai acontecendo
+  useEffect(() => {
+    if (transcript) {
+      setRelato(prev => prev ? `${prev} ${transcript}` : transcript);
+    }
+  }, [transcript]);
+
+  // Controlar o clique do botão de microfone
+  const handleToggleGravacao = async () => {
+    if (isRecording) {
+      const resultado = await stopRecording();
+      if (resultado.audioBlob && resultado.audioBlob.size > 0) {
+        setAudioBlobSalvo(resultado.audioBlob);
+      }
+    } else {
+      setAudioBlobSalvo(null);
+      await startRecording();
+    }
+  };
+
   const gerarPDFRelatorio = (dadosRelatorio) => {
     const doc = new jsPDF();
     
     doc.setFontSize(18);
-    doc.setTextColor(42, 161, 192); // Azul ObraVoz
+    doc.setTextColor(42, 161, 192);
     doc.text("ObraVoz - Registo Diário de Obra (RDO)", 14, 20);
 
     doc.setFontSize(11);
@@ -64,7 +86,6 @@ export function FormDiario() {
       posY += 15 + (splitObs.length * 6);
     }
 
-    // Salva o PDF no dispositivo / dispara o download
     doc.save(`RDO_${sessao?.nomeObra || 'Obra'}_${new Date().toISOString().split('T')[0]}.pdf`);
   };
 
@@ -84,21 +105,24 @@ export function FormDiario() {
       ocorrencias: ocorrencias,
       observacoes: observacoes,
       recomendacoes: recomendacoes,
+      transcricao_bruta: relato,
+      audio_blob: audioBlobSalvo
     };
 
-    // 1. Salva no IndexedDB (disponível no Histórico offline)
+    // 1. Salva no IndexedDB (incluindo o Blob de áudio e transcrição)
     await salvarDiarioOffline(payloadDiario);
 
-    // 2. Gera o PDF imediatamente com os dados preenchidos
+    // 2. Gera o PDF imediatamente
     gerarPDFRelatorio(payloadDiario);
 
-    alert('✅ Diário salvo com sucesso no dispositivo e PDF gerado!');
+    alert('✅ Diário salvo com sucesso, áudio anexado e PDF gerado!');
 
-    // Limpa os campos após salvar com sucesso
+    // Limpa os campos
     setRelato('');
     setOcorrencias('');
     setObservacoes('');
     setRecomendacoes('');
+    setAudioBlobSalvo(null);
   };
 
   return (
@@ -129,6 +153,13 @@ export function FormDiario() {
       )}
 
       <form onSubmit={handleSubmit} className="card space-y-4 diario-form-card">
+        
+        {erroGravacao && (
+          <div className="login-erro" style={{ marginBottom: '10px' }}>
+            {erroGravacao}
+          </div>
+        )}
+
         <div className="campo-group">
           <label>Relato das Atividades: *</label>
           <textarea
@@ -136,10 +167,28 @@ export function FormDiario() {
             value={relato}
             onChange={(e) => setRelato(e.target.value)}
             required
-            placeholder="Digite ou utilize a gravação por voz..."
+            placeholder="Digite ou utilize o microfone para ditar o relato..."
             className="textarea diario-textarea"
           />
         </div>
+
+        {/* Botão de Gravação por Voz Circular (Integrado com as classes do app.css) */}
+        <div className="acoes">
+          <button
+            type="button"
+            className={`icon-btn btn-mic ${isRecording ? 'recording' : ''}`}
+            onClick={handleToggleGravacao}
+            title={isRecording ? "Parar Gravação" : "Iniciar Gravação por Voz"}
+          >
+            🎙️
+          </button>
+        </div>
+
+        {isRecording && (
+          <p style={{ textAlign: 'center', color: 'var(--red)', fontSize: '0.85rem', fontWeight: 'bold' }}>
+            🔴 A gravar e transcrever áudio em tempo real...
+          </p>
+        )}
 
         <div className="campo-group">
           <label>Ocorrências / Imprevistos:</label>
@@ -179,7 +228,7 @@ export function FormDiario() {
           type="submit"
           className="btn-guardar-diario"
         >
-          Guardar Diário & Gerar PDF
+          Guardar Diário, Anexar Áudio & Gerar PDF
         </button>
       </form>
     </div>
