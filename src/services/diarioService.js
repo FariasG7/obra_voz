@@ -1,16 +1,23 @@
-// Exemplo de mapeamento de nomes para os UUIDs reais cadastrados no Neon/PostgreSQL
 const MAPA_OBRAS_UUID = {
+  "The Residences Vale do Lobo": "a0000000-0000-0000-0000-000000000001",
   "Residencias Vale do Lobo": "a0000000-0000-0000-0000-000000000001",
   "Obra Geral Algarve": "a0000000-0000-0000-0000-000000000002",
-  "Edifício Marina Olhão": "a0000000-0000-0000-0000-000000000003"
+  "Edifício Marina Olhão": "a0000000-0000-0000-0000-000000000003",
+  "Edificio Marina Olhao": "a0000000-0000-0000-0000-000000000003"
 };
 
-// Na hora de enviar o diário para a nuvem:
-function prepararParaSync(diarioLocal) {
-  const obraIdFormatado = MAPA_OBRAS_UUID[diarioLocal.obra_id] || "a0000000-0000-0000-0000-000000000001"; // UUID padrão fallback se não encontrar
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+export function prepararParaSync(diarioLocal) {
+  const rawId = diarioLocal.obra_id || '';
+  
+  // Se já for um UUID válido, mantém; caso contrário, converte pelo mapa ou usa o fallback
+  const obraIdFormatado = UUID_REGEX.test(rawId)
+    ? rawId
+    : (MAPA_OBRAS_UUID[rawId] || "a0000000-0000-0000-0000-000000000001");
 
   return {
     ...diarioLocal,
-    obra_id: obraIdFormatado // Agora é um UUID válido exigido pelo PostgreSQL!
+    obra_id: obraIdFormatado
   };
 }
