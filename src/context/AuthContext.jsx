@@ -1,5 +1,4 @@
-// src/context/AuthContext.jsx
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState } from 'react';
 
 const AuthContext = createContext({});
 
@@ -15,6 +14,7 @@ export function AuthProvider({ children }) {
 
   const [loading, setLoading] = useState(false);
 
+  // Certifique-se de que a função 'login' está definida aqui
   const login = async (dadosUsuario) => {
     setUser(dadosUsuario);
     localStorage.setItem('obravoz_usuario_logado', JSON.stringify(dadosUsuario));
@@ -23,7 +23,6 @@ export function AuthProvider({ children }) {
   const logout = () => {
     setUser(null);
     localStorage.removeItem('obravoz_usuario_logado');
-    localStorage.removeItem('obravoz_sessao_ativa');
   };
 
   return (
