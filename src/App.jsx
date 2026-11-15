@@ -8,7 +8,7 @@ import HistoricoDiariosScreen from './pages/HistoricoDiariosScreen';
 import PerfilGestaoPage from './pages/PerfilGestaoPage';
 
 export default function App() {
-  const { user, loading, logout } = useAuth(); // Puxa o estado de autenticação real e a função logout
+  const { user, loading, logout } = useAuth();
 
   const [sessaoAtiva, setSessaoAtiva] = useState(() => {
     try {
@@ -23,7 +23,6 @@ export default function App() {
     return localStorage.getItem('obravoz_sessao_ativa') ? 'relatos' : 'selecao';
   });
 
-  // Enquanto o AuthContext verifica se o utilizador está logado, mostra o ecrã de carga
   if (loading) {
     return (
       <div style={{ backgroundColor: '#121212', color: '#fff', height: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
@@ -32,7 +31,6 @@ export default function App() {
     );
   }
 
-  // Se o utilizador não estiver autenticado, exibe obrigatoriamente a tela de Login
   if (!user) {
     return <Login />;
   }
@@ -45,7 +43,7 @@ export default function App() {
   const handleTerminarSessao = () => {
     localStorage.removeItem('obravoz_sessao_ativa');
     setSessaoAtiva(null);
-    logout(); // Encerra a sessão do utilizador e redireciona de volta para o Login
+    logout(); // Encerra a sessão e retorna ao login
   };
 
   return (
@@ -91,15 +89,14 @@ export default function App() {
             Perfil
           </button>
 
-          {sessaoAtiva && (
-            <button 
-              onClick={handleTerminarSessao}
-              title="Terminar turno e sair da conta"
-              className="app-btn-sair-turno"
-            >
-              Terminar Sessão
-            </button>
-          )}
+          {/* Botão de Terminar Sessão agora visível permanentemente na navbar para utilizadores logados */}
+          <button 
+            onClick={handleTerminarSessao}
+            title="Terminar sessão e sair da conta"
+            className="app-btn-sair-turno"
+          >
+            Sair
+          </button>
         </nav>
       </header>
 
