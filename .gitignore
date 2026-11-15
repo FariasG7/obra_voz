@@ -125,3 +125,10 @@ dist
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+
+
+echo ".env" >> .gitignore
+git rm --cached .env
+git commit -m "Remove .env from repository tracking"
+git push
