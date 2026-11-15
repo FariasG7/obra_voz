@@ -2,12 +2,12 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
 import { AuthProvider, useAuth } from './context/AuthContext';
-import { Login } from './components/Login';
-import { Navbar } from './components/Navbar';
-import { SelecaoObraPage } from './pages/SelecaoObraPage';
-import { NovoDiarioScreen } from './screens/NovoDiarioScreen';
-import { HistoricoDiariosScreen } from './pages/HistoricoDiariosScreen';
-import { PerfilGestaoPage } from './pages/PerfilGestaoPage';
+import Login from './components/Login';
+import Navbar from './components/Navbar';
+import SelecaoObraPage from './pages/SelecaoObraPage';
+import NovoDiarioScreen from './screens/NovoDiarioScreen';
+import HistoricoDiariosScreen from './pages/HistoricoDiariosScreen';
+import PerfilGestaoPage from './pages/PerfilGestaoPage';
 
 
 class ErrorBoundary extends React.Component {
