@@ -1,119 +1,107 @@
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { autenticarUtilizador } from '../db/usuarioService';
+// src/components/Navbar.jsx
+import React, { useState } from 'react';
+import { useClima } from '../hooks/useClima';
+import { useAuth } from '../context/AuthContext';
+import { db, generateUUID } from '../db/db';
+import { sincronizarComNuvem } from '../services/syncService';
 
-const AuthContext = createContext({});
+export function Navbar({ paginaAtual, setPaginaAtual, obraSelecionada }) {
+  const { clima } = useClima();
+  const { logout } = useAuth(); // Puxa o logout diretamente do AuthContext
+  const [loading, setLoading] = useState(false);
 
-const TEMPO_TURNO_MS = 8 * 60 * 60 * 1000; // 8 horas de turno
-const HORA_LIMITE_NOTURNA = 19; // 19:00h
-
-export function AuthProvider({ children }) {
-  const [usuario, setUsuario] = useState(null);
-  const [carregando, setCarregando] = useState(true);
-
-  const logout = useCallback(() => {
-    setUsuario(null);
-    localStorage.removeItem('obravoz_user');
-    sessionStorage.removeItem('obravoz_user');
-    
-    localStorage.removeItem('diario_texto');
-    localStorage.removeItem('diario_medicoes');
-    localStorage.removeItem('obravoz_sessao_ativa');
-  }, []);
-
-  const validarEMigrarSessao = useCallback(() => {
-    const agora = new Date();
-    const timestampAtual = agora.getTime();
-    const ehHorarioNoturno = agora.getHours() >= HORA_LIMITE_NOTURNA;
-
-    const salvoLocal = localStorage.getItem('obravoz_user');
-    if (salvoLocal) {
-      try {
-        const dados = JSON.parse(salvoLocal);
-        if (dados.expiraEm && timestampAtual > dados.expiraEm) {
-          logout();
-          return null;
-        }
-        if (ehHorarioNoturno) {
-          sessionStorage.setItem('obravoz_user', JSON.stringify(dados));
-          localStorage.removeItem('obravoz_user');
-        }
-        return dados;
-      } catch {
-        localStorage.removeItem('obravoz_user');
-      }
-    }
-
-    const salvoSessao = sessionStorage.getItem('obravoz_user');
-    if (salvoSessao) {
-      try {
-        const dados = JSON.parse(salvoSessao);
-        if (dados.expiraEm && timestampAtual > dados.expiraEm) {
-          logout();
-          return null;
-        }
-        return dados;
-      } catch {
-        sessionStorage.removeItem('obravoz_user');
-      }
-    }
-
-    return null;
-  }, [logout]);
-
-  useEffect(() => {
-    const sessaoValida = validarEMigrarSessao();
-    setUsuario(sessaoValida);
-    setCarregando(false);
-  }, [validarEMigrarSessao]);
-
-  useEffect(() => {
-    if (!usuario) return;
-
-    const intervalo = setInterval(() => {
-      const sessaoAindaValida = validarEMigrarSessao();
-      if (!sessaoAindaValida) {
-        setUsuario(null);
-      }
-    }, 60 * 1000);
-
-    return () => clearInterval(intervalo);
-  }, [usuario, validarEMigrarSessao]);
-
-  const login = async (email, senha) => {
-    const resultado = await autenticarUtilizador(email, senha);
-
-    if (resultado.sucesso) {
-      const agora = new Date();
-      const dadosUsuario = { 
-        id: resultado.usuario.id,
-        email: resultado.usuario.email, 
-        nome: resultado.usuario.nome || email.split('@')[0], 
-        permissao: resultado.usuario.permissao || 'user',
-        token: 'neon-db-session',
-        expiraEm: agora.getTime() + TEMPO_TURNO_MS
-      };
+  const executarTesteSync = async () => {
+    setLoading(true);
+    try {
+      const novoId = generateUUID();
       
-      setUsuario(dadosUsuario);
+      await db.obras.add({
+        id: novoId,
+        nome_obra: 'Obra Teste - Navbar',
+        status: 'em_andamento',
+        synced: 0,
+      });
 
-      if (agora.getHours() >= HORA_LIMITE_NOTURNA) {
-        sessionStorage.setItem('obravoz_user', JSON.stringify(dadosUsuario));
-        localStorage.removeItem('obravoz_user');
+      const res = await sincronizarComNuvem(db);
+
+      if (res.success) {
+        alert('✅ Sucesso! Obra sincronizada com o Neon.');
       } else {
-        localStorage.setItem('obravoz_user', JSON.stringify(dadosUsuario));
-        sessionStorage.removeItem('obravoz_user');
+        alert(`⚠️ Gravado localmente no Dexie, mas falhou no Neon: ${res.error || res.reason}`);
       }
-
-      return { sucesso: true };
+    } catch (err) {
+      console.error('Erro no teste de sincronização:', err);
+      alert(`❌ Erro: ${err.message}`);
+    } finally {
+      setLoading(false);
     }
-    
-    return { sucesso: false, erro: resultado.erro || 'E-mail ou senha inválidos.' };
   };
 
   return (
-    <AuthContext.Provider value={{ usuario, logado: !!usuario, login, logout, carregando }}>
-      {children}
-    </AuthContext.Provider>
+    <nav className="obra-navbar">
+      <div className="obra-navbar-left">
+        <div className="obra-logo-container">
+          <span className="obra-logo-icone">🏗️</span>
+          <span className="logo-obra">Obra</span>
+          <span className="logo-voz">Voz</span>
+        </div>
+        
+        <div className="obra-info-badge">
+          {obraSelecionada && (
+            <>
+              <span className="obra-nome-ativo">📍 {obraSelecionada}</span>
+              <span className="obra-separator">•</span>
+            </>
+          )}
+          <span className="obra-clima-texto">{clima || 'Clima indisponível'}</span>
+        </div>
+      </div>
+
+      <div className="obra-navbar-menu">
+        <button 
+          className={`obra-nav-btn ${paginaAtual === 'selecao' ? 'ativo' : ''}`}
+          onClick={() => setPaginaAtual('selecao')}
+        >
+          Turno / Obra
+        </button>
+        <button 
+          className={`obra-nav-btn ${paginaAtual === 'relatos' ? 'ativo' : ''}`}
+          onClick={() => setPaginaAtual('relatos')}
+        >
+          Relatos (Diário)
+        </button>
+        <button 
+          className={`obra-nav-btn ${paginaAtual === 'historico' ? 'ativo' : ''}`}
+          onClick={() => setPaginaAtual('historico')}
+        >
+          Histórico
+        </button>
+        <button 
+          className={`obra-nav-btn ${paginaAtual === 'perfil' ? 'ativo' : ''}`}
+          onClick={() => setPaginaAtual('perfil')}
+        >
+          Perfil
+        </button>
+
+        <button 
+          className="obra-sync-btn" 
+          onClick={executarTesteSync}
+          disabled={loading}
+          title="Testar Sincronização com o Neon"
+        >
+          {loading ? 'A sync...' : '🔄 Sync'}
+        </button>
+
+        <button 
+          className="obra-nav-btn obra-btn-sair" 
+          onClick={logout}
+          title="Encerrar sessão"
+        >
+          Sair
+        </button>
+      </div>
+    </nav>
   );
 }
 
-export const useAuth = () => useContext(AuthContext);
+export default Navbar;
