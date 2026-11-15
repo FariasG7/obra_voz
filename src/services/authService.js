@@ -1,5 +1,5 @@
-import { db } from '../db/db';
-import { sql } from '../services/neonClient';
+import { db } from '../db/db.js';
+import { sql } from '../services/neonClient.js';
 
 
 // --- AUTENTICAR UTILIZADOR (RESILIENTE COM FALLBACK LOCAL) ---
