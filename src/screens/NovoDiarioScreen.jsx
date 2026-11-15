@@ -1,12 +1,13 @@
 // src/screens/NovoDiarioScreen.jsx
-import React, { useState, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import '../App.css';
+import { useVoiceRecorder } from '../hooks/useVoiceRecorder';
 import { salvarAudioComTranscricao } from '../services/audioService';
 import { db, generateUUID } from '../db/db';
 
 export function NovoDiarioScreen({ obraId, userId, onDiarioSalvo }) {
-  const [isRecording, setIsRecording] = useState(false);
-  const [erroGravacao, setErroGravacao] = useState('');
+  // Utiliza o hook dedicado de voz
+  const { isRecording, transcript, erroGravacao, startRecording, stopRecording } = useVoiceRecorder('pt-PT');
   
   const [setorPavimento, setSetorPavimento] = useState('');
   const [relato, setRelato] = useState('');
@@ -17,100 +18,26 @@ export function NovoDiarioScreen({ obraId, userId, onDiarioSalvo }) {
   const [salvando, setSalvando] = useState(false);
   const [mensagemStatus, setMensagemStatus] = useState('');
 
-  // Refs para controlo de voz e áudio binário (Blob)
-  const finalTranscriptRef = useRef('');
-  const recognitionRef = useRef(null);
-  const mediaRecorderRef = useRef(null);
-  const audioChunksRef = useRef([]);
-  const audioBlobRef = useRef(null);
+  // Sincroniza a transcrição em tempo real do hook com o campo de relato
+  useEffect(() => {
+    if (transcript) {
+      setRelato(transcript);
+    }
+  }, [transcript]);
 
-  // Iniciar Gravação (Áudio Blob + Reconhecimento de Voz sem duplicações)
-  const startRecording = async () => {
-    try {
-      audioChunksRef.current = [];
-      audioBlobRef.current = null;
-
-      // 1. Captura o fluxo de microfone para o Blob de áudio
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const mimeType = MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm' : 'audio/mp4';
-      const mediaRecorder = new MediaRecorder(stream, { mimeType });
-      mediaRecorderRef.current = mediaRecorder;
-
-      mediaRecorder.ondataavailable = (event) => {
-        if (event.data.size > 0) {
-          audioChunksRef.current.push(event.data);
-        }
-      };
-
-      mediaRecorder.onstop = () => {
-        const audioBlob = new Blob(audioChunksRef.current, { type: mimeType });
-        audioBlobRef.current = audioBlob;
-        // Liberta os tracks do microfone
-        stream.getTracks().forEach(track => track.stop());
-      };
-
-      mediaRecorder.start(250);
-
-      // 2. Configura a SpeechRecognition API para transcrição em tempo real (sem duplicações)
-      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-      if (SpeechRecognition) {
-        finalTranscriptRef.current = relato ? relato + ' ' : '';
-        setErroGravacao('');
-
-        const recognition = new SpeechRecognition();
-        recognition.lang = 'pt-PT';
-        recognition.interimResults = true;
-        recognition.continuous = true;
-
-        recognition.onresult = (event) => {
-          let interimText = '';
-
-          for (let i = event.resultIndex; i < event.results.length; ++i) {
-            const item = event.results[i];
-            if (item.isFinal) {
-              finalTranscriptRef.current += ' ' + item[0].transcript.trim();
-            } else {
-              interimText += item[0].transcript;
-            }
-          }
-
-          const textoCompleto = (finalTranscriptRef.current + ' ' + interimText).trim();
-          setRelato(textoCompleto);
-        };
-
-        recognition.onerror = (event) => {
-          console.warn('Aviso no reconhecimento de voz:', event.error);
-        };
-
-        recognition.start();
-        recognitionRef.current = recognition;
-      } else {
-        setErroGravacao('Reconhecimento de voz não suportado neste navegador. O áudio será gravado.');
+  // Controlo do botão do microfone
+  const handleToggleRecording = async () => {
+    if (isRecording) {
+      const resultado = await stopRecording();
+      // O resultado contém { audioBlob, transcription }
+      if (resultado && resultado.transcription) {
+        setRelato(resultado.transcription);
       }
-
-      setIsRecording(true);
-    } catch (e) {
-      console.error('Erro ao aceder ao microfone:', e);
-      setErroGravacao('Não foi possível aceder ao microfone. Verifique as permissões.');
-      setIsRecording(false);
+      // Guardamos o blob para uso ao salvar se necessário
+      window._ultimoAudioBlob = resultado?.audioBlob;
+    } else {
+      startRecording();
     }
-  };
-
-  // Parar Gravação
-  const stopRecording = () => {
-    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
-      mediaRecorderRef.current.stop();
-    }
-
-    if (recognitionRef.current) {
-      try {
-        recognitionRef.current.stop();
-      } catch (e) {
-        // Ignora se já estiver parado
-      }
-    }
-
-    setIsRecording(false);
   };
 
   const handleCapturarFoto = (e) => {
@@ -151,19 +78,20 @@ export function NovoDiarioScreen({ obraId, userId, onDiarioSalvo }) {
         sync_status: 'pending'
       };
 
-      // 1. Salva o diário no Dexie.js (tabela diarios_obra)
+      // 1. Salva no Dexie.js
       await db.diarios_obra.put(dadosDiario);
 
-      // 2. Se houver áudio gravado, guarda utilizando o audioService
-      if (audioBlobRef.current && audioBlobRef.current.size > 0) {
+      // 2. Salva o áudio se estiver disponível
+      if (window._ultimoAudioBlob && window._ultimoAudioBlob.size > 0) {
         await salvarAudioComTranscricao({
           diarioId: diarioId,
-          audioBlob: audioBlobRef.current,
+          audioBlob: window._ultimoAudioBlob,
           transcricao: relato
         });
+        window._ultimoAudioBlob = null;
       }
 
-      // Salvamento complementar no localStorage para garantir compatibilidade total no Safari/iPad
+      // 3. Backup no localStorage para segurança no Safari/iPad
       const diariosSalvos = JSON.parse(localStorage.getItem('obravoz_diarios_offline') || '[]');
       diariosSalvos.unshift(dadosDiario);
       localStorage.setItem('obravoz_diarios_offline', JSON.stringify(diariosSalvos));
@@ -178,12 +106,11 @@ export function NovoDiarioScreen({ obraId, userId, onDiarioSalvo }) {
         setRecomendacoes('');
         setSetorPavimento('');
         setFotosBase64([]);
-        audioBlobRef.current = null;
         setMensagemStatus('');
       }, 2500);
 
     } catch (error) {
-      console.error('Erro ao guardar diário e áudio:', error);
+      console.error('Erro ao guardar diário:', error);
       setMensagemStatus('❌ Erro inesperado ao guardar o registo.');
     } finally {
       setSalvando(false);
@@ -215,7 +142,7 @@ export function NovoDiarioScreen({ obraId, userId, onDiarioSalvo }) {
             <div className="acoes" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '20px', margin: '10px 0' }}>
               <button
                 type="button"
-                onClick={isRecording ? stopRecording : startRecording}
+                onClick={handleToggleRecording}
                 className={`icon-btn btn-mic ${isRecording ? 'recording' : ''}`}
                 title={isRecording ? "A gravar... Clique para parar" : "Ditar relato por voz"}
               >
@@ -242,7 +169,7 @@ export function NovoDiarioScreen({ obraId, userId, onDiarioSalvo }) {
             </div>
 
             {erroGravacao && <p style={{ color: '#ff6b81', fontSize: '0.8rem', textAlign: 'center' }}>{erroGravacao}</p>}
-            {isRecording && <p style={{ color: '#16a085', fontSize: '0.8rem', textAlign: 'center' }}>🔴 A gravar áudio e a transcrever... Fale claramente.</p>}
+            {isRecording && <p style={{ color: '#16a085', fontSize: '0.8rem', textAlign: 'center' }}>🔴 A gravar áudio sem duplicações... Fale claramente.</p>}
           </div>
 
           <div className="campo-group">
