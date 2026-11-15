@@ -23,6 +23,95 @@ body {
   color: #fff;
 }
 
+/* --- 1.1. NAVBAR --- */
+.obra-navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #1A1A1A;
+  padding: 12px 20px;
+  border-bottom: 1px solid #333;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.obra-navbar-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.obra-logo {
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+/* Cores solicitadas para o logotipo */
+.logo-obra {
+  color: var(--blue-primary, #2AA1C0);
+}
+
+.logo-voz {
+  color: #ffffff;
+}
+
+.obra-clima-badge {
+  font-size: 0.8rem;
+  color: #ccc;
+  background-color: #252525;
+  padding: 4px 8px;
+  border-radius: 6px;
+  border: 1px solid #333;
+  white-space: nowrap;
+}
+
+.obra-navbar-menu {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.obra-nav-btn {
+  background: #252525;
+  color: #fff;
+  border: 1px solid #333;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background 0.2s;
+}
+
+.obra-nav-btn.ativo {
+  background: var(--blue-primary, #2AA1C0);
+}
+
+.obra-sync-btn {
+  background: var(--blue-primary, #2AA1C0);
+  color: #fff;
+  border: 1px solid #333;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.obra-sync-btn:disabled {
+  background: #555;
+  cursor: not-allowed;
+}
+
 /* --- 2. LAYOUT --- */
 .container { 
   min-height: 100vh; 
@@ -317,88 +406,4 @@ body {
   display: flex; 
   justify-content: center; 
   align-items: center;
-  background: var(--bg-dark); 
-  padding: 20px;
-  box-sizing: border-box;
-}
-
-.login-box { 
-  width: 100%; 
-  max-width: 400px; /* Expandido ligeiramente para acomodar melhor o cadastro */
-  background: var(--card-bg); 
-  padding: 30px 25px; 
-  border-radius: 20px; 
-  border: 1px solid #2C2C2C; 
-  box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-  text-align: center; 
-}
-
-.login-box h1 {
-  color: var(--blue-primary);
-  font-size: 1.8rem;
-  margin-bottom: 5px;
-}
-
-.login-subtitulo {
-  color: #888;
-  font-size: 0.9rem;
-  margin-bottom: 25px;
-}
-
-.login-erro {
-  background: rgba(200, 38, 71, 0.2);
-  border: 1px solid var(--red);
-  color: #ff6b81;
-  padding: 10px;
-  border-radius: 8px;
-  font-size: 0.85rem;
-  margin-bottom: 15px;
-  text-align: center;
-}
-
-.login-form {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-}
-
-.campo-group {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 6px;
-  width: 100%;
-}
-
-.campo-group label {
-  font-size: 0.8rem;
-  color: #aaa;
-  font-weight: 600;
-  text-transform: uppercase;
-}
-
-.login-input { 
-  width: 100%; 
-  padding: 12px 14px; 
-  background: #333 !important; 
-  border: 1px solid #444 !important; 
-  border-radius: 8px; 
-  color: #fff !important; 
-  font-size: 15px; 
-  outline: none; 
-  box-sizing: border-box;
-}
-
-.login-input:focus {
-  border-color: var(--blue-primary) !important;
-}
-
-.btn-login { 
-  width: 100%; 
-  background: linear-gradient(135deg, var(--blue-primary) 0%, #17708C 100%) !important; 
-  color: white !important; 
-  padding: 14px; 
-  border-radius: 12px; 
-  border: none; 
-  font-weight: bold; 
-  font-size: 1rem
+  background: var
