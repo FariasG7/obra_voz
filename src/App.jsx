@@ -1,11 +1,15 @@
 // src/App.jsx
 import React, { useState } from 'react';
+import { useAuth } from './context/AuthContext';
+import Login from './components/Login';
 import SelecaoObraPage from './pages/SelecaoObraPage';
 import FormDiario from './components/FormDiario';
 import HistoricoDiariosScreen from './pages/HistoricoDiariosScreen';
 import PerfilGestaoPage from './pages/PerfilGestaoPage';
 
 export default function App() {
+  const { user, loading } = useAuth(); // Puxa o estado de autenticação real
+
   const [sessaoAtiva, setSessaoAtiva] = useState(() => {
     try {
       const salvo = localStorage.getItem('obravoz_sessao_ativa');
@@ -18,6 +22,20 @@ export default function App() {
   const [paginaAtual, setPaginaAtual] = useState(() => {
     return localStorage.getItem('obravoz_sessao_ativa') ? 'relatos' : 'selecao';
   });
+
+  // Enquanto o AuthContext verifica se o utilizador está logado, mostra o ecrã de carga
+  if (loading) {
+    return (
+      <div style={{ backgroundColor: '#121212', color: '#fff', height: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+        <p>A carregar ObraVoz...</p>
+      </div>
+    );
+  }
+
+  // Se o utilizador não estiver autenticado, exibe obrigatoriamente a tela de Login
+  if (!user) {
+    return <Login />;
+  }
 
   const handleSessaoIniciada = (dados) => {
     setSessaoAtiva(dados);
@@ -79,7 +97,7 @@ export default function App() {
               title="Terminar turno atual"
               className="app-btn-sair-turno"
             >
-              Sair
+              Sair Turno
             </button>
           )}
         </nav>
