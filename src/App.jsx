@@ -1,3 +1,5 @@
+/**
+
 // src/App.jsx
 import React, { useState } from 'react';
 import SelecaoObraPage from './pages/SelecaoObraPage';
@@ -108,6 +110,19 @@ export default function App() {
           <PerfilGestaoPage />
         )}
       </main>
+    </div>
+  );
+}
+
+-*/
+// src/App.jsx (Versão de Diagnóstico Mínima)
+import React from 'react';
+
+export default function App() {
+  return (
+    <div style={{ padding: '40px', background: '#121212', color: '#fff', textAlign: 'center', fontFamily: 'sans-serif' }}>
+      <h1 style={{ color: '#2AA1C0' }}>🏗️ ObraVoz - Diagnóstico</h1>
+      <p style={{ marginTop: '15px', color: '#ccc' }}>O PWA está online e a carregar corretamente!</p>
     </div>
   );
 }
