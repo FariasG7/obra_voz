@@ -54,6 +54,8 @@ export function Navbar({ paginaAtual, setPaginaAtual, obraSelecionada }) {
               <span className="obra-separator">•</span>
             </>
           )}
+          </div>
+          <div className='obra-clima-texto'>
           <span className="obra-clima-texto">{clima}</span>
         </div>
       </div>
