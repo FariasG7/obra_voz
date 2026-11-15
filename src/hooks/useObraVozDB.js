@@ -53,13 +53,18 @@ export function useObraVozDB() {
     return novoId;
   };
 
-  /**
-   * Sincroniza todos os diários pendentes da tabela 'diarios_obra' com o Neon
-   */
+  // Substitua a função sincronizarComNeon no seu src/hooks/useObraVozDB.js por esta:
   const sincronizarComNeon = async () => {
     try {
-      // Busca diretamente do Dexie os registos pendentes
-      const pendentes = await db.diarios_obra.where('sync_status').equals('pending').toArray();
+      // Busca todos os diários para garantir que nenhum pendente escape
+      const todosOsDiarios = await db.diarios_obra.toArray();
+      
+      // Filtra os que não estão sincronizados (seja 'pending', undefined ou null)
+      const pendentes = todosOsDiarios.filter(d => 
+        d.sync_status === 'pending' || !d.sync_status || d.sync_status === false
+      );
+
+      console.log("Total de registos encontrados para sincronização:", pendentes.length);
 
       if (!pendentes || pendentes.length === 0) {
         alert("Nenhum registo pendente encontrado para sincronizar.");
@@ -69,15 +74,13 @@ export function useObraVozDB() {
       let enviadosComSucesso = 0;
 
       for (const diario of pendentes) {
-        // Envia o diário para o endpoint de salvamento no Neon
         const resposta = await fetch('/api/diarios', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(diario)
         });
 
-        if (resposta.ok) {
-          // Atualiza o status local para sincronizado
+        if (resposta.ok || resposta.status === 200 || resposta.status === 201) {
           await db.diarios_obra.update(diario.id, { 
             sync_status: 'synced',
             atualizado_em: new Date().toISOString()
