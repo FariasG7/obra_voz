@@ -45,7 +45,7 @@ export function useObraVozDB() {
         id: generateUUID(),
         diario_id: novoId,
         transcricao_bruta: dadosDiario.transcricao_bruta || '',
-        audio_blob: dadosDiario.audio_blob || null, // Blob salvo temporariamente no IndexedDB
+        audio_blob: dadosDiario.audio_blob || null,
         criado_em: new Date().toISOString(),
       });
     }
@@ -53,9 +53,54 @@ export function useObraVozDB() {
     return novoId;
   };
 
+  /**
+   * Sincroniza todos os diários pendentes da tabela 'diarios_obra' com o Neon
+   */
+  const sincronizarComNeon = async () => {
+    try {
+      // Busca diretamente do Dexie os registos pendentes
+      const pendentes = await db.diarios_obra.where('sync_status').equals('pending').toArray();
+
+      if (!pendentes || pendentes.length === 0) {
+        alert("Nenhum registo pendente encontrado para sincronizar.");
+        return 0;
+      }
+
+      let enviadosComSucesso = 0;
+
+      for (const diario of pendentes) {
+        // Envia o diário para o endpoint de salvamento no Neon
+        const resposta = await fetch('/api/diarios', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(diario)
+        });
+
+        if (resposta.ok) {
+          // Atualiza o status local para sincronizado
+          await db.diarios_obra.update(diario.id, { 
+            sync_status: 'synced',
+            atualizado_em: new Date().toISOString()
+          });
+          enviadosComSucesso++;
+        } else {
+          console.error("Falha ao sincronizar diário ID:", diario.id);
+        }
+      }
+
+      alert(`✅ Sincronização concluída! (${enviadosComSucesso} registos enviados para o Neon).`);
+      return enviadosComSucesso;
+    } catch (erro) {
+      console.error("Erro crítico na sincronização com o Neon:", erro);
+      alert("❌ Falha na ligação ao servidor Neon. Verifique a rede.");
+      return 0;
+    }
+  };
+
   return {
     obras,
     diariosPendentes,
     salvarDiarioOffline,
+    sincronizarComNeon, // Exporta a função para ser chamada pelo botão de sincronizar
   };
 }
