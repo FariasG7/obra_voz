@@ -1,4 +1,3 @@
-// src/services/authService.js
 import { db } from '../db/db';
 import { sql } from '../services/neonClient';
 
