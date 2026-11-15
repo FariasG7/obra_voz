@@ -1,26 +1,72 @@
 // src/components/FormDiario.jsx
 import React, { useState, useEffect } from 'react';
 import { useObraVozDB } from '../hooks/useObraVozDB';
+import jsPDF from 'jspdf'; // Certifique-se de ter o jspdf instalado no projeto
 
 export function FormDiario() {
   const { salvarDiarioOffline } = useObraVozDB();
 
-  // Estado para armazenar o contexto do turno (Obra, Setor e Equipe)
   const [sessao, setSessao] = useState(null);
-
-  // Estados dos relatos do diário
   const [relato, setRelato] = useState('');
   const [ocorrencias, setOcorrencias] = useState('');
   const [observacoes, setObservacoes] = useState('');
   const [recomendacoes, setRecomendacoes] = useState('');
 
-  // Carrega os dados definidos na tela inicial (SelecaoObraPage)
   useEffect(() => {
     const sessaoGuardada = localStorage.getItem('obravoz_sessao_ativa');
     if (sessaoGuardada) {
       setSessao(JSON.parse(sessaoGuardada));
     }
   }, []);
+
+  // Função para gerar o PDF imediatamente após salvar
+  const gerarPDFRelatorio = (dadosRelatorio) => {
+    const doc = new jsPDF();
+    
+    doc.setFontSize(18);
+    doc.setTextColor(42, 161, 192); // Azul ObraVoz
+    doc.text("ObraVoz - Registo Diário de Obra (RDO)", 14, 20);
+
+    doc.setFontSize(11);
+    doc.setTextColor(100, 100, 100);
+    doc.text(`Data: ${new Date().toLocaleDateString('pt-PT')}`, 14, 28);
+    
+    doc.setFontSize(12);
+    doc.setTextColor(0, 0, 0);
+    doc.text(`Obra: ${sessao?.nomeObra || 'Não especificada'}`, 14, 40);
+    doc.text(`Setor / Pavimento: ${dadosRelatorio.setor_pavimento || 'N/A'}`, 14, 48);
+
+    doc.setFontSize(12);
+    doc.setFont("helvetica", "bold");
+    doc.text("Relato das Atividades:", 14, 60);
+    doc.setFont("helvetica", "normal");
+    
+    const splitRelato = doc.splitTextToSize(dadosRelatorio.relato_atividades || 'Sem relato.', 180);
+    doc.text(splitRelato, 14, 68);
+
+    let posY = 68 + (splitRelato.length * 6) + 10;
+
+    if (dadosRelatorio.ocorrencias) {
+      doc.setFont("helvetica", "bold");
+      doc.text("Ocorrências / Imprevistos:", 14, posY);
+      doc.setFont("helvetica", "normal");
+      const splitOcorrencias = doc.splitTextToSize(dadosRelatorio.ocorrencias, 180);
+      doc.text(splitOcorrencias, 14, posY + 8);
+      posY += 15 + (splitOcorrencias.length * 6);
+    }
+
+    if (dadosRelatorio.observacoes) {
+      doc.setFont("helvetica", "bold");
+      doc.text("Observações:", 14, posY);
+      doc.setFont("helvetica", "normal");
+      const splitObs = doc.splitTextToSize(dadosRelatorio.observacoes, 180);
+      doc.text(splitObs, 14, posY + 8);
+      posY += 15 + (splitObs.length * 6);
+    }
+
+    // Salva o PDF no dispositivo / dispara o download
+    doc.save(`RDO_${sessao?.nomeObra || 'Obra'}_${new Date().toISOString().split('T')[0]}.pdf`);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -30,7 +76,7 @@ export function FormDiario() {
       return;
     }
 
-    await salvarDiarioOffline({
+    const payloadDiario = {
       obra_id: sessao.obraId,
       setor_pavimento: sessao.setorPavimento,
       colaboradores_nomes: sessao.colaboradores || [],
@@ -38,11 +84,17 @@ export function FormDiario() {
       ocorrencias: ocorrencias,
       observacoes: observacoes,
       recomendacoes: recomendacoes,
-    });
+    };
 
-    alert('Diário salvo com sucesso no dispositivo (Offline)!');
+    // 1. Salva no IndexedDB (disponível no Histórico offline)
+    await salvarDiarioOffline(payloadDiario);
 
-    // Limpa apenas os campos de texto após salvar
+    // 2. Gera o PDF imediatamente com os dados preenchidos
+    gerarPDFRelatorio(payloadDiario);
+
+    alert('✅ Diário salvo com sucesso no dispositivo e PDF gerado!');
+
+    // Limpa os campos após salvar com sucesso
     setRelato('');
     setOcorrencias('');
     setObservacoes('');
@@ -51,7 +103,6 @@ export function FormDiario() {
 
   return (
     <div className="content space-y-4 diario-content-wrapper">
-      {/* Resumo da Sessão Ativa */}
       {sessao ? (
         <div className="card diario-sessao-card">
           <div className="diario-sessao-header">
@@ -77,10 +128,7 @@ export function FormDiario() {
         </div>
       )}
 
-      {/* Formulário de Diário */}
       <form onSubmit={handleSubmit} className="card space-y-4 diario-form-card">
-        
-        {/* Relato Principal */}
         <div className="campo-group">
           <label>Relato das Atividades: *</label>
           <textarea
@@ -93,7 +141,6 @@ export function FormDiario() {
           />
         </div>
 
-        {/* Ocorrências */}
         <div className="campo-group">
           <label>Ocorrências / Imprevistos:</label>
           <textarea
@@ -105,7 +152,6 @@ export function FormDiario() {
           />
         </div>
 
-        {/* Observações e Recomendações */}
         <div className="diario-grid-duplo">
           <div className="campo-group">
             <label>Observações:</label>
@@ -133,7 +179,7 @@ export function FormDiario() {
           type="submit"
           className="btn-guardar-diario"
         >
-          Guardar Diário (Offline)
+          Guardar Diário & Gerar PDF
         </button>
       </form>
     </div>
