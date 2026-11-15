@@ -797,3 +797,205 @@ body {
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
+
+/* --- HISTÓRICO DOCUMENTAL E MODAL --- */
+.historico-doc-wrapper {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 15px;
+}
+
+.historico-doc-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.historico-doc-titulo {
+  color: var(--blue-light, #5AB3D4);
+  font-size: 1.4rem;
+  font-weight: bold;
+}
+
+.historico-doc-subtitulo {
+  color: #888;
+  font-size: 0.85rem;
+  margin-top: 2px;
+}
+
+.historico-doc-filtros {
+  padding: 12px;
+  margin-bottom: 15px;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.historico-input-busca {
+  flex: 1;
+  min-width: 220px;
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid #444;
+  background: #1a1a1a;
+  color: #fff;
+  font-size: 0.9rem;
+  outline: none;
+}
+
+.historico-input-busca:focus {
+  border-color: var(--blue-primary);
+}
+
+.historico-select-status {
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid #444;
+  background: #1a1a1a;
+  color: #fff;
+  font-size: 0.9rem;
+  outline: none;
+}
+
+.historico-doc-item {
+  padding: 14px;
+  border-radius: 8px;
+  background: var(--card-bg, #1E1E1E);
+  border: 1px solid #333;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  transition: border-color 0.2s;
+}
+
+.historico-doc-item:hover {
+  border-color: var(--blue-primary);
+}
+
+/* Modal de Detalhes e Edição */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0,0,0,0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  padding: 15px;
+}
+
+.modal-container {
+  background: var(--card-bg, #1e1e1e);
+  width: 100%;
+  max-width: 600px;
+  max-height: 90vh;
+  border-radius: 12px;
+  border: 1px solid #444;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+}
+
+.modal-header {
+  padding: 15px 20px;
+  background: #252526;
+  border-bottom: 1px solid #333;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-titulo {
+  margin: 0;
+  font-size: 1.1rem;
+  color: #fff;
+}
+
+.modal-btn-fechar {
+  background: none;
+  border: none;
+  color: #aaa;
+  font-size: 1.2rem;
+  cursor: pointer;
+}
+
+.modal-body {
+  padding: 20px;
+  overflow-y: auto;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.modal-label-campo {
+  font-size: 0.8rem;
+  color: #888;
+}
+
+.modal-valor-campo {
+  margin: 2px 0 0 0;
+  color: #fff;
+  font-weight: bold;
+}
+
+.modal-texto-relato {
+  margin: 4px 0 0 0;
+  color: #ddd;
+  background: #121212;
+  padding: 12px;
+  border-radius: 6px;
+  border: 1px solid #333;
+  white-space: pre-wrap;
+  font-size: 0.9rem;
+}
+
+.modal-foto-preview {
+  width: 70px;
+  height: 70px;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid #444;
+}
+
+.modal-textarea-edicao {
+  width: 100%;
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid #444;
+  background: #121212;
+  color: #fff;
+  resize: vertical;
+  outline: none;
+}
+
+.modal-textarea-edicao:focus {
+  border-color: var(--blue-primary);
+}
+
+.btn-guardar-alteracoes {
+  flex: 1;
+  background: var(--green, #16a34a);
+  color: #fff;
+  border: none;
+  padding: 10px;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.btn-cancelar-edicao {
+  background: #555;
+  color: #fff;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 6px;
+  cursor: pointer;
+}
