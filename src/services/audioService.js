@@ -15,3 +15,14 @@ export async function salvarAudioComTranscricao({ diarioId, audioBlob, transcric
   await db.midias_audio.put(mediaRecord);
   return mediaRecord.id;
 }
+
+/**
+ * Recupera o Blob de áudio associado a um diário para reprodução
+ */
+export async function obterAudioParaReproducao(diarioId) {
+  const registo = await db.midias_audio.where('diario_id').equals(diarioId).first();
+  if (!registo || !registo.audio_blob) return null;
+
+  // Cria um Object URL para o elemento <audio src="..." controls />
+  return URL.createObjectURL(registo.audio_blob);
+}
