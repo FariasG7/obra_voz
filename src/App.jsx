@@ -3,11 +3,12 @@ import React, { useState } from 'react';
 import { useAuth } from './context/AuthContext';
 import Login from './components/Login';
 import SelecaoObraPage from './pages/SelecaoObraPage';
-import FormDiario from './components/FormDiario';
+import NovoDiarioScreen from './screens/NovoDiarioScreen';
 import HistoricoDiariosScreen from './pages/HistoricoDiariosScreen';
 import PerfilGestaoPage from './pages/PerfilGestaoPage';
 
 export default function App() {
+  // 1. PRIMEIRO: Declaração de todos os Hooks (sem exceção)
   const { user, loading, logout } = useAuth();
 
   const [sessaoAtiva, setSessaoAtiva] = useState(() => {
@@ -20,18 +21,10 @@ export default function App() {
   });
 
   const [paginaAtual, setPaginaAtual] = useState(() => {
-{paginaAtual === 'relatos' && (
-  <NovoDiarioScreen 
-    obraId={sessaoAtiva?.obraId || 'geral'} 
-    userId={user?.id || null}
-    onDiarioSalvo={() => {
-      console.log('Diário guardado com sucesso, atualizar histórico se necessário.');
-    }}
-  />
-)}  
     return localStorage.getItem('obravoz_sessao_ativa') ? 'relatos' : 'selecao';
   });
 
+  // 2. SEGUNDO: Condicionais de carregamento e autenticação (após os hooks)
   if (loading) {
     return (
       <div style={{ backgroundColor: '#121212', color: '#fff', height: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
@@ -52,7 +45,7 @@ export default function App() {
   const handleTerminarSessao = () => {
     localStorage.removeItem('obravoz_sessao_ativa');
     setSessaoAtiva(null);
-    logout(); // Encerra a sessão e retorna ao login
+    logout();
   };
 
   return (
@@ -98,7 +91,6 @@ export default function App() {
             Perfil
           </button>
 
-          {/* Botão de Terminar Sessão agora visível permanentemente na navbar para utilizadores logados */}
           <button 
             onClick={handleTerminarSessao}
             title="Terminar sessão e sair da conta"
@@ -115,7 +107,13 @@ export default function App() {
         )}
 
         {paginaAtual === 'relatos' && (
-          <FormDiario />
+          <NovoDiarioScreen 
+            obraId={sessaoAtiva?.obraId || 'geral'} 
+            userId={user?.id || null}
+            onDiarioSalvo={() => {
+              console.log('Diário guardado com sucesso!');
+            }}
+          />
         )}
 
         {paginaAtual === 'historico' && (
