@@ -1,13 +1,10 @@
 import { db } from '../db/db.js';
 import { sql } from '../services/neonClient.js';
 
-
-// --- AUTENTICAR UTILIZADOR (RESILIENTE COM FALLBACK LOCAL) ---
 export async function autenticarUtilizador(email, password) {
   const emailLimpo = email.toLowerCase().trim();
 
   try {
-    // Tenta primeiro o Neon se houver rede e o sql estiver configurado
     if (navigator.onLine && typeof sql === 'function') {
       try {
         const timeoutPromise = new Promise((_, reject) => 
@@ -39,13 +36,11 @@ export async function autenticarUtilizador(email, password) {
       } catch (neonErr) {
         console.warn('Neon indisponível, a usar base de dados local Dexie...', neonErr);
       }
-    
+    }
 
-    // Fallback ou Modo Offline usando o Dexie
     const usuarioLocal = await db.usuarios.where('email').equals(emailLimpo).first();
     
     if (usuarioLocal) {
-      // Se a password coincidir (ou se for para teste local livre)
       if (!usuarioLocal.password || usuarioLocal.password === password) {
         return { sucesso: true, usuario: usuarioLocal };
       }
@@ -59,8 +54,6 @@ export async function autenticarUtilizador(email, password) {
     return { sucesso: false, erro: 'Erro interno ao efetuar login.' };
   }
 }
-
-
 
 export async function cadastrarUsuarioLocal(nome, email, permissao) {
   try {
