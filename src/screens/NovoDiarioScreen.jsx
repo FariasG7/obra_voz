@@ -5,12 +5,12 @@ import { useVoiceRecorder } from '../hooks/useVoiceRecorder';
 import { salvarAudioComTranscricao } from '../services/audioService';
 import { db, generateUUID } from '../db/db';
 import { formatarEPolirTexto } from '../utils/textFormatter';
-import { redimensionarImagem } from '../utils/imageUtils'; // <-- Importa o redimensionador
+import { redimensionarImagem } from '../utils/imageUtils';
 
-export function NovoDiarioScreen({ obraId, userId, onDiarioSalvo }) {
+export function NovoDiarioScreen({ obraId, userId, dadosTurno, onDiarioSalvo }) {
   const { isRecording, transcript, erroGravacao, startRecording, stopRecording } = useVoiceRecorder('pt-PT');
   
-  const [setorPavimento, setSetorPavimento] = useState('');
+  const [setorPavimento, setSetorPavimento] = useState(dadosTurno?.setorPavimento || '');
   const [relato, setRelato] = useState('');
   const [ocorrencias, setOcorrencias] = useState('');
   const [observacoes, setObservacoes] = useState('');
@@ -60,7 +60,7 @@ export function NovoDiarioScreen({ obraId, userId, onDiarioSalvo }) {
     setFotosBase64(prev => prev.filter((_, i) => i !== index));
   };
 
-    const handleSalvarEGerarPDF = async (e) => {
+  const handleSalvarEGerarPDF = async (e) => {
     e.preventDefault();
     setSalvando(true);
 
@@ -104,8 +104,6 @@ export function NovoDiarioScreen({ obraId, userId, onDiarioSalvo }) {
 
       setMensagemStatus('✅ Diário, fotos e PDF guardados com sucesso!');
       
-      // NOTA: Removemos a limpeza automática agressiva dos campos do turno (setor, etc.)
-      // para que os dados do turno não sejam apagados antes da confirmação ou nova acção.
       if (onDiarioSalvo) onDiarioSalvo(dadosDiario);
 
       setTimeout(() => {
@@ -124,6 +122,19 @@ export function NovoDiarioScreen({ obraId, userId, onDiarioSalvo }) {
     <div className="content diario-content-wrapper">
       <div className="card diario-form-card">
         
+        {/* Título Principal */}
+        <h1 style={{ color: '#fff', fontSize: '1.5rem', marginBottom: '15px', borderBottom: '1px solid #333', paddingBottom: '10px' }}>
+          RDO - Relatório Diário de Obra
+        </h1>
+
+        {/* Label com os dados preenchidos no turno */}
+        <div className="turno-info-resumo" style={{ background: 'rgba(22, 160, 133, 0.1)', border: '1px solid #16a085', padding: '12px', borderRadius: '8px', marginBottom: '20px', fontSize: '0.9rem', color: '#ddd' }}>
+          <strong style={{ color: '#16a085', display: 'block', marginBottom: '4px' }}>📋 Dados do Turno Atual:</strong>
+          <span>Obra: <strong>{obraId && obraId !== 'geral' ? obraId : 'Geral'}</strong></span>
+          {setorPavimento && <span style={{ marginLeft: '15px' }}>Setor/Pavimento: <strong>{setorPavimento}</strong></span>}
+          {dadosTurno?.frenteServico && <span style={{ marginLeft: '15px' }}>Frente: <strong>{dadosTurno.frenteServico}</strong></span>}
+        </div>
+
         {!obraId || obraId === 'geral' ? (
           <div className="diario-alerta-aviso">
             ⚠️ Nenhuma obra específica selecionada. O registo ficará como geral.
@@ -208,7 +219,7 @@ export function NovoDiarioScreen({ obraId, userId, onDiarioSalvo }) {
             </div>
           </div>
 
-          {/* Galeria de Fotos Anexadas com pré-visualização proporcional */}
+          {/* Galeria de Fotos Anexadas */}
           {fotosBase64.length > 0 && (
             <div className="campo-group">
               <label>Fotos Anexadas ({fotosBase64.length})</label>
