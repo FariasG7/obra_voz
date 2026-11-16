@@ -10,14 +10,29 @@ import { redimensionarImagem } from '../utils/imageUtils';
 export function NovoDiarioScreen({ obraId, userId, dadosTurno, onDiarioSalvo }) {
   const { isRecording, transcript, erroGravacao, startRecording, stopRecording } = useVoiceRecorder('pt-PT');
   
+  // Recupera rascunho anterior do localStorage se existir
+  const rascunhoSalvo = JSON.parse(localStorage.getItem('obravoz_rascunho_diario') || '{}');
+
   const [setorPavimento, setSetorPavimento] = useState(dadosTurno?.setorPavimento || '');
-  const [relato, setRelato] = useState('');
-  const [ocorrencias, setOcorrencias] = useState('');
-  const [observacoes, setObservacoes] = useState('');
-  const [recomendacoes, setRecomendacoes] = useState('');
-  const [fotosBase64, setFotosBase64] = useState([]);
+  const [relato, setRelato] = useState(rascunhoSalvo.relato || '');
+  const [ocorrencias, setOcorrencias] = useState(rascunhoSalvo.ocorrencias || '');
+  const [observacoes, setObservacoes] = useState(rascunhoSalvo.observacoes || '');
+  const [recomendacoes, setRecomendacoes] = useState(rascunhoSalvo.recomendacoes || '');
+  const [fotosBase64, setFotosBase64] = useState(rascunhoSalvo.fotosBase64 || []);
   const [salvando, setSalvando] = useState(false);
   const [mensagemStatus, setMensagemStatus] = useState('');
+
+  // Salva automaticamente no rascunho sempre que o utilizador alterar qualquer campo
+  useEffect(() => {
+    const rascunhoAtual = {
+      relato,
+      ocorrencias,
+      observacoes,
+      recomendacoes,
+      fotosBase64
+    };
+    localStorage.setItem('obravoz_rascunho_diario', JSON.stringify(rascunhoAtual));
+  }, [relato, ocorrencias, observacoes, recomendacoes, fotosBase64]);
 
   useEffect(() => {
     if (transcript) {
@@ -43,7 +58,6 @@ export function NovoDiarioScreen({ obraId, userId, dadosTurno, onDiarioSalvo }) 
     }
   };
 
-  // Captura e redimensiona a imagem automaticamente
   const handleCapturarFoto = async (e) => {
     const files = Array.from(e.target.files);
     for (const file of files) {
@@ -102,6 +116,9 @@ export function NovoDiarioScreen({ obraId, userId, dadosTurno, onDiarioSalvo }) 
       diariosSalvos.unshift(dadosDiario);
       localStorage.setItem('obravoz_diarios_offline', JSON.stringify(diariosSalvos));
 
+      // 4. Limpa o rascunho após guardar com sucesso
+      localStorage.removeItem('obravoz_rascunho_diario');
+
       setMensagemStatus('✅ Diário, fotos e PDF guardados com sucesso!');
       
       if (onDiarioSalvo) onDiarioSalvo(dadosDiario);
@@ -122,12 +139,10 @@ export function NovoDiarioScreen({ obraId, userId, dadosTurno, onDiarioSalvo }) 
     <div className="content diario-content-wrapper">
       <div className="card diario-form-card">
         
-        {/* Título Principal */}
         <h1 style={{ color: '#fff', fontSize: '1.5rem', marginBottom: '15px', borderBottom: '1px solid #333', paddingBottom: '10px' }}>
           RDO - Relatório Diário de Obra
         </h1>
 
-        {/* Label com os dados preenchidos no turno */}
         <div className="turno-info-resumo" style={{ background: 'rgba(22, 160, 133, 0.1)', border: '1px solid #16a085', padding: '12px', borderRadius: '8px', marginBottom: '20px', fontSize: '0.9rem', color: '#ddd' }}>
           <strong style={{ color: '#16a085', display: 'block', marginBottom: '4px' }}>📋 Dados do Turno Atual:</strong>
           <span>Obra: <strong>{obraId && obraId !== 'geral' ? obraId : 'Geral'}</strong></span>
@@ -219,7 +234,6 @@ export function NovoDiarioScreen({ obraId, userId, dadosTurno, onDiarioSalvo }) 
             </div>
           </div>
 
-          {/* Galeria de Fotos Anexadas */}
           {fotosBase64.length > 0 && (
             <div className="campo-group">
               <label>Fotos Anexadas ({fotosBase64.length})</label>
