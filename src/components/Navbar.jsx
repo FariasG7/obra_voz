@@ -5,7 +5,7 @@ import { db, generateUUID } from '../db/db';
 import { sincronizarComNuvem } from '../services/syncService';
 
 export function Navbar({ paginaAtual, setPaginaAtual, obraSelecionada, onLogout }) {
-  const { clima } = useClima();
+  const { clima } = useClima(); // Busca o clima via geolocalização atual
   const [loading, setLoading] = useState(false);
 
   const executarTesteSync = async () => {
@@ -44,14 +44,20 @@ export function Navbar({ paginaAtual, setPaginaAtual, obraSelecionada, onLogout 
           <span className="logo-voz">Voz</span>
         </div>
         
-        <div className="obra-info-badge">
+        <div className="obra-info-badge" style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.85rem' }}>
+          {/* Informação do Clima baseada na geolocalização */}
+          <span className="obra-clima-texto" title="Clima na sua localização atual">
+            🌤️ {clima || 'A carregar clima...'}
+          </span>
+
           {obraSelecionada && (
             <>
-              <span className="obra-nome-ativo">📍 {obraSelecionada}</span>
-              <span className="obra-separator">•</span>
+              <span className="obra-separator" style={{ color: '#555' }}>•</span>
+              <span className="obra-nome-ativo" title="Obra selecionada para o turno">
+                📍 {obraSelecionada}
+              </span>
             </>
           )}
-          <span className="obra-clima-texto">{clima || 'Clima indisponível'}</span>
         </div>
       </div>
 
