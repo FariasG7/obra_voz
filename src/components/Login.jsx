@@ -1,3 +1,6 @@
+// src/screens/LoginScreen.jsx (ou equivalente)
+import React, { useState } from 'react';
+
 export default function Login({ onIrParaCadastro }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
