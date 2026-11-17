@@ -37,6 +37,7 @@ export default function App() {
 
   // Se o utilizador não estiver autenticado
   if (!user) {
+    
     if (paginaAtual === 'cadastro') {
       return <CadastroUsuario onVoltarLogin={() => setPaginaAtual('login')} />;
     }
