@@ -72,7 +72,7 @@ export default function Login() {
   <span style={{ color: '#888', fontSize: '0.9rem' }}>Ainda não tem conta? </span>
   <button
     type="button"
-    onClick={() => setPaginaAtual('cadastro')} // Altere para o estado ou função que abre o ecrã de cadastro
+    onClick={() => setPaginaAtual('Cadastro')} // Altere para o estado ou função que abre o ecrã de cadastro
     style={{
       background: 'transparent',
       border: 'none',
