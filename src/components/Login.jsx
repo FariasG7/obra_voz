@@ -1,8 +1,4 @@
-import React, { useState } from 'react';
-import { autenticarUtilizador } from '../services/authService';
-import { useAuth } from '../context/AuthContext';
-
-export default function Login() {
+export default function Login({ onIrParaCadastro }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [erro, setErro] = useState('');
@@ -14,7 +10,6 @@ export default function Login() {
     setErro('');
     setLoading(true);
 
-    // Sem try/catch aqui para o erro real aparecer completo no console
     const res = await autenticarUtilizador(email, password);
 
     if (res && res.sucesso) {
@@ -67,25 +62,25 @@ export default function Login() {
             {loading ? 'A entrar...' : 'Entrar'}
           </button>
 
-{/* Botão / Link para ir para a tela de Cadastro */}
-<div style={{ textAlign: 'center', marginTop: '20px' }}>
-  <span style={{ color: '#888', fontSize: '0.9rem' }}>Ainda não tem conta? </span>
-  <button
-    type="button"
-    onClick={() => setPaginaAtual('Cadastro')} // Altere para o estado ou função que abre o ecrã de cadastro
-    style={{
-      background: 'transparent',
-      border: 'none',
-      color: '#2AA1C0',
-      cursor: 'pointer',
-      fontWeight: 'bold',
-      fontSize: '0.9rem',
-      textDecoration: 'underline'
-    }}
-  >
-    Criar conta
-  </button>
-</div>
+          {/* Botão / Link para ir para a tela de Cadastro corrigido */}
+          <div style={{ textAlign: 'center', marginTop: '20px' }}>
+            <span style={{ color: '#888', fontSize: '0.9rem' }}>Ainda não tem conta? </span>
+            <button
+              type="button"
+              onClick={onIrParaCadastro} 
+              style={{
+                background: 'transparent',
+                border: 'none',
+                color: '#2AA1C0',
+                cursor: 'pointer',
+                fontWeight: 'bold',
+                fontSize: '0.9rem',
+                textDecoration: 'underline'
+              }}
+            >
+              Criar conta
+            </button>
+          </div>
           
         </form>
       </div>
