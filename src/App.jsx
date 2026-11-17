@@ -2,13 +2,15 @@
 import React, { useState } from 'react';
 import { useAuth } from './context/AuthContext';
 import Login from './components/Login';
+import CadastroUsuario from './pages/CadastroUsuario'; // Certifique-se de importar o ecrã de cadastro se já o tiver
+import Navbar from './components/Navbar';
 import SelecaoObraPage from './pages/SelecaoObraPage';
 import NovoDiarioScreen from './screens/NovoDiarioScreen';
 import HistoricoDiariosScreen from './pages/HistoricoDiariosScreen';
 import PerfilGestaoPage from './pages/PerfilGestaoPage';
 
 export default function App() {
-  // 1. PRIMEIRO: Declaração de todos os Hooks obrigatórios do React (sem exceção)
+  // 1. PRIMEIRO: Declaração de todos os Hooks obrigatórios do React
   const { user, loading, logout } = useAuth();
 
   const [sessaoAtiva, setSessaoAtiva] = useState(() => {
@@ -24,7 +26,7 @@ export default function App() {
     return localStorage.getItem('obravoz_sessao_ativa') ? 'relatos' : 'selecao';
   });
 
-  // 2. SEGUNDO: Condicionais de carregamento e autenticação (após todos os hooks)
+  // 2. SEGUNDO: Condicionais de carregamento
   if (loading) {
     return (
       <div style={{ backgroundColor: '#121212', color: '#fff', height: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
@@ -33,8 +35,12 @@ export default function App() {
     );
   }
 
+  // Se o utilizador não estiver autenticado
   if (!user) {
-    return <Login />;
+    if (paginaAtual === 'cadastro') {
+      return <CadastroUsuario onVoltarLogin={() => setPaginaAtual('login')} />;
+    }
+    return <Login onIrParaCadastro={() => setPaginaAtual('cadastro')} />;
   }
 
   const handleSessaoIniciada = (dados) => {
@@ -42,16 +48,11 @@ export default function App() {
     setPaginaAtual('relatos');
   };
 
-  // Função chamada APÓS o diário ser guardado com sucesso na NovoDiarioScreen
+  // Função chamada APÓS o diário ser guardado com sucesso
   const handleDiarioSalvoComSucesso = (dadosDiario) => {
     console.log('Diário guardado com sucesso:', dadosDiario);
-    
-    // SÓ AQUI limpamos os dados do turno/sessão ativa do localStorage e do estado
     localStorage.removeItem('obravoz_sessao_ativa');
     setSessaoAtiva(null);
-    
-    // Opcional: Redireciona para o histórico ou mantém na tela limpa para novo turno
-    // setPaginaAtual('historico');
   };
 
   const handleTerminarSessao = () => {
@@ -62,66 +63,15 @@ export default function App() {
 
   return (
     <div className="app-root-container">
-    <Navbar 
-      paginaAtual={paginaAtual} 
-      setPaginaAtual={setPaginaAtual} 
-      obraSelecionada={sessaoAtiva?.obraNome || obraAtual} 
-      onLogout={handleLogout} 
-    />
+      {/* Nova Navbar Unificada (Clima + Obra Ativa + Menu + Logout) */}
+      <Navbar 
+        paginaAtual={paginaAtual} 
+        setPaginaAtual={setPaginaAtual} 
+        obraSelecionada={sessaoAtiva?.obraNome || sessaoAtiva?.obraId || null} 
+        onLogout={handleTerminarSessao} 
+      />
 
-      
-      <header className="app-navbar-header">
-        <div className="app-navbar-brand-wrapper">
-          <h1 className="app-navbar-titulo">
-            <span className="logo-obra">Obra</span><span className="logo-voz">Voz</span>
-          </h1>
-          {sessaoAtiva && (
-            <span className="app-navbar-badge-obra">
-              📍 {sessaoAtiva.obraId || sessaoAtiva.obraNome}
-            </span>
-          )}
-        </div>
-
-        <nav className="app-navbar-menu">
-          <button
-            onClick={() => setPaginaAtual('selecao')}
-            className={`app-nav-btn ${paginaAtual === 'selecao' ? 'ativo' : ''}`}
-          >
-            Turno / Obra
-          </button>
-
-          <button
-            onClick={() => setPaginaAtual('relatos')}
-            className={`app-nav-btn ${paginaAtual === 'relatos' ? 'ativo' : ''}`}
-          >
-            Relatos (Diário)
-          </button>
-
-          <button
-            onClick={() => setPaginaAtual('historico')}
-            className={`app-nav-btn ${paginaAtual === 'historico' ? 'ativo' : ''}`}
-          >
-            Histórico
-          </button>
-
-          <button
-            onClick={() => setPaginaAtual('perfil')}
-            className={`app-nav-btn ${paginaAtual === 'perfil' ? 'ativo' : ''}`}
-          >
-            Perfil
-          </button>
-
-          <button 
-            onClick={handleTerminarSessao}
-            title="Terminar sessão e sair da conta"
-            className="app-btn-sair-turno"
-          >
-            Sair
-          </button>
-        </nav>
-      </header>
-
-      <main className="app-main-content">
+      <main className="app-main-content" style={{ padding: '20px' }}>
         {paginaAtual === 'selecao' && (
           <SelecaoObraPage onSessaoIniciada={handleSessaoIniciada} />
         )}
@@ -130,6 +80,7 @@ export default function App() {
           <NovoDiarioScreen 
             obraId={sessaoAtiva?.obraId || 'geral'} 
             userId={user?.id || null}
+            dadosTurno={sessaoAtiva}
             onDiarioSalvo={handleDiarioSalvoComSucesso}
           />
         )}
