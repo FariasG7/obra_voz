@@ -1,5 +1,7 @@
-// src/screens/LoginScreen.jsx (ou equivalente)
+// src/components/Login.jsx
 import React, { useState } from 'react';
+import { autenticarUtilizador } from '../services/authService';
+import { useAuth } from '../context/AuthContext';
 
 export default function Login({ onIrParaCadastro }) {
   const [email, setEmail] = useState('');
@@ -65,12 +67,12 @@ export default function Login({ onIrParaCadastro }) {
             {loading ? 'A entrar...' : 'Entrar'}
           </button>
 
-          {/* Botão / Link para ir para a tela de Cadastro corrigido */}
+          {/* Botão / Link para ir para a tela de Cadastro */}
           <div style={{ textAlign: 'center', marginTop: '20px' }}>
             <span style={{ color: '#888', fontSize: '0.9rem' }}>Ainda não tem conta? </span>
             <button
               type="button"
-              onClick={onIrParaCadastro} 
+              onClick={onIrParaCadastro}
               style={{
                 background: 'transparent',
                 border: 'none',
