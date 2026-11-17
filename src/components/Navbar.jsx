@@ -5,7 +5,7 @@ import { db, generateUUID } from '../db/db';
 import { sincronizarComNuvem } from '../services/syncService';
 
 export function Navbar({ paginaAtual, setPaginaAtual, obraSelecionada, onLogout }) {
-  const { clima } = useClima(); // Busca o clima via geolocalização atual
+  const { clima } = useClima();
   const [loading, setLoading] = useState(false);
 
   const executarTesteSync = async () => {
@@ -36,32 +36,35 @@ export function Navbar({ paginaAtual, setPaginaAtual, obraSelecionada, onLogout 
   };
 
   return (
-    <nav className="obra-navbar">
-      <div className="obra-navbar-left">
-        <div className="obra-logo-container">
+    <nav className="obra-navbar" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 20px', background: '#181818', borderBottom: '1px solid #333' }}>
+      
+      {/* Lado Esquerdo: Logótipo + Clima + Obra Ativa */}
+      <div className="obra-navbar-left" style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+        <div className="obra-logo-container" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
           <span className="obra-logo-icone">🏗️</span>
-          <span className="logo-obra">Obra</span>
-          <span className="logo-voz">Voz</span>
+          <span className="logo-obra" style={{ color: '#fff', fontWeight: 'bold' }}>Obra</span>
+          <span className="logo-voz" style={{ color: '#2AA1C0', fontWeight: 'bold' }}>Voz</span>
         </div>
         
-        <div className="obra-info-badge" style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.85rem' }}>
-          {/* Informação do Clima baseada na geolocalização */}
-          <span className="obra-clima-texto" title="Clima na sua localização atual">
-            🌤️ {clima || 'A carregar clima...'}
+        {/* Badge explicita de Clima e Obra */}
+        <div className="obra-info-badge" style={{ display: 'flex', alignItems: 'center', gap: '10px', background: '#222', padding: '6px 12px', borderRadius: '6px', border: '1px solid #333', fontSize: '0.85rem' }}>
+          <span className="obra-clima-texto" style={{ color: '#48dbfb', fontWeight: '500' }}>
+            🌤️ {clima ? clima : 'A detetar clima...'}
           </span>
 
           {obraSelecionada && (
             <>
-              <span className="obra-separator" style={{ color: '#555' }}>•</span>
-              <span className="obra-nome-ativo" title="Obra selecionada para o turno">
-                📍 {obraSelecionada}
+              <span className="obra-separator" style={{ color: '#666' }}>|</span>
+              <span className="obra-nome-ativo" style={{ color: '#ddd' }}>
+                📍 <strong>{obraSelecionada}</strong>
               </span>
             </>
           )}
         </div>
       </div>
 
-      <div className="obra-navbar-menu">
+      {/* Lado Direito: Menu de Navegação */}
+      <div className="obra-navbar-menu" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
         <button 
           className={`obra-nav-btn ${paginaAtual === 'selecao' ? 'ativo' : ''}`}
           onClick={() => setPaginaAtual('selecao')}
