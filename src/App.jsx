@@ -62,6 +62,14 @@ export default function App() {
 
   return (
     <div className="app-root-container">
+    <Navbar 
+      paginaAtual={paginaAtual} 
+      setPaginaAtual={setPaginaAtual} 
+      obraSelecionada={sessaoAtiva?.obraNome || obraAtual} 
+      onLogout={handleLogout} 
+    />
+
+      
       <header className="app-navbar-header">
         <div className="app-navbar-brand-wrapper">
           <h1 className="app-navbar-titulo">
