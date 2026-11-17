@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { autenticarUtilizador } from '../services/authService';
 import { useAuth } from '../context/AuthContext';
+import '../Cadastro';
 
 export default function Login() {
   const [email, setEmail] = useState('');
