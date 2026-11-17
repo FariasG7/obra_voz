@@ -66,6 +66,27 @@ export default function Login() {
           <button type="submit" className="btn-login" disabled={loading}>
             {loading ? 'A entrar...' : 'Entrar'}
           </button>
+
+{/* Botão / Link para ir para a tela de Cadastro */}
+<div style={{ textAlign: 'center', marginTop: '20px' }}>
+  <span style={{ color: '#888', fontSize: '0.9rem' }}>Ainda não tem conta? </span>
+  <button
+    type="button"
+    onClick={() => setPaginaAtual('cadastro')} // Altere para o estado ou função que abre o ecrã de cadastro
+    style={{
+      background: 'transparent',
+      border: 'none',
+      color: '#2AA1C0',
+      cursor: 'pointer',
+      fontWeight: 'bold',
+      fontSize: '0.9rem',
+      textDecoration: 'underline'
+    }}
+  >
+    Criar conta
+  </button>
+</div>
+          
         </form>
       </div>
     </div>
