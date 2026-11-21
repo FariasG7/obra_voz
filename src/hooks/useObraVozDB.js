@@ -1,28 +1,35 @@
 // src/hooks/useObraVozDB.js
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db, generateUUID } from '../db/db';
+import { sincronizarComNuvem } from '../services/syncService';
 
 export function useObraVozDB() {
   // Lista reativa de obras para popular o campo de seleção
   const obras = useLiveQuery(() => db.obras.toArray(), []);
 
-  // Lista reativa de diários pendentes de sincronização
-  const diariosPendentes = useLiveQuery(
-    () => db.diarios_obra.where('sync_status').equals('pending').toArray(),
-    []
-  );
+  // Lista reativa de diários pendentes (cobre sync_status === 'pending', ausente ou synced === 0)
+  const diariosPendentes = useLiveQuery(async () => {
+    const todos = await db.diarios_obra.toArray();
+    return todos.filter(
+      (d) =>
+        d.sync_status === 'pending' ||
+        d.sync_status === false ||
+        (!d.sync_status && d.synced !== 1)
+    );
+  }, []);
 
   /**
    * Salva um novo Diário de Obra offline no IndexedDB
    */
   const salvarDiarioOffline = async (dadosDiario) => {
     const novoId = dadosDiario.id || generateUUID();
+    const agora = new Date().toISOString();
 
     const registro = {
       id: novoId,
       obra_id: dadosDiario.obra_id,
       user_id: dadosDiario.user_id || null,
-      data_relatorio: dadosDiario.data_relatorio || new Date().toISOString().split('T')[0],
+      data_relatorio: dadosDiario.data_relatorio || agora.split('T')[0],
       setor_pavimento: dadosDiario.setor_pavimento || '',
       clima_manha: dadosDiario.clima_manha || 'sol',
       clima_tarde: dadosDiario.clima_tarde || 'sol',
@@ -32,9 +39,10 @@ export function useObraVozDB() {
       ocorrencias: dadosDiario.ocorrencias || '',
       observacoes: dadosDiario.observacoes || '',
       recomendacoes: dadosDiario.recomendacoes || '',
+      synced: 0,
       sync_status: 'pending',
-      criado_em: new Date().toISOString(),
-      atualizado_em: new Date().toISOString(),
+      criado_em: agora,
+      atualizado_em: agora,
     };
 
     await db.diarios_obra.put(registro);
@@ -45,92 +53,67 @@ export function useObraVozDB() {
         diario_id: novoId,
         transcricao_bruta: dadosDiario.transcricao_bruta || '',
         audio_blob: dadosDiario.audio_blob || null,
-        criado_em: new Date().toISOString(),
+        criado_em: agora,
       });
     }
 
     return novoId;
   };
 
-  // Substitua a função sincronizarComNeon no seu src/hooks/useObraVozDB.js por esta:
+  /**
+   * Sincroniza obras e diários pendentes diretamente com o Neon via syncService
+   */
   const sincronizarComNeon = async () => {
     try {
       const todosOsDiarios = await db.diarios_obra.toArray();
-      
-      const pendentes = todosOsDiarios.filter(d => 
-        d.sync_status === 'pending' || !d.sync_status || d.sync_status === false
+      const pendentes = todosOsDiarios.filter(
+        (d) =>
+          d.sync_status === 'pending' ||
+          d.sync_status === false ||
+          (!d.sync_status && d.synced !== 1)
       );
 
-      console.log("Total de registos pendentes para sincronização:", pendentes.length);
-
       if (!pendentes || pendentes.length === 0) {
-        alert("Nenhum registo pendente encontrado para sincronizar.");
+        alert('Nenhum registo pendente encontrado para sincronizar.');
         return 0;
       }
 
-      let enviadosComSucesso = 0;
+      const resultado = await sincronizarComNuvem(db);
 
-      for (const diario of pendentes) {
-        try {
-          const payloadNeon = {
-            id: diario.id,
-            projeto_id: diario.obra_id || diario.projeto_id,
-            user_id: diario.user_id,
-            data: diario.data_relatorio || diario.data,
-            clima_manha: diario.clima_manha || 'sol',
-            clima_tarde: diario.clima_tarde || 'sol',
-            relato_atividades: diario.relato_atividades || diario.textoRelato,
-            ocorrencias: diario.ocorrencias,
-            observacoes: diario.observacoes,
-            recomendacoes: diario.recomendacoes
-          };
-
-          // Tenta enviar para a API
-          let sucessoEnvio = false;
-          try {
-            const resposta = await fetch('/api/diarios', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(payloadNeon)
-            });
-            if (resposta.ok || resposta.status === 200 || resposta.status === 201) {
-              sucessoEnvio = true;
-            }
-          } catch (errApi) {
-            // Se o endpoint /api/diarios não existir no ambiente de desenvolvimento Vite, 
-            // simulamos o sucesso da sincronização local para testes em campo no iPad
-            console.warn("Endpoint /api/diarios indisponível. A simular sincronização local...");
-            sucessoEnvio = true; 
-          }
-
-          if (sucessoEnvio) {
-            await db.diarios_obra.update(diario.id, { 
-              sync_status: 'synced',
-              atualizado_em: new Date().toISOString()
-            });
-
-            // Atualiza também no localStorage
-            const local = JSON.parse(localStorage.getItem('obravoz_diarios_offline') || '[]');
-            const novoLocal = local.map(d => d.id === diario.id ? { ...d, sync_status: 'synced' } : d);
-            localStorage.setItem('obravoz_diarios_offline', JSON.stringify(novoLocal));
-
-            enviadosComSucesso++;
-          }
-        } catch (itemErr) {
-          console.error("Erro ao processar diário:", diario.id, itemErr);
-        }
+      if (!resultado.success) {
+        alert(`⚠️ Falha na sincronização com o Neon: ${resultado.error || resultado.reason}`);
+        return 0;
       }
 
-      if (enviadosComSucesso > 0) {
-        alert(`✅ Sincronização concluída! (${enviadosComSucesso} registos sincronizados com sucesso).`);
+      // Garante que sync_status e localStorage reflitam os itens já enviados
+      const idsPendentes = new Set(pendentes.map((p) => p.id));
+      const agora = new Date().toISOString();
+
+      for (const id of idsPendentes) {
+        await db.diarios_obra.update(id, {
+          synced: 1,
+          sync_status: 'synced',
+          atualizado_em: agora,
+        });
+      }
+
+      const local = JSON.parse(localStorage.getItem('obravoz_diarios_offline') || '[]');
+      const novoLocal = local.map((d) =>
+        idsPendentes.has(d.id) ? { ...d, synced: 1, sync_status: 'synced' } : d
+      );
+      localStorage.setItem('obravoz_diarios_offline', JSON.stringify(novoLocal));
+
+      const enviados = resultado.syncedCount ?? pendentes.length;
+      if (enviados > 0) {
+        alert(`✅ Sincronização concluída! (${enviados} registos sincronizados com sucesso).`);
       } else {
-        alert(`⚠️ Nenhum registo foi alterado.`);
+        alert('⚠️ Nenhum registo foi alterado.');
       }
 
-      return enviadosComSucesso;
+      return enviados;
     } catch (erro) {
-      console.error("Erro crítico na sincronização:", erro);
-      alert("❌ Falha na sincronização.");
+      console.error('Erro crítico na sincronização:', erro);
+      alert('❌ Falha na sincronização.');
       return 0;
     }
   };
@@ -143,5 +126,4 @@ export function useObraVozDB() {
   };
 }
 
-// Exportação por defeito redundante para prevenir qualquer erro de importação
 export default useObraVozDB;
