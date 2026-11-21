@@ -119,7 +119,10 @@ export async function sincronizarComNuvem(localDb) {
           updated_at = CURRENT_TIMESTAMP;
       `;
 
-      await localDb.diarios_obra.update(diario.id, { synced: 1 });
+      await localDb.diarios_obra.update(diario.id, {
+  synced: 1,
+  sync_status: 'synced'
+});
     }
 
     console.log('✅ Sincronização concluída com sucesso!');
