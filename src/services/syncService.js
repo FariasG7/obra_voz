@@ -119,10 +119,18 @@ export async function sincronizarComNuvem(localDb) {
           updated_at = CURRENT_TIMESTAMP;
       `;
 
-      await localDb.diarios_obra.update(diario.id, {
+      const agora = new Date().toISOString();
+await localDb.diarios_obra.update(diario.id, {
   synced: 1,
-  sync_status: 'synced'
+  sync_status: 'synced',
+  atualizado_em: agora,
 });
+
+const local = JSON.parse(localStorage.getItem('obravoz_diarios_offline') || '[]');
+const novoLocal = local.map((d) =>
+  d.id === diario.id ? { ...d, synced: 1, sync_status: 'synced' } : d
+);
+localStorage.setItem('obravoz_diarios_offline', JSON.stringify(novoLocal));
     }
 
     console.log('✅ Sincronização concluída com sucesso!');
