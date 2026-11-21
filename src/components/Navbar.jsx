@@ -9,7 +9,7 @@ export function Navbar({ paginaAtual, setPaginaAtual, obraSelecionada, onLogout 
 
   // Função para buscar o clima via Open-Meteo com as coordenadas do GPS
   const buscarClima = (lat, lon) => {
-    fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${longitude}&current_weather=true`)
+  fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`)
       .then(res => res.json())
       .then(data => {
         if (data && data.current_weather) {
