@@ -12,18 +12,28 @@ const MAPA_OBRAS_UUID = {
 
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-// Prepara e valida o ID da obra para um UUID válido exigido pelo PostgreSQL
+const OBRA_PADRAO_NOME = "The Residences Vale do Lobo";
+const PROJETO_PADRAO_UUID = "a0000000-0000-0000-0000-000000000001";
+
+// Prepara e valida tanto obra_id (texto/identificador) quanto projeto_id (UUID)
 function prepararParaSync(diarioLocal) {
-  const rawId = diarioLocal.obra_id || '';
-  
-  // Se já for um UUID válido, mantém; senão, busca no mapa ou usa o fallback
-  const obraIdFormatado = UUID_REGEX.test(rawId)
-    ? rawId
-    : (MAPA_OBRAS_UUID[rawId] || "a0000000-0000-0000-0000-000000000001");
+  const origemObra =
+    diarioLocal.obra_id ||
+    diarioLocal.obra ||
+    diarioLocal.nome_obra ||
+    OBRA_PADRAO_NOME;
+
+  const obraTexto = String(origemObra).trim() || OBRA_PADRAO_NOME;
+
+  const candidatoUuid = diarioLocal.projeto_id || obraTexto;
+  const projetoUuid = UUID_REGEX.test(candidatoUuid)
+    ? candidatoUuid
+    : (MAPA_OBRAS_UUID[obraTexto] || PROJETO_PADRAO_UUID);
 
   return {
     ...diarioLocal,
-    obra_id: obraIdFormatado
+    obra_id: obraTexto,
+    projeto_id: projetoUuid
   };
 }
 
@@ -43,8 +53,8 @@ export async function sincronizarComNuvem(localDb) {
       await sql`
         INSERT INTO projetos (id, nome, status)
         VALUES (
-          ${obra.id}, 
-          ${obra.nome_obra}, 
+          ${obra.id},
+          ${obra.nome_obra},
           ${obra.status || 'em_andamento'}
         )
         ON CONFLICT (id) DO UPDATE SET
@@ -60,17 +70,52 @@ export async function sincronizarComNuvem(localDb) {
     const diariosPendentes = await localDb.diarios_obra.where('synced').equals(0).toArray();
 
     for (const diario of diariosPendentes) {
-      // Aplica a função de conversão para UUID antes de enviar ao banco
       const diarioPronto = prepararParaSync(diario);
+      const dataValor =
+        diarioPronto.data_relatorio ||
+        diarioPronto.data ||
+        new Date().toISOString().slice(0, 10);
 
       await sql`
-        INSERT INTO diarios (id, projeto_id, data)
+        INSERT INTO diarios (
+          id,
+          obra_id,
+          projeto_id,
+          setor_pavimento,
+          clima_manha,
+          clima_tarde,
+          relato_atividades,
+          ocorrencias,
+          observacoes,
+          recomendacoes,
+          data_relatorio,
+          data
+        )
         VALUES (
-          ${diarioPronto.id}, 
-          ${diarioPronto.projeto_id || diarioPronto.obra_id}, 
-          ${diarioPronto.data_relatorio || diarioPronto.data}
+          ${diarioPronto.id},
+          ${diarioPronto.obra_id},
+          ${diarioPronto.projeto_id},
+          ${diarioPronto.setor_pavimento || null},
+          ${diarioPronto.clima_manha || null},
+          ${diarioPronto.clima_tarde || null},
+          ${diarioPronto.relato_atividades || diarioPronto.relato || ''},
+          ${diarioPronto.ocorrencias || null},
+          ${diarioPronto.observacoes || null},
+          ${diarioPronto.recomendacoes || null},
+          ${dataValor},
+          ${diarioPronto.data || new Date().toISOString()}
         )
         ON CONFLICT (id) DO UPDATE SET
+          obra_id = EXCLUDED.obra_id,
+          projeto_id = EXCLUDED.projeto_id,
+          setor_pavimento = EXCLUDED.setor_pavimento,
+          clima_manha = EXCLUDED.clima_manha,
+          clima_tarde = EXCLUDED.clima_tarde,
+          relato_atividades = EXCLUDED.relato_atividades,
+          ocorrencias = EXCLUDED.ocorrencias,
+          observacoes = EXCLUDED.observacoes,
+          recomendacoes = EXCLUDED.recomendacoes,
+          data_relatorio = EXCLUDED.data_relatorio,
           updated_at = CURRENT_TIMESTAMP;
       `;
 
